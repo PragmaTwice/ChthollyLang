@@ -312,12 +312,24 @@ namespace Chtholly
 				)(info);
 		}
 
-		// PrimaryExpression = Identifier | Literal | FunctionArgList
+		// ConstDefineExpression = "const" Identifier
+		static Info ConstDefineExpression(Info info)
+		{
+			return (
+				Term(Match("const")),
+				ChangeIn("ConstDefineExpression"),
+				Term(Identifier),
+				ChangeOut()
+				)(info);
+		}
+
+		// PrimaryExpression = Identifier | Literal | FunctionArgList | VarDefineExpression | ConstDefineExpression
 		static Info PrimaryExpression(Info info)
 		{
 			return (
 				Term(Literal) |
 				VarDefineExpression |
+				ConstDefineExpression |
 				Term(Identifier) |
 				FunctionArgList
 				)(info);
