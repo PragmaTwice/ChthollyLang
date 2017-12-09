@@ -5,7 +5,7 @@
 * Compiler with C++17 support (necessary)
 * Microsoft Visual Studio 2017 15.5 (optional)
 
-*You can use MSVC 2017 15.5 compile it without modification*
+*You can use MSVC 2017 15.5 to compile it without any modification*
 
 *Because of terrible support for C++17 in MSVC 15.5, I did some ill-looking work to make it compile successfully*
 
