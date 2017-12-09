@@ -7,6 +7,7 @@
 
 namespace Chtholly
 {
+	using namespace std::string_literals;
 
 	template <typename StringView>
 	class BasicParser;
@@ -101,7 +102,7 @@ namespace Chtholly
 				return --modi.childrenEnd();
 			});
 		}
-		static Process ChangeOut(bool cutUnusedUnit = false)
+		static Process ChangeOut(const bool cutUnusedUnit = false)
 		{
 			return ~Change([=](Modifier modi)
 			{
@@ -119,108 +120,91 @@ namespace Chtholly
 		}
 
 		// IntLiteral = digit+
-		static Info IntLiteral(Info info)
-		{
-			return (Catch(+Match(isdigit), "IntLiteral"))(info);
-		}
+		inline static Process IntLiteral =
+			Catch(+Match(isdigit), "IntLiteral");
 
 		// FloatLiteral = IntLiteral '.' IntLiteral£¿ (('E'|'e') ('+'|'-')? IntLiteral)?
-		static Info FloatLiteral(Info info)
-		{
-			return (
-				Catch(
+		inline static Process FloatLiteral =
+			Catch(
 				(
 					+Match(isdigit),
 					Match('.'),
-					~Process(+Match(isdigit)),
+					*Match(isdigit),
 					~(
 						Match({ 'E','e' }),
 						~Match({ '+','-' }),
 						+Match(isdigit)
-						)
-					), "FloatLiteral")
-				)(info);
-		}
+					)
+				),
+				"FloatLiteral");
 
 		// UnescapedCharacter = not ('"' | '\\')
-		static Info UnescapedCharacter(Info info)
-		{
-			return Match([=](Char c)
+		inline static Process UnescapedCharacter =
+			Match([=](Char c)
 			{
 				if (c == '"' || c == '\\') return false;
 				return true;
-			})(info);
-		}
+			});
 
 		// EscapedCharacter = '\\' ('"' | '\\' | 'b' | 'f' | 'n' | 'r' | 't' | 'v')
-		static Info EscapedCharacter(Info info)
-		{
-			return (
+		inline static Process EscapedCharacter =
+			(
 				Match('\\'),
 				Match({ '"','\\','b','f','n','r','t','v' })
-				)(info);
-		}
+			);
 
 		// StringLiteral = '"' (EscapedCharacter|UnescapedCharacter)* '"'
-		static Info StringLiteral(Info info)
-		{
-			return (
-				Catch((
-					Match('"'),
-					*(
-						Process(EscapedCharacter) | UnescapedCharacter
+		inline static Process StringLiteral =
+				Catch(
+					(
+						Match('"'),
+						*(
+							EscapedCharacter | UnescapedCharacter
 						),
-					Match('"')
-					), "StringLiteral")
-				)(info);
-		}
+						Match('"')
+					), 
+				"StringLiteral");
 
 		// Identifier = (Letter | '_') (DigitOrLetter | '_')*
-		static Info Identifier(Info info)
-		{
-			return (
-				Catch((
+		inline static Process Identifier =
+				Catch(
 					(
-						Match(isalpha) | Match('_')
+						(
+							Match(isalpha) | Match('_')
 						),
-					*(
-						Match(isalnum) | Match('_')
+						*(
+							Match(isalnum) | Match('_')
 						)
-					), "Identifier")
-				)(info);
-		}
+					), 
+				"Identifier");
 
 		// NullLiteral = "null"
-		static Info NullLiteral(Info info)
-		{
-			return Catch(Match("null"), "NullLiteral")(info);
-		}
+		inline static Process NullLiteral =
+			Catch(Match("null"), "NullLiteral");
 
 		// UndefinedLiteral = "undef"
-		static Info UndefinedLiteral(Info info)
-		{
-			return Catch(Match("undef"), "UndefinedLiteral")(info);
-		}
+		inline static Process UndefinedLiteral =
+			Catch(Match("undef"), "UndefinedLiteral");
 
 		// TrueLiteral = "true"
-		static Info TrueLiteral(Info info)
-		{
-			return Catch(Match("true"), "TrueLiteral")(info);
-		}
+		inline static Process TrueLiteral =
+			Catch(Match("true"), "TrueLiteral");
 
 		// FalseLiteral = "false"
-		static Info FalseLiteral(Info info)
-		{
-			return Catch(Match("false"), "FalseLiteral")(info);
-		}
+		inline static Process FalseLiteral =
+			Catch(Match("false"), "FalseLiteral");
 
 		// Literal = FloatLiteral | IntLiteral | StringLiteral | NullLiteral | UndefinedLiteral | TrueLiteral | FalseLiteral
-		static Info Literal(Info info)
-		{
-			return (
-				Process(FloatLiteral) | IntLiteral | StringLiteral | NullLiteral | UndefinedLiteral | TrueLiteral | FalseLiteral
-				)(info);
-		}
+		inline static Process Literal =
+			(
+				FloatLiteral     |
+				IntLiteral       |
+				StringLiteral    |
+				NullLiteral      |
+				UndefinedLiteral |
+				TrueLiteral      |
+				FalseLiteral
+			);
 
 		// Term(A) = Space* A
 		static Process Term(ProcessRef lhs)
@@ -235,237 +219,196 @@ namespace Chtholly
 		}
 
 		// ExpressionList = '(' Expression ')'
-		static Info ExpressionList(Info info)
-		{
-			return (
+		inline static Process ExpressionList =
+			(
 				Term(Match('(')),
 				Expression,
 				Term(Match(')'))
-				)(info);
-		}
+			);
 
 		// ArrayList = '[' (SigleExpression (',' SigleExpression)*)? ']'
-		static Info ArrayList(Info info)
-		{
-			return (
+		inline static Process ArrayList =
+			(
 				Term(Match('[')),
 				ChangeIn("ArrayList"),
 				~(
-					Process(SigleExpression),
+					SigleExpression,
 					*(
 						Term(Match(',')),
 						SigleExpression
-						)
-					),
+					)
+				),
 				ChangeOut(),
 				Term(Match(']'))
-				)(info);
-		}
+			);
 
 		// DictList = '{' (SigleExpression (',' SigleExpression)*)? '}'
-		static Info DictList(Info info)
-		{
-			return (
+		inline static Process DictList =
+			(
 				Term(Match('{')),
 				ChangeIn("DictList"),
 				~(
-					Process(SigleExpression),
+					SigleExpression,
 					*(
 						Term(Match(',')),
 						SigleExpression
-						)
-					),
+					)
+				),
 				ChangeOut(),
 				Term(Match('}'))
-				)(info);
-		}
+			);
 
 		// NullFunctionArg = '(' ')'
-		static Info NullFunctionArg(Info info)
-		{
-			return (
+		inline static Process NullFunctionArg =
+			(
 				Term(Match('(')),
 				Term(Match(')')),
 				ChangeIn("NullFunctionArg"),
 				ChangeOut()
-				)(info);
-		}
+			);
 
 		// FunctionArgList = ExpressionList | ArrayList | DictList
-		static Info FunctionArgList(Info info)
-		{
-			return (
-				Process(ExpressionList) |
-				ArrayList |
+		inline static Process FunctionArgList =
+			(
+				ExpressionList |
+				ArrayList      |
 				DictList
-				)(info);
-		}
+			);
 
 		// VarDefineExpression = "var" Identifier
-		static Info VarDefineExpression(Info info)
-		{
-			return (
+		inline static Process VarDefineExpression =
+			(
 				Term(Match("var")),
 				ChangeIn("VarDefineExpression"),
 				Term(Identifier),
 				ChangeOut()
-				)(info);
-		}
+			);
 
 		// ConstDefineExpression = "const" Identifier
-		static Info ConstDefineExpression(Info info)
-		{
-			return (
+		inline static Process ConstDefineExpression =
+			(
 				Term(Match("const")),
 				ChangeIn("ConstDefineExpression"),
 				Term(Identifier),
 				ChangeOut()
-				)(info);
-		}
+			);
 
 		// PrimaryExpression = Identifier | Literal | FunctionArgList | VarDefineExpression | ConstDefineExpression
-		static Info PrimaryExpression(Info info)
-		{
-			return (
-				Term(Literal) |
-				VarDefineExpression |
+		inline static Process PrimaryExpression =
+			(
+				Term(Literal)         |
+				VarDefineExpression   |
 				ConstDefineExpression |
-				Term(Identifier) |
+				Term(Identifier)      |
 				FunctionArgList
-				)(info);
-		}
+			);
 
 		// FunctionExpression = PrimaryExpression (FunctionArgList | NullFunctionArg)*
-		static Info FunctionExpression(Info info)
-		{
-			return (
+		inline static Process FunctionExpression =
+			(
 				ChangeIn("FunctionExpression"),
 				PrimaryExpression,
 				*(
-					Process(NullFunctionArg) |
+					NullFunctionArg |
 					FunctionArgList
-					),
+				),
 				ChangeOut(true)
-				)(info);
-		}
+			);
 
 		// PointExpression = FunctionExpression | PointExpression '->' PrimaryExpression
-		static Info PointExpression(Info info)
-		{
-			return (
+		inline static Process PointExpression =
+			(
 				ChangeIn("PointExpression"),
 				BinaryOperator(FunctionExpression, Term(Match("->"))),
 				ChangeOut(true)
-				)(info);
-		}
+			);
 
 		// UnaryExpression = PointExpression | (('+' | '-') | "not") UnaryExpression
-		static Info UnaryExpression(Info info)
-		{
-			return (
+		inline static Process UnaryExpression =
+			(
 				ChangeIn("UnaryExpression"),
 				(
 					(
 						Term(Match({ '+','-' })) |
 						Term(Match("not"))
-						),
+					),
 					UnaryExpression
-					) |
+				) |
 				PointExpression,
 				ChangeOut(true)
-				)(info);
-		}
+			);
 
 		// MultiplicativeExpression = UnaryExpression | MultiplicativeExpression ('*'|'/'|'%') UnaryExpression
-		static Info MultiplicativeExpression(Info info)
-		{
-			return (
+		inline static Process MultiplicativeExpression =
+			(
 				ChangeIn("MultiplicativeExpression"),
 				BinaryOperator(UnaryExpression, Term(Match({ '*','/','%' }))),
 				ChangeOut(true)
-				)(info);
-		}
+			);
 
 		// AdditiveExpression = MultiplicativeExpression | AdditiveExpression ('+'|'-') MultiplicativeExpression
-		static Info AdditiveExpression(Info info)
-		{
-			return (
+		inline static Process AdditiveExpression =
+			(
 				ChangeIn("AdditiveExpression"),
 				BinaryOperator(MultiplicativeExpression, Term(Match({ '+','-' }))),
 				ChangeOut(true)
-				)(info);
-		}
+			);
 
 		// RelationalExpression = AdditiveExpression | RelationalExpression ("<="|">="|'<'|'>') AdditiveExpression
-		static Info RelationalExpression(Info info)
-		{
-			return (
+		inline static Process RelationalExpression =
+			(
 				ChangeIn("RelationalExpression"),
 				BinaryOperator(AdditiveExpression, Term(Match({ "<=", ">=", "<", ">" }))),
 				ChangeOut(true)
-				)(info);
-		}
+			);
 
 		// EqualityExpression = RelationalExpression | EqualityExpression ("=="|"<>") RelationalExpression
-		static Info EqualityExpression(Info info)
-		{
-			return (
+		inline static Process EqualityExpression =
+			(
 				ChangeIn("EqualityExpression"),
-				BinaryOperator(RelationalExpression, Term(Match({ "==","<>" }))),
+				BinaryOperator(RelationalExpression, Term(Match({ "=="s,"<>"s }))),
 				ChangeOut(true)
-				)(info);
-		}
+			);
 
 		// LogicalAndExpression = EqualityExpression | LogicalAndExpression "and" EqualityExpression
-		static Info LogicalAndExpression(Info info)
-		{
-			return (
+		inline static Process LogicalAndExpression =
+			(
 				ChangeIn("LogicalAndExpression"),
 				BinaryOperator(EqualityExpression, Term(Match("and"))),
 				ChangeOut(true)
-				)(info);
-		}
+			);
 
 		// LogicalOrExpression = LogicalAndExpression | LogicalOrExpression "or" LogicalAndExpression
-		static Info LogicalOrExpression(Info info)
-		{
-			return (
+		inline static Process LogicalOrExpression =
+			(
 				ChangeIn("LogicalOrExpression"),
 				BinaryOperator(LogicalAndExpression, Term(Match("or"))),
 				ChangeOut(true)
-				)(info);
-		}
+			);
 
 		// AssignmentOperator = '=' | '*=' | '/=' | '%=' | '+=' | '-='
-		static Info AssignmentOperator(Info info)
-		{
-			return Term(Match({ "=", "*=", "/=", "%=", "+=", "-=" }))(info);
-		}
+		inline static Process AssignmentOperator =
+			Match({ "=", "*=", "/=", "%=", "+=", "-=" });
 
 		// AssignmentExpression = LogicalOrExpression | LogicalOrExpression AssignmentOperator SigleExpression
-		static Info AssignmentExpression(Info info)
-		{
-			return (
+		inline static Process AssignmentExpression =
+			(
 				ChangeIn("AssignmentExpression"),
-				LogicalOrExpression, *(Process(AssignmentOperator), SigleExpression),
+				LogicalOrExpression, *(Term(AssignmentOperator), SigleExpression),
 				ChangeOut(true)
-				)(info);
-		}
+			);
 
 		// PairExperssion = AssignmentExpression | PairExperssion ':' SigleExpression
-		static Info PairForDictList(Info info)
-		{
-			return (
+		inline static Process PairForDictList =
+			(
 				ChangeIn("PairForDictList"),
 				AssignmentExpression, *(Term(Match(':')), SigleExpression),
 				ChangeOut(true)
-				)(info);
-		}
+			);
 
-		// ConditionExpression = AssignmentExpression | "if" '(' Expression ')' SigleExpression ("else" SigleExpression)?
-		static Info ConditionExpression(Info info)
-		{
-			return (
+		// ConditionExpression = PairForDictList | "if" '(' Expression ')' SigleExpression ("else" SigleExpression)?
+		inline static Process ConditionExpression =
+			(
 				(
 					Term(Match("if")),
 					ChangeIn("ConditionExpression"),
@@ -476,31 +419,39 @@ namespace Chtholly
 					~(
 						Term(Match("else")),
 						SigleExpression
-						),
+					),
 					ChangeOut()
-					) |
+				) |
 				PairForDictList
-				)(info);
-		}
+			);
 
-		// LoopControlExpression = ConditionExpression | ("break"|"continue") SigleExpression?
-		static Info LoopControlExpression(Info info)
-		{
-			return (
+		// ReturnExpression = ConditionExpression | "return" SigleExpression?
+		inline static Process ReturnExpression =
+			(
 				(
-					Term(Match({ "break","continue" })),
-					ChangeIn("LoopControlExpression"),
-					~Process(SigleExpression),
+					Term(Match("return")),
+					ChangeIn("ReturnExpression"),
+					~SigleExpression,
 					ChangeOut()
-					) |
+				) |
 				ConditionExpression
-				)(info);
-		}
+			);
+
+		// LoopControlExpression = ReturnExpression | ("break"|"continue") SigleExpression?
+		inline static Process LoopControlExpression =
+			(
+				(
+					Term(Match({ "break"s,"continue"s })),
+					ChangeIn("LoopControlExpression"),
+					~SigleExpression,
+					ChangeOut()
+				) |
+				ReturnExpression
+			);
 
 		// WhileLoopExpression = LoopControlExpression | "while" '(' Expression ')' SigleExpression
-		static Info WhileLoopExpression(Info info)
-		{
-			return (
+		inline static Process WhileLoopExpression =
+			(
 				(
 					Term(Match("while")),
 					ChangeIn("WhileLoopExpression"),
@@ -509,15 +460,13 @@ namespace Chtholly
 					Term(Match(')')),
 					SigleExpression,
 					ChangeOut()
-					) |
+				) |
 				LoopControlExpression
-				)(info);
-		}
+			);
 
 		// DoWhileLoopExpression = WhileLoopExpression | "do" SigleExpression "while" '(' Expression ')'
-		static Info DoWhileLoopExpression(Info info)
-		{
-			return (
+		inline static Process DoWhileLoopExpression =
+			(
 				(
 					Term(Match("do")),
 					ChangeIn("DoWhileLoopExpression"),
@@ -527,33 +476,26 @@ namespace Chtholly
 					Expression,
 					Term(Match(')')),
 					ChangeOut()
-					) |
+				) |
 				WhileLoopExpression
-				)(info);
-		}
+			);
 
 		// SigleExpression = DoWhileLoopExpression
-		static Info SigleExpression(Info info)
-		{
-			return (
-				DoWhileLoopExpression
-				)(info);
-		}
+		inline static Process SigleExpression =
+				DoWhileLoopExpression;
 
 		// Expression = SigleExpression ((';'|',') SigleExpression)* ('.'|';')?
-		static Info Expression(Info info)
-		{
-			return (
+		inline static Process Expression =
+			(
 				ChangeIn("Expression"),
 				SigleExpression,
 				*(
 					Term(Match({ ',',';' })),
 					SigleExpression
-					),
+				),
 				~Term(Match({ '.' , ';' })),
 				ChangeOut(true)
-				)(info);
-		}
+			);
 	};
 
 	using Parser = BasicParser<std::string_view>;

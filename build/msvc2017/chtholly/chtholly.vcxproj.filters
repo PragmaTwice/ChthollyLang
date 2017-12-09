@@ -35,5 +35,8 @@
     <ClCompile Include="..\..\..\test\171130.cpp">
       <Filter>源文件</Filter>
     </ClCompile>
+    <ClCompile Include="171208.cpp">
+      <Filter>源文件</Filter>
+    </ClCompile>
   </ItemGroup>
 </Project>

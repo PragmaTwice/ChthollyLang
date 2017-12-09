@@ -1,3 +1,4 @@
+
 #include "../src/parser.catch.hpp"
 #include <iostream>
 #include <string>
@@ -77,4 +78,3 @@ int main()
 		cout << endl;
 	}
 }
-

@@ -92,7 +92,7 @@ namespace Chtholly
 		}
 
 		// Match a character with a character list
-		static Process Match(InitList<Char> initList)
+		static Process Match(const std::vector<Char>& initList)
 		{
 			return [=](Info info)
 			{
@@ -122,13 +122,14 @@ namespace Chtholly
 		}
 
 		// Match a character string with a string list
-		static Process Match(InitList<Lang> initList)
+		static Process Match(const std::vector<Lang>& initList)
 		{
 			return [=](Info info)
 			{
 				for (auto&& elem : initList)
 				{
-					Iter i = elem.cbegin(), j = info.first.cbegin();
+					auto i = elem.cbegin();
+					auto j = info.first.cbegin();
 					while (i != elem.cend() && j != info.first.cend() && *i == *j) ++i, ++j;
 					if (i == elem.cend()) return MoveOn(info, j);
 				}
