@@ -9,8 +9,12 @@
 
 *Because of terrible support for C++17 in MSVC 15.5, I did some ill-looking work to make it compile successfully*
 
-## Feature
-No statement but all **expression**
+## Language Feature
+* No statement but all **expression**
+
+## Implmentation Feature
+* Functional usage of C++ (with little consider of runtime performance)
+* Parser Combinator for LL Parser Generation
 
 ## 2017/12/2
 Just nearly finish parser
