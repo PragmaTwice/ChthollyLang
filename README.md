@@ -13,7 +13,7 @@
 * No statement but all **expression**
 
 ## Implmentation Feature
-* Functional usage of C++ (with little consider of runtime performance)
+* Functional usage of C++ (with little consideration of runtime performance)
 * Parser Combinator for LL Parser Generation
 
 ## 2017/12/2
