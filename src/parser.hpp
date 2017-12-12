@@ -324,7 +324,7 @@ namespace Chtholly
 		inline static Process MultiplicativeExpression =
 			(
 				ChangeIn("MultiplicativeExpression"),
-				BinaryOperator(UnaryExpression, Match({ '*','/','%' })),
+				BinaryOperator(UnaryExpression, Match({ '*','/','%' }) ^Match('=')),
 				ChangeOut(true)
 			);
 
@@ -332,7 +332,7 @@ namespace Chtholly
 		inline static Process AdditiveExpression =
 			(
 				ChangeIn("AdditiveExpression"),
-				BinaryOperator(MultiplicativeExpression, Match({ '+','-' })),
+				BinaryOperator(MultiplicativeExpression, Match({ '+','-' }) ^Match('=')),
 				ChangeOut(true)
 			);
 
