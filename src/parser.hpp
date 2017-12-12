@@ -1,7 +1,6 @@
 #pragma once
 
 #include <cctype>
-#include <iostream>
 
 #include "parserc.hpp"
 
@@ -22,40 +21,22 @@ namespace Chtholly
 
 		/*
 		// Space = '\t' | '\n' | '\v' | '\f' | '\r' | ' '
-		static Info Space(Info info)
-		{
-		return Match(isspace)(info);
-		}
+		inline static Process Space = Match(isspace);
 
 		// Digit = '0' ... '9'
-		static Info Digit(Info info)
-		{
-		return Match(isdigit)(info);
-		}
+		inline static Process Digit = Match(isdigit);
 
 		// UpperCaseLetter = 'A' ... 'Z'
-		static Info UpperCaseLetter(Info info)
-		{
-		return Match(isupper)(info);
-		}
+		inline static Process UpperCaseLetter = Match(isupper);
 
 		// LowerCaseLetter = 'a' ... 'z'
-		static Info LowerCaseLetter(Info info)
-		{
-		return Match(islower)(info);
-		}
+		inline static Process LowerCaseLetter = Match(islower);
 
 		// Letter = UpperCaseLetter | LowerCaseLetter
-		static Info Letter(Info info)
-		{
-		return Match(isalpha)(info);
-		}
+		inline static Process Letter = Match(isalpha);
 
-		// Letter = UpperCaseLetter | LowerCaseLetter
-		static Info DigitOrLetter(Info info)
-		{
-		return Match(isalnum)(info);
-		}
+		// DigitOrLetter = Digit | Letter
+		inline static Process DigitOrLetter = Match(isalnum);
 		*/
 
 		using ModifierProcess = std::function<Modifier(Modifier,LangRef)>;
@@ -504,6 +485,6 @@ namespace Chtholly
 		}
 	};
 
-	using Parser = BasicParser<std::string_view>;
+	using Parser = BasicParser<ParserCombinator::Lang>;
 
 }
