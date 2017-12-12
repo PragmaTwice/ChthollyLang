@@ -1,5 +1,5 @@
 
-#include "../src/parser.catch.hpp"
+#include "../src/parser.hpp"
 #include <iostream>
 #include <string>
 #include <algorithm>

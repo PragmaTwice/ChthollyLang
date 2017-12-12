@@ -3,7 +3,7 @@
 #include <cctype>
 #include <iostream>
 
-#include "parserc.catch.hpp"
+#include "parserc.hpp"
 
 namespace Chtholly
 {
@@ -215,7 +215,7 @@ namespace Chtholly
 		// BinaryOperator(A,B) = A (B A)*
 		static Process BinaryOperator(ProcessRef operatorUponIt, ProcessRef operatorMatcher)
 		{
-			return operatorUponIt, *(Process(operatorMatcher), operatorUponIt);
+			return operatorUponIt, *(Term(Catch(operatorMatcher,"BinaryOperator")), operatorUponIt);
 		}
 
 		// ExpressionList = '(' Expression ')'
@@ -319,7 +319,7 @@ namespace Chtholly
 		inline static Process PointExpression =
 			(
 				ChangeIn("PointExpression"),
-				BinaryOperator(FunctionExpression, Term(Match("->"))),
+				BinaryOperator(FunctionExpression, Match("->")),
 				ChangeOut(true)
 			);
 
@@ -342,7 +342,7 @@ namespace Chtholly
 		inline static Process MultiplicativeExpression =
 			(
 				ChangeIn("MultiplicativeExpression"),
-				BinaryOperator(UnaryExpression, Term(Match({ '*','/','%' }))),
+				BinaryOperator(UnaryExpression, Match({ '*','/','%' })),
 				ChangeOut(true)
 			);
 
@@ -350,7 +350,7 @@ namespace Chtholly
 		inline static Process AdditiveExpression =
 			(
 				ChangeIn("AdditiveExpression"),
-				BinaryOperator(MultiplicativeExpression, Term(Match({ '+','-' }))),
+				BinaryOperator(MultiplicativeExpression, Match({ '+','-' })),
 				ChangeOut(true)
 			);
 
@@ -358,7 +358,7 @@ namespace Chtholly
 		inline static Process RelationalExpression =
 			(
 				ChangeIn("RelationalExpression"),
-				BinaryOperator(AdditiveExpression, Term(Match({ "<=", ">=", "<", ">" }))),
+				BinaryOperator(AdditiveExpression, Match({ "<=", ">=", "<", ">" })),
 				ChangeOut(true)
 			);
 
@@ -366,7 +366,7 @@ namespace Chtholly
 		inline static Process EqualityExpression =
 			(
 				ChangeIn("EqualityExpression"),
-				BinaryOperator(RelationalExpression, Term(Match({ "=="s,"<>"s }))),
+				BinaryOperator(RelationalExpression, Match({ "=="s,"<>"s })),
 				ChangeOut(true)
 			);
 
@@ -374,7 +374,7 @@ namespace Chtholly
 		inline static Process LogicalAndExpression =
 			(
 				ChangeIn("LogicalAndExpression"),
-				BinaryOperator(EqualityExpression, Term(Match("and"))),
+				BinaryOperator(EqualityExpression, Match("and")),
 				ChangeOut(true)
 			);
 
@@ -382,7 +382,7 @@ namespace Chtholly
 		inline static Process LogicalOrExpression =
 			(
 				ChangeIn("LogicalOrExpression"),
-				BinaryOperator(LogicalAndExpression, Term(Match("or"))),
+				BinaryOperator(LogicalAndExpression, Match("or")),
 				ChangeOut(true)
 			);
 
@@ -394,7 +394,7 @@ namespace Chtholly
 		inline static Process AssignmentExpression =
 			(
 				ChangeIn("AssignmentExpression"),
-				LogicalOrExpression, *(Term(AssignmentOperator), SigleExpression),
+				LogicalOrExpression, *(Term(Catch(AssignmentOperator,"BinaryOperator")), SigleExpression),
 				ChangeOut(true)
 			);
 
@@ -431,7 +431,7 @@ namespace Chtholly
 				(
 					Term(Match("return")),
 					ChangeIn("ReturnExpression"),
-					~SigleExpression,
+					~Process(SigleExpression),
 					ChangeOut()
 				) |
 				ConditionExpression
@@ -443,7 +443,7 @@ namespace Chtholly
 				(
 					Term(Match({ "break"s,"continue"s })),
 					ChangeIn("LoopControlExpression"),
-					~SigleExpression,
+					~Process(SigleExpression),
 					ChangeOut()
 				) |
 				ReturnExpression
@@ -480,22 +480,28 @@ namespace Chtholly
 				WhileLoopExpression
 			);
 
+		// Cannot be inline static Process
 		// SigleExpression = DoWhileLoopExpression
-		inline static Process SigleExpression =
-				DoWhileLoopExpression;
+		static Info SigleExpression(Info info)
+		{
+			return DoWhileLoopExpression(info);
+		}
 
+		// Cannot be inline static Process
 		// Expression = SigleExpression ((';'|',') SigleExpression)* ('.'|';')?
-		inline static Process Expression =
-			(
+		static Info Expression(Info info)
+		{
+			return (
 				ChangeIn("Expression"),
 				SigleExpression,
 				*(
-					Term(Match({ ',',';' })),
+					Term(Catch(Match({ ',',';' }),"Separator")),
 					SigleExpression
-				),
-				~Term(Match({ '.' , ';' })),
+					),
+				~Term(Catch(Match({ '.' , ';' }), "Separator")),
 				ChangeOut(true)
-			);
+				)(info);
+		}
 	};
 
 	using Parser = BasicParser<std::string_view>;

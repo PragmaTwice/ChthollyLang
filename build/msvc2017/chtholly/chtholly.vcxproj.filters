@@ -15,27 +15,18 @@
     </Filter>
   </ItemGroup>
   <ItemGroup>
+    <ClInclude Include="..\..\..\src\parsetree.hpp">
+      <Filter>头文件</Filter>
+    </ClInclude>
     <ClInclude Include="..\..\..\src\parser.hpp">
       <Filter>头文件</Filter>
     </ClInclude>
     <ClInclude Include="..\..\..\src\parserc.hpp">
       <Filter>头文件</Filter>
     </ClInclude>
-    <ClInclude Include="..\..\..\src\parsetree.hpp">
-      <Filter>头文件</Filter>
-    </ClInclude>
-    <ClInclude Include="..\..\..\src\parser.catch.hpp">
-      <Filter>头文件</Filter>
-    </ClInclude>
-    <ClInclude Include="..\..\..\src\parserc.catch.hpp">
-      <Filter>头文件</Filter>
-    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="..\..\..\test\171130.cpp">
-      <Filter>源文件</Filter>
-    </ClCompile>
-    <ClCompile Include="171208.cpp">
       <Filter>源文件</Filter>
     </ClCompile>
   </ItemGroup>

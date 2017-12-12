@@ -19,15 +19,11 @@
     </ProjectConfiguration>
   </ItemGroup>
   <ItemGroup>
-    <ClInclude Include="..\..\..\src\parserc.catch.hpp" />
-    <ClInclude Include="..\..\..\src\parser.catch.hpp" />
-    <ClInclude Include="..\..\..\src\parser.hpp" />
     <ClInclude Include="..\..\..\src\parserc.hpp" />
     <ClInclude Include="..\..\..\src\parsetree.hpp" />
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="..\..\..\test\171130.cpp" />
-    <ClCompile Include="171208.cpp" />
   </ItemGroup>
   <PropertyGroup Label="Globals">
     <VCProjectVersion>15.0</VCProjectVersion>
