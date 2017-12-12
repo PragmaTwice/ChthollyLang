@@ -1,12 +1,13 @@
 #pragma once
 
 #include <cctype>
+#include <string_view>
 
 #include "parserc.hpp"
 
 namespace Chtholly
 {
-	using namespace std::string_literals;
+	using namespace std::literals;
 
 	template <typename StringView>
 	class BasicParser;
@@ -347,7 +348,7 @@ namespace Chtholly
 		inline static Process EqualityExpression =
 			(
 				ChangeIn("EqualityExpression"),
-				BinaryOperator(RelationalExpression, Match({ "=="s,"<>"s })),
+				BinaryOperator(RelationalExpression, Match({ "=="sv,"<>"sv })),
 				ChangeOut(true)
 			);
 
@@ -422,7 +423,7 @@ namespace Chtholly
 		inline static Process LoopControlExpression =
 			(
 				(
-					Term(Match({ "break"s,"continue"s })),
+					Term(Match({ "break"sv,"continue"sv })),
 					ChangeIn("LoopControlExpression"),
 					~Process(SigleExpression),
 					ChangeOut()

@@ -57,7 +57,10 @@ namespace Chtholly
 		using PredicateRef = const Predicate<Args...> &;
 
 		template <typename T>
-		using InitList = std::initializer_list<T>;
+		using InitList = std::vector<T>;
+
+		template <typename T>
+		using InitListRef = const InitList<T>&;
 
 	public /*method*/:
 
@@ -92,7 +95,7 @@ namespace Chtholly
 		}
 
 		// Match a character with a character list
-		static Process Match(const std::vector<Char>& initList)
+		static Process Match(InitListRef<Char> initList)
 		{
 			return [=](Info info)
 			{
@@ -122,7 +125,7 @@ namespace Chtholly
 		}
 
 		// Match a character string with a string list
-		static Process Match(const std::vector<Lang>& initList)
+		static Process Match(InitListRef<Lang> initList)
 		{
 			return [=](Info info)
 			{
@@ -201,6 +204,19 @@ namespace Chtholly
 		friend Process operator*(ProcessRef lhs)
 		{
 			return ~+ lhs;
+		}
+
+		// operator^(A,B) = A (not followed by B)
+		friend Process operator^(ProcessRef pro, ProcessRef except)
+		{
+			return [=](Info info)
+			{
+				if (Info i = pro(info); pro.IsNotEqual(i, info))
+					if (Info j = except(i); !except.IsNotEqual(j, i))
+						return i;
+
+				return info;
+			};
 		}
 
 
