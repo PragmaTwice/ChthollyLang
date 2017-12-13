@@ -16,8 +16,10 @@
 * Functional usage of C++ (with little consideration of runtime performance)
 * Parser Combinator for LL Parser Generation
 
-## 2017/12/2
+## Notebook
+
+### 2017/12/2
 Just nearly finish parser
 
-## 2017/12/10
+### 2017/12/10
 Fuck you, MSVC ICE
