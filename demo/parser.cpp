@@ -1,16 +1,20 @@
+/*
+* Copyright 2017 PragmaTwice
+*/
 
-#include "../src/parser.hpp"
 #include <iostream>
 #include <string>
 #include <algorithm>
 #include <chrono>
+#include <parser.hpp>
 
 using namespace std;
 using namespace Chtholly;
 
 ostream& operator<< (ostream& out, const ParseTree::Visitor& v)
 {
-	bool isTerm = v.value().type == ParseUnit::Type::term;
+	const auto isTerm = v.value().type == ParseUnit::Type::term;
+
 	if (isTerm) out << '(';
 
 	if (isTerm)
@@ -32,6 +36,23 @@ ostream& operator<< (ostream& out, const ParseTree::Visitor& v)
 	return out;
 }
 
+void parseInputAndLog(const Parser::Info& info)
+{
+	const auto beginTime = chrono::system_clock::now();
+	auto result = Parser::Expression(info);
+	const auto endTime = chrono::system_clock::now();
+
+
+	cout << "Parse tree : " << info.second << endl;
+	auto trimIter = find_if(result.first.rbegin(), result.first.rend(), [](auto&& elem) { return !isspace(elem); });
+	result.first.remove_suffix(distance(result.first.rbegin(), trimIter));
+
+	cout << "Time usage : " << std::chrono::duration<double>(endTime - beginTime).count() << "s" << endl;
+	if (!result.first.empty()) cout << "Cannot resolve : " << result.first << endl;
+
+	cout << endl;
+}
+
 int main()
 {
 	cout << R"(
@@ -44,14 +65,13 @@ int main()
     \/___/   \/_/\/_/\/__/ \/_/\/_/\/___/ \/____/\/____/ `/___/> \   \/___/  \/__/\/_/\/_/\/_/\/___L\ \
                                                             /\___/                              /\____/
                                                             \/__/                               \_/__/ 
- 
+
 )";
 
-	while (cin.good())
+	while (true)
 	{
 		ParseTree tree(ParseUnit::Type::term, "root");
 		auto modi = tree.modifier();
-
 
 		string input,line;
 		cout << "Input :" << endl;
@@ -63,18 +83,10 @@ int main()
 		}
 		cin.clear();
 
-		auto beginTime = chrono::system_clock::now();
-		auto result = Parser::Expression(Parser::MakeInfo(input, modi));
-		auto endTime = chrono::system_clock::now();
-		
+		static const auto exitCommand = "exit"sv;
+		if (string_view{input.data(), exitCommand.size()} == exitCommand)
+			break;
 
-		cout << "Parse tree : " << modi << endl;
-		auto trimIter = find_if(result.first.rbegin(), result.first.rend(), [](auto&& elem) { return !isspace(elem); });
-		result.first.remove_suffix(distance(result.first.rbegin(), trimIter));
-
-		cout << "Time usage : " << std::chrono::duration<double>(endTime - beginTime).count() << "s" << endl;
-		if(!result.first.empty()) cout << "Cannot resolve : " << result.first << endl;
-
-		cout << endl;
+		parseInputAndLog(Parser::MakeInfo(input,modi));
 	}
 }

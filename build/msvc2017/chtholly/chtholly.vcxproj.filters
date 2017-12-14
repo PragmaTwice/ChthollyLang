@@ -13,6 +13,9 @@
       <UniqueIdentifier>{93995380-89BD-4b04-88EB-625FBE52EBFB}</UniqueIdentifier>
       <Extensions>h;hh;hpp;hxx;hm;inl;inc;xsd</Extensions>
     </Filter>
+    <Filter Include="DEMO">
+      <UniqueIdentifier>{3e8853ff-55a3-4f40-8c55-2c36cc0d4c4c}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="..\..\..\src\parsetree.hpp">
@@ -26,8 +29,8 @@
     </ClInclude>
   </ItemGroup>
   <ItemGroup>
-    <ClCompile Include="..\..\..\test\171130.cpp">
-      <Filter>TEST</Filter>
+    <ClCompile Include="..\..\..\demo\parser.cpp">
+      <Filter>DEMO</Filter>
     </ClCompile>
   </ItemGroup>
 </Project>
