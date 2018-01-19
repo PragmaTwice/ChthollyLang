@@ -239,11 +239,85 @@ namespace Chtholly
 				FunctionArgList
 			);
 
+		// ConditionExpression = PairForDictList | "if" '(' Expression ')' SigleExpression ("else" SigleExpression)?
+		inline static Process ConditionExpression =
+			(
+			(
+				Term(Match("if")),
+				ChangeIn("ConditionExpression"),
+				Term(Match('(')),
+				Expression,
+				Term(Match(')')),
+				SigleExpression,
+				~(
+					Term(Match("else")),
+					SigleExpression
+					),
+				ChangeOut()
+				) |
+				PrimaryExpression
+				);
+
+		// ReturnExpression = ConditionExpression | "return" SigleExpression?
+		inline static Process ReturnExpression =
+			(
+			(
+				Term(Match("return")),
+				ChangeIn("ReturnExpression"),
+				~Process(SigleExpression),
+				ChangeOut()
+				) |
+				ConditionExpression
+				);
+
+		// LoopControlExpression = ReturnExpression | ("break"|"continue") SigleExpression?
+		inline static Process LoopControlExpression =
+			(
+			(
+				Term(Match({ "break"sv,"continue"sv })),
+				ChangeIn("LoopControlExpression"),
+				~Process(SigleExpression),
+				ChangeOut()
+				) |
+				ReturnExpression
+				);
+
+		// WhileLoopExpression = LoopControlExpression | "while" '(' Expression ')' SigleExpression
+		inline static Process WhileLoopExpression =
+			(
+			(
+				Term(Match("while")),
+				ChangeIn("WhileLoopExpression"),
+				Term(Match('(')),
+				Expression,
+				Term(Match(')')),
+				SigleExpression,
+				ChangeOut()
+				) |
+				LoopControlExpression
+				);
+
+		// DoWhileLoopExpression = WhileLoopExpression | "do" SigleExpression "while" '(' Expression ')'
+		inline static Process DoWhileLoopExpression =
+			(
+			(
+				Term(Match("do")),
+				ChangeIn("DoWhileLoopExpression"),
+				SigleExpression,
+				Term(Match("while")),
+				Term(Match('(')),
+				Expression,
+				Term(Match(')')),
+				ChangeOut()
+				) |
+				WhileLoopExpression
+				);
+
 		// FunctionExpression = PrimaryExpression (FunctionArgList | NullFunctionArg)*
 		inline static Process FunctionExpression =
 			(
 				ChangeIn("FunctionExpression"),
-				PrimaryExpression,
+				DoWhileLoopExpression,
 				*(
 					NullFunctionArg |
 					FunctionArgList
@@ -342,85 +416,11 @@ namespace Chtholly
 				ChangeOut(true)
 			);
 
-		// ConditionExpression = PairForDictList | "if" '(' Expression ')' SigleExpression ("else" SigleExpression)?
-		inline static Process ConditionExpression =
-			(
-				(
-					Term(Match("if")),
-					ChangeIn("ConditionExpression"),
-					Term(Match('(')),
-					Expression,
-					Term(Match(')')),
-					SigleExpression,
-					~(
-						Term(Match("else")),
-						SigleExpression
-					),
-					ChangeOut()
-				) |
-				PairForDictList
-			);
-
-		// ReturnExpression = ConditionExpression | "return" SigleExpression?
-		inline static Process ReturnExpression =
-			(
-				(
-					Term(Match("return")),
-					ChangeIn("ReturnExpression"),
-					~Process(SigleExpression),
-					ChangeOut()
-				) |
-				ConditionExpression
-			);
-
-		// LoopControlExpression = ReturnExpression | ("break"|"continue") SigleExpression?
-		inline static Process LoopControlExpression =
-			(
-				(
-					Term(Match({ "break"sv,"continue"sv })),
-					ChangeIn("LoopControlExpression"),
-					~Process(SigleExpression),
-					ChangeOut()
-				) |
-				ReturnExpression
-			);
-
-		// WhileLoopExpression = LoopControlExpression | "while" '(' Expression ')' SigleExpression
-		inline static Process WhileLoopExpression =
-			(
-				(
-					Term(Match("while")),
-					ChangeIn("WhileLoopExpression"),
-					Term(Match('(')),
-					Expression,
-					Term(Match(')')),
-					SigleExpression,
-					ChangeOut()
-				) |
-				LoopControlExpression
-			);
-
-		// DoWhileLoopExpression = WhileLoopExpression | "do" SigleExpression "while" '(' Expression ')'
-		inline static Process DoWhileLoopExpression =
-			(
-				(
-					Term(Match("do")),
-					ChangeIn("DoWhileLoopExpression"),
-					SigleExpression,
-					Term(Match("while")),
-					Term(Match('(')),
-					Expression,
-					Term(Match(')')),
-					ChangeOut()
-				) |
-				WhileLoopExpression
-			);
-
 		// Cannot be inline static Process
 		// SigleExpression = DoWhileLoopExpression
 		static Info SigleExpression(Info info)
 		{
-			return DoWhileLoopExpression(info);
+			return PairForDictList(info);
 		}
 
 		// Cannot be inline static Process
