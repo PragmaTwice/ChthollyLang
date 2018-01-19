@@ -236,6 +236,70 @@ namespace Chtholly
 		}
 
 
+		using ModifierProcess = std::function<Modifier(Modifier, LangRef)>;
+		using ModifierProcessRef = const ModifierProcess &;
+
+		// Catch Info
+		static Process Catch(ProcessRef pro, ModifierProcessRef mod)
+		{
+			return [=](Info info)
+			{
+				if (Info i = pro(info); pro.IsNotEqual(i, info))
+				{
+					return Info(i.first, mod(i.second, Lang(info.first.data(), info.first.size() - i.first.size())));
+				}
+
+				return info;
+			};
+		}
+		// Catch Info(token) then push it to the parseTree
+		static Process Catch(ProcessRef pro, const ParseUnit::String& tokenName)
+		{
+			return Catch(pro, [=](Modifier modi, LangRef lang)
+			{
+				modi.childrenPushBack(ParseUnit::Type::token, tokenName, lang);
+				return modi;
+			});
+		}
+
+
+		using ModifierChange = std::function<Modifier(Modifier)>;
+		using ModifierChangeRef = const ModifierChange &;
+
+		// Change modifier in Info
+		static Process Change(ModifierChangeRef mod)
+		{
+			return [=](Info info)
+			{
+				return Info(info.first, mod(info.second));
+			};
+		}
+		// Enter a term
+		static Process ChangeIn(const ParseUnit::String& termName)
+		{
+			return ~Change([=](Modifier modi)
+			{
+				modi.childrenPushBack(ParseUnit::Type::term, termName);
+				return --modi.childrenEnd();
+			});
+		}
+		// Leave a term
+		static Process ChangeOut(const bool cutUnusedUnit = false)
+		{
+			return ~Change([=](Modifier modi)
+			{
+				if (cutUnusedUnit)
+				{
+					if (modi.childrenSize() == 1)
+					{
+						auto cutted = modi.childrenBegin().thisMoveTo(modi);
+						modi.thisErase(modi);
+						return cutted.parent();
+					}
+				}
+				return modi.parent();
+			});
+		}
 	};
 
 	using ParserCombinator = BasicParserCombinator<std::string_view>;

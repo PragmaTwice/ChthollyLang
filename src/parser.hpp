@@ -56,66 +56,6 @@ namespace Chtholly
 		inline static Process DigitOrLetter = Match(isalnum);
 		*/
 
-		using ModifierProcess = std::function<Modifier(Modifier,LangRef)>;
-		using ModifierProcessRef = const ModifierProcess &;
-
-		static Process Catch(ProcessRef pro, ModifierProcessRef mod)
-		{
-			return [=](Info info)
-			{
-				if (Info i = pro(info); pro.IsNotEqual(i, info))
-				{
-					return Info(i.first,mod(i.second,Lang(info.first.data(),info.first.size() - i.first.size())));
-				}
-
-				return info;
-			};
-		}
-
-		static Process Catch(ProcessRef pro, const ParseUnit::String& tokenName)
-		{
-			return Catch(pro, [=](Modifier modi, LangRef lang)
-			{
-				modi.childrenPushBack(ParseUnit::Type::token, tokenName, lang);
-				return modi;
-			});
-		}
-
-		using ModifierChange = std::function<Modifier(Modifier)>;
-		using ModifierChangeRef = const ModifierChange &;
-
-		static Process Change(ModifierChangeRef mod)
-		{
-			return [=](Info info)
-			{
-				return Info(info.first, mod(info.second));
-			};
-		}
-
-		static Process ChangeIn(const ParseUnit::String& termName)
-		{
-			return ~Change([=](Modifier modi)
-			{
-				modi.childrenPushBack(ParseUnit::Type::term, termName);
-				return --modi.childrenEnd();
-			});
-		}
-		static Process ChangeOut(const bool cutUnusedUnit = false)
-		{
-			return ~Change([=](Modifier modi)
-			{
-				if (cutUnusedUnit)
-				{
-					if (modi.childrenSize() == 1)
-					{
-						auto cutted = modi.childrenBegin().thisMoveTo(modi);
-						modi.thisErase(modi);
-						return cutted.parent();
-					}
-				}
-				return modi.parent();
-			});
-		}
 
 		// IntLiteral = digit+
 		inline static Process IntLiteral =
