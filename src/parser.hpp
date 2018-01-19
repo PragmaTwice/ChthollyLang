@@ -26,7 +26,7 @@ namespace Chtholly
 	using namespace std::literals;
 
 	template <typename StringView>
-	class BasicParser : public ParserCombinator
+	class BasicParser : public BasicParserCombinator<StringView>
 	{
 
 	public:
@@ -54,6 +54,17 @@ namespace Chtholly
 		*/
 
 		using CType = CharType<Char>;
+
+		// MatchKey(A) = A ^ (DigitOrLetter | '_')
+		static Process MatchKey(LangRef word)
+		{
+			return Match(word) ^ (Match(CType::isAlphaOrNum) | Match('_'));
+		}
+
+		static Process MatchKey(InitListRef<Lang> wordList)
+		{
+			return Match(wordList) ^ (Match(CType::isAlphaOrNum) | Match('_'));
+		}
 
 		// IntLiteral = digit+
 		inline static Process IntLiteral =
@@ -90,44 +101,44 @@ namespace Chtholly
 
 		// StringLiteral = '"' (EscapedCharacter|UnescapedCharacter)* '"'
 		inline static Process StringLiteral =
-				Catch(
-					(
-						Match('"'),
-						*(
-							EscapedCharacter | UnescapedCharacter
-						),
-						Match('"')
-					), 
-				"StringLiteral");
+			Catch(
+				(
+					Match('"'),
+					*(
+						EscapedCharacter | UnescapedCharacter
+					),
+					Match('"')
+				), 
+			"StringLiteral");
 
 		// Identifier = (Letter | '_') (DigitOrLetter | '_')*
 		inline static Process Identifier =
-				Catch(
+			Catch(
+				(
 					(
-						(
-							Match(CType::isAlpha) | Match('_')
-						),
-						*(
-							Match(CType::isAlphaOrNum) | Match('_')
-						)
-					), 
-				"Identifier");
+						Match(CType::isAlpha) | Match('_')
+					),
+					*(
+						Match(CType::isAlphaOrNum) | Match('_')
+					)
+				), 
+			"Identifier");
 
 		// NullLiteral = "null"
 		inline static Process NullLiteral =
-			Catch(Match("null"), "NullLiteral");
+			Catch(MatchKey("null"), "NullLiteral");
 
 		// UndefinedLiteral = "undef"
 		inline static Process UndefinedLiteral =
-			Catch(Match("undef"), "UndefinedLiteral");
+			Catch(MatchKey("undef"), "UndefinedLiteral");
 
 		// TrueLiteral = "true"
 		inline static Process TrueLiteral =
-			Catch(Match("true"), "TrueLiteral");
+			Catch(MatchKey("true"), "TrueLiteral");
 
 		// FalseLiteral = "false"
 		inline static Process FalseLiteral =
-			Catch(Match("false"), "FalseLiteral");
+			Catch(MatchKey("false"), "FalseLiteral");
 
 		// Literal = FloatLiteral | IntLiteral | StringLiteral | NullLiteral | UndefinedLiteral | TrueLiteral | FalseLiteral
 		inline static Process Literal =
@@ -213,7 +224,7 @@ namespace Chtholly
 		// VarDefineExpression = "var" Identifier
 		inline static Process VarDefineExpression =
 			(
-				Term(Match("var")),
+				Term(MatchKey("var")),
 				ChangeIn("VarDefineExpression"),
 				Term(Identifier),
 				ChangeOut()
@@ -222,7 +233,7 @@ namespace Chtholly
 		// ConstDefineExpression = "const" Identifier
 		inline static Process ConstDefineExpression =
 			(
-				Term(Match("const")),
+				Term(MatchKey("const")),
 				ChangeIn("ConstDefineExpression"),
 				Term(Identifier),
 				ChangeOut()
@@ -242,14 +253,14 @@ namespace Chtholly
 		inline static Process ConditionExpression =
 			(
 				(
-					Term(Match("if")),
+					Term(MatchKey("if")),
 					ChangeIn("ConditionExpression"),
 					Term(Match('(')),
 					Expression,
 					Term(Match(')')),
 					SigleExpression,
 					~(
-						Term(Match("else")),
+						Term(MatchKey("else")),
 						SigleExpression
 					),
 					ChangeOut()
@@ -261,7 +272,7 @@ namespace Chtholly
 		inline static Process ReturnExpression =
 			(
 				(
-					Term(Match("return")),
+					Term(MatchKey("return")),
 					ChangeIn("ReturnExpression"),
 					~Process(SigleExpression),
 					ChangeOut()
@@ -273,7 +284,7 @@ namespace Chtholly
 		inline static Process LoopControlExpression =
 			(
 				(
-					Term(Match({ "break"sv,"continue"sv })),
+					Term(MatchKey({ "break"sv,"continue"sv })),
 					ChangeIn("LoopControlExpression"),
 					~Process(SigleExpression),
 					ChangeOut()
@@ -285,14 +296,14 @@ namespace Chtholly
 		inline static Process WhileLoopExpression =
 			(
 				(
-					Term(Match("while")),
+					Term(MatchKey("while")),
 					ChangeIn("WhileLoopExpression"),
 					Term(Match('(')),
 					Expression,
 					Term(Match(')')),
 					SigleExpression, 
 					~(
-						Term(Match("else")),
+						Term(MatchKey("else")),
 						SigleExpression
 					),
 					ChangeOut()
@@ -304,15 +315,15 @@ namespace Chtholly
 		inline static Process DoWhileLoopExpression =
 			(
 				(
-					Term(Match("do")),
+					Term(MatchKey("do")),
 					ChangeIn("DoWhileLoopExpression"),
 					SigleExpression,
-					Term(Match("while")),
+					Term(MatchKey("while")),
 					Term(Match('(')),
 					Expression,
 					Term(Match(')')),
 					~(
-						Term(Match("else")),
+						Term(MatchKey("else")),
 						SigleExpression
 					),
 					ChangeOut()
@@ -347,7 +358,7 @@ namespace Chtholly
 				(
 					(
 						Term(Match({ '+','-' })) |
-						Term(Match("not"))
+						Term(MatchKey("not"))
 					),
 					UnaryExpression
 				) |
@@ -391,7 +402,7 @@ namespace Chtholly
 		inline static Process LogicalAndExpression =
 			(
 				ChangeIn("LogicalAndExpression"),
-				BinaryOperator(EqualityExpression, Match("and")),
+				BinaryOperator(EqualityExpression, MatchKey("and")),
 				ChangeOut(true)
 			);
 
@@ -399,7 +410,7 @@ namespace Chtholly
 		inline static Process LogicalOrExpression =
 			(
 				ChangeIn("LogicalOrExpression"),
-				BinaryOperator(LogicalAndExpression, Match("or")),
+				BinaryOperator(LogicalAndExpression, MatchKey("or")),
 				ChangeOut(true)
 			);
 
