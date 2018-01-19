@@ -27,6 +27,9 @@
     <ClInclude Include="..\..\..\src\parser.hpp">
       <Filter>SRC</Filter>
     </ClInclude>
+    <ClInclude Include="..\..\..\src\chartype.hpp">
+      <Filter>SRC</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="..\..\..\demo\parser.cpp">

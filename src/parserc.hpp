@@ -252,6 +252,7 @@ namespace Chtholly
 				return info;
 			};
 		}
+
 		// Catch Info(token) then push it to the parseTree
 		static Process Catch(ProcessRef pro, const ParseUnit::String& tokenName)
 		{
@@ -274,6 +275,7 @@ namespace Chtholly
 				return Info(info.first, mod(info.second));
 			};
 		}
+
 		// Enter a term
 		static Process ChangeIn(const ParseUnit::String& termName)
 		{
@@ -283,6 +285,7 @@ namespace Chtholly
 				return --modi.childrenEnd();
 			});
 		}
+
 		// Leave a term
 		static Process ChangeOut(const bool cutUnusedUnit = false)
 		{

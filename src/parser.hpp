@@ -16,20 +16,17 @@
 
 #pragma once
 
-#include <cctype>
 #include <string_view>
 
 #include "parserc.hpp"
+#include "chartype.hpp"
 
 namespace Chtholly
 {
 	using namespace std::literals;
 
 	template <typename StringView>
-	class BasicParser;
-
-	template <>
-	class BasicParser<ParserCombinator::Lang> : public ParserCombinator
+	class BasicParser : public ParserCombinator
 	{
 
 	public:
@@ -56,22 +53,23 @@ namespace Chtholly
 		inline static Process DigitOrLetter = Match(isalnum);
 		*/
 
+		using CType = CharType<Char>;
 
 		// IntLiteral = digit+
 		inline static Process IntLiteral =
-			Catch(+Match(isdigit), "IntLiteral");
+			Catch(+Match(CType::isDigit), "IntLiteral");
 
 		// FloatLiteral = IntLiteral '.' IntLiteral£¿ (('E'|'e') ('+'|'-')? IntLiteral)?
 		inline static Process FloatLiteral =
 			Catch(
 				(
-					+Match(isdigit),
+					+Match(CType::isDigit),
 					Match('.'),
-					*Match(isdigit),
+					*Match(CType::isDigit),
 					~(
 						Match({ 'E','e' }),
 						~Match({ '+','-' }),
-						+Match(isdigit)
+						+Match(CType::isDigit)
 					)
 				),
 				"FloatLiteral");
@@ -108,10 +106,10 @@ namespace Chtholly
 				Catch(
 					(
 						(
-							Match(isalpha) | Match('_')
+							Match(CType::isAlpha) | Match('_')
 						),
 						*(
-							Match(isalnum) | Match('_')
+							Match(CType::isAlphaOrNum) | Match('_')
 						)
 					), 
 				"Identifier");
@@ -147,7 +145,7 @@ namespace Chtholly
 		// Term(A) = Space* A
 		static Process Term(ProcessRef lhs)
 		{
-			return *Match(isspace), lhs;
+			return *Match(CType::isSpace), lhs;
 		}
 
 		// BinaryOperator(A,B) = A (B A)*

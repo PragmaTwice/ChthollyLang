@@ -59,8 +59,6 @@ namespace Chtholly
 				: value(src.value), parent(src.parent), children(src.children) {}
 			Node(const Node& src)
 				: value(src.value), parent(src.parent), children(src.children) {}
-			Node(Node&& src) 
-				: value(std::move(src.value)), parent(std::move(src.parent)), children(std::move(src.children)) {}
 
 			Node& operator=(const Node& src)
 			{
@@ -402,7 +400,6 @@ namespace Chtholly
 
 		BasicTree(BasicTree& src) : root(src.root) {}
 		BasicTree(const BasicTree& src) : root(src.root) {}
-		BasicTree(BasicTree&& src) : root(std::move(src.root)) {}
 
 		BasicTree& operator=(BasicTree& src)
 		{

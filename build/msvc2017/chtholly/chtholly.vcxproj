@@ -19,6 +19,7 @@
     </ProjectConfiguration>
   </ItemGroup>
   <ItemGroup>
+    <ClInclude Include="..\..\..\src\chartype.hpp" />
     <ClInclude Include="..\..\..\src\parser.hpp" />
     <ClInclude Include="..\..\..\src\parserc.hpp" />
     <ClInclude Include="..\..\..\src\parsetree.hpp" />
