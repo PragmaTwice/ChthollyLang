@@ -1,4 +1,5 @@
-# Chtholly Lang
+# ![Chtholly Lang Logo](doc/logo/logo180.png) Chtholly Lang
+
 *A **simple implmentation** of Yet another script language Chtholly*
 
 ## Requires
