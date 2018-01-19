@@ -78,8 +78,7 @@ namespace Chtholly
 		inline static Process UnescapedCharacter =
 			Match([=](Char c)
 			{
-				if (c == '"' || c == '\\') return false;
-				return true;
+				return c != '"' && c != '\\';
 			});
 
 		// EscapedCharacter = '\\' ('"' | '\\' | 'b' | 'f' | 'n' | 'r' | 't' | 'v')
@@ -242,76 +241,84 @@ namespace Chtholly
 		// ConditionExpression = PairForDictList | "if" '(' Expression ')' SigleExpression ("else" SigleExpression)?
 		inline static Process ConditionExpression =
 			(
-			(
-				Term(Match("if")),
-				ChangeIn("ConditionExpression"),
-				Term(Match('(')),
-				Expression,
-				Term(Match(')')),
-				SigleExpression,
-				~(
-					Term(Match("else")),
-					SigleExpression
+				(
+					Term(Match("if")),
+					ChangeIn("ConditionExpression"),
+					Term(Match('(')),
+					Expression,
+					Term(Match(')')),
+					SigleExpression,
+					~(
+						Term(Match("else")),
+						SigleExpression
 					),
-				ChangeOut()
+					ChangeOut()
 				) |
 				PrimaryExpression
-				);
+			);
 
 		// ReturnExpression = ConditionExpression | "return" SigleExpression?
 		inline static Process ReturnExpression =
 			(
-			(
-				Term(Match("return")),
-				ChangeIn("ReturnExpression"),
-				~Process(SigleExpression),
-				ChangeOut()
+				(
+					Term(Match("return")),
+					ChangeIn("ReturnExpression"),
+					~Process(SigleExpression),
+					ChangeOut()
 				) |
 				ConditionExpression
-				);
+			);
 
 		// LoopControlExpression = ReturnExpression | ("break"|"continue") SigleExpression?
 		inline static Process LoopControlExpression =
 			(
-			(
-				Term(Match({ "break"sv,"continue"sv })),
-				ChangeIn("LoopControlExpression"),
-				~Process(SigleExpression),
-				ChangeOut()
+				(
+					Term(Match({ "break"sv,"continue"sv })),
+					ChangeIn("LoopControlExpression"),
+					~Process(SigleExpression),
+					ChangeOut()
 				) |
 				ReturnExpression
-				);
+			);
 
 		// WhileLoopExpression = LoopControlExpression | "while" '(' Expression ')' SigleExpression
 		inline static Process WhileLoopExpression =
 			(
-			(
-				Term(Match("while")),
-				ChangeIn("WhileLoopExpression"),
-				Term(Match('(')),
-				Expression,
-				Term(Match(')')),
-				SigleExpression,
-				ChangeOut()
+				(
+					Term(Match("while")),
+					ChangeIn("WhileLoopExpression"),
+					Term(Match('(')),
+					Expression,
+					Term(Match(')')),
+					SigleExpression, 
+					~(
+						Term(Match("else")),
+						SigleExpression
+					),
+					ChangeOut()
 				) |
 				LoopControlExpression
-				);
+			);
 
 		// DoWhileLoopExpression = WhileLoopExpression | "do" SigleExpression "while" '(' Expression ')'
 		inline static Process DoWhileLoopExpression =
 			(
-			(
-				Term(Match("do")),
-				ChangeIn("DoWhileLoopExpression"),
-				SigleExpression,
-				Term(Match("while")),
-				Term(Match('(')),
-				Expression,
-				Term(Match(')')),
-				ChangeOut()
+				(
+					Term(Match("do")),
+					ChangeIn("DoWhileLoopExpression"),
+					SigleExpression,
+					Term(Match("while")),
+					Term(Match('(')),
+					Expression,
+					Term(Match(')')),
+					~(
+						Term(Match("else")),
+						SigleExpression
+					),
+					ChangeOut()
 				) |
 				WhileLoopExpression
-				);
+			);
 
 		// FunctionExpression = PrimaryExpression (FunctionArgList | NullFunctionArg)*
 		inline static Process FunctionExpression =
