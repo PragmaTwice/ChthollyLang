@@ -34,11 +34,15 @@ namespace Chtholly
 		using Lang = StringView;
 		using LangRef = const Lang &;
 
-		using Modifier = typename BasicParseTree<StringView>::Modifier;
+		using Tree = BasicParseTree<StringView>;
+
+		using Modifier = typename Tree::Modifier;
 		using ModifierRef = const Modifier &;
 
 		using Info = std::pair<Lang, Modifier>;
 		using InfoRef = const Info &;
+
+		using Unit = BasicParseUnit<StringView>;
 
 		using Char = typename StringView::value_type;
 		using Iter = typename StringView::const_iterator;
@@ -255,11 +259,11 @@ namespace Chtholly
 		}
 
 		// Catch Info(token) then push it to the parseTree
-		static Process Catch(ProcessRef pro, const typename BasicParseUnit<StringView>::String& tokenName)
+		static Process Catch(ProcessRef pro, const typename Unit::String& tokenName)
 		{
 			return Catch(pro, [=](Modifier modi, LangRef lang)
 			{
-				modi.childrenPushBack(BasicParseUnit<StringView>::Type::token, tokenName, lang);
+				modi.childrenPushBack(Unit::Type::token, tokenName, lang);
 				return modi;
 			});
 		}
@@ -278,11 +282,11 @@ namespace Chtholly
 		}
 
 		// Enter a term
-		static Process ChangeIn(const typename BasicParseUnit<StringView>::String& termName)
+		static Process ChangeIn(const typename Unit::String& termName)
 		{
 			return ~Change([=](Modifier modi)
 			{
-				modi.childrenPushBack(BasicParseUnit<StringView>::Type::term, termName);
+				modi.childrenPushBack(Unit::Type::term, termName);
 				return --modi.childrenEnd();
 			});
 		}
