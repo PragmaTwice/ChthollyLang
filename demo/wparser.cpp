@@ -11,9 +11,15 @@
 using namespace std;
 using namespace Chtholly;
 
-ostream& operator<< (ostream& out, const ParseTree::Visitor& v)
+wostream& operator<< (wostream& out, string str)
 {
-	const auto isTerm = v.value().type == ParseUnit::Type::term;
+	for (auto elem : str) out << elem;
+	return out;
+}
+
+wostream& operator<< (wostream& out, const BasicParseTree<wstring_view>::Visitor& v)
+{
+	const auto isTerm = v.value().type == BasicParseUnit<wstring_view>::Type::term;
 
 	if (isTerm) out << '(';
 
@@ -23,7 +29,7 @@ ostream& operator<< (ostream& out, const ParseTree::Visitor& v)
 	}
 	else
 	{
-		out << v.value().name << '[' << v.value().value << "] ";
+		out << v.value().name << '[' << v.value().value << L"] ";
 	}
 
 	for (auto i = v.childrenBegin(); i != v.childrenEnd(); ++i)
@@ -36,26 +42,26 @@ ostream& operator<< (ostream& out, const ParseTree::Visitor& v)
 	return out;
 }
 
-void parseInputAndLog(const Parser::Info& info)
+void parseInputAndLog(const BasicParser<wstring_view>::Info& info)
 {
 	const auto beginTime = chrono::system_clock::now();
-	auto result = Parser::Expression(info);
+	auto result = BasicParser<wstring_view>::Expression(info);
 	const auto endTime = chrono::system_clock::now();
 
-
-	cout << "Parse tree : " << info.second << endl;
-	auto trimIter = find_if(result.first.rbegin(), result.first.rend(), [](auto&& elem) { return !isspace(elem); });
+	
+	wcout << L"Parse tree : " << info.second << endl;
+	auto trimIter = find_if(result.first.rbegin(), result.first.rend(), [](auto&& elem) { return !iswspace(elem); });
 	result.first.remove_suffix(distance(result.first.rbegin(), trimIter));
+	
+	wcout << L"Time usage : " << std::chrono::duration<double>(endTime - beginTime).count() << L"s" << endl;
+	if (!result.first.empty()) wcout << L"Cannot resolve : " << result.first << endl;
 
-	cout << "Time usage : " << std::chrono::duration<double>(endTime - beginTime).count() << "s" << endl;
-	if (!result.first.empty()) cout << "Cannot resolve : " << result.first << endl;
-
-	cout << endl;
+	wcout << endl;
 }
 
 int main()
 {
-	cout << R"(
+	wcout << LR"(
  ____     __      __    __              ___    ___                __                                   
 /\  _`\  /\ \    /\ \__/\ \            /\_ \  /\_ \              /\ \                                  
 \ \ \/\_\\ \ \___\ \ ,_\ \ \___     ___\//\ \ \//\ \    __  __   \ \ \         __      ___      __     
@@ -70,23 +76,23 @@ int main()
 
 	while (true)
 	{
-		ParseTree tree(ParseUnit::Type::term, "root");
+		BasicParseTree<wstring_view> tree(BasicParseUnit<wstring_view>::Type::term, "root");
 		auto modi = tree.modifier();
 
-		string input,line;
-		cout << "Input :" << endl;
+		wstring input, line;
+		wcout << L"Input :" << endl;
 
-		while (cin.good())
+		while (wcin.good())
 		{
-			getline(cin, line);
-			input += line + "\n";
+			getline(wcin, line);
+			input += line + L"\n";
 		}
-		cin.clear();
+		wcin.clear();
 
-		static const auto exitCommand = "exit"sv;
-		if (string_view{input.data(), exitCommand.size()} == exitCommand)
+		static const auto exitCommand = L"exit"sv;
+		if (wstring_view{ input.data(), exitCommand.size() } == exitCommand)
 			break;
 
-		parseInputAndLog(Parser::MakeInfo(input,modi));
+		parseInputAndLog(BasicParser<wstring_view>::MakeInfo(input, modi));
 	}
 }

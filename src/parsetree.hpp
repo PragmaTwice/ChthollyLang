@@ -55,8 +55,6 @@ namespace Chtholly
 			Node(Iterator in_parent, Container in_children, T&& ...args)
 				: value(std::forward<T>(args)...), parent(in_parent), children(in_children) {}
 
-			Node(Node& src)
-				: value(src.value), parent(src.parent), children(src.children) {}
 			Node(const Node& src)
 				: value(src.value), parent(src.parent), children(src.children) {}
 
@@ -69,7 +67,7 @@ namespace Chtholly
 				return *this;
 			}
 
-			Node& operator=(Node&& src)
+			Node& operator=(Node&& src) noexcept
 			{
 				value = std::move(src.value);
 				parent = std::move(src.parent);
@@ -401,13 +399,13 @@ namespace Chtholly
 		BasicTree(BasicTree& src) : root(src.root) {}
 		BasicTree(const BasicTree& src) : root(src.root) {}
 
-		BasicTree& operator=(BasicTree& src)
+		BasicTree& operator=(const BasicTree& src)
 		{
 			root = src.root;
 			return *this;
 		}
 
-		BasicTree& operator=(BasicTree&& src)
+		BasicTree& operator=(BasicTree&& src) noexcept
 		{
 			root = std::move(src.root);
 			return *this;

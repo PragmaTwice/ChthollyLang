@@ -35,5 +35,8 @@
     <ClCompile Include="..\..\..\demo\parser.cpp">
       <Filter>DEMO</Filter>
     </ClCompile>
+    <ClCompile Include="..\..\..\demo\wparser.cpp">
+      <Filter>DEMO</Filter>
+    </ClCompile>
   </ItemGroup>
 </Project>

@@ -78,6 +78,7 @@ namespace Chtholly
 		template <typename T>
 		using InitListRef = const InitList<T>&;
 
+
 	public /*method*/:
 
 		BasicParserCombinator() = delete;
@@ -254,11 +255,11 @@ namespace Chtholly
 		}
 
 		// Catch Info(token) then push it to the parseTree
-		static Process Catch(ProcessRef pro, const ParseUnit::String& tokenName)
+		static Process Catch(ProcessRef pro, const typename BasicParseUnit<StringView>::String& tokenName)
 		{
 			return Catch(pro, [=](Modifier modi, LangRef lang)
 			{
-				modi.childrenPushBack(ParseUnit::Type::token, tokenName, lang);
+				modi.childrenPushBack(BasicParseUnit<StringView>::Type::token, tokenName, lang);
 				return modi;
 			});
 		}
@@ -277,11 +278,11 @@ namespace Chtholly
 		}
 
 		// Enter a term
-		static Process ChangeIn(const ParseUnit::String& termName)
+		static Process ChangeIn(const typename BasicParseUnit<StringView>::String& termName)
 		{
 			return ~Change([=](Modifier modi)
 			{
-				modi.childrenPushBack(ParseUnit::Type::term, termName);
+				modi.childrenPushBack(BasicParseUnit<StringView>::Type::term, termName);
 				return --modi.childrenEnd();
 			});
 		}
