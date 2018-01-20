@@ -11,9 +11,9 @@
 using namespace std;
 using namespace Chtholly;
 
-wostream& operator<< (wostream& out, string str)
+wostream& operator<< (wostream& out, const string& str)
 {
-	for (auto elem : str) out << elem;
+	for (auto&& elem : str) out << elem;
 	return out;
 }
 
