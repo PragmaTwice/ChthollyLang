@@ -160,17 +160,31 @@ namespace Chtholly
 				FalseLiteral
 			);
 
-		// InlineComment = "/*" (not "*/")* "*/"
-		inline static Process InlineComment =
+		// MultiLineComment = "/*" (not "*/")* "*/"
+		inline static Process MultiLineComment =
 			(
 				Match(GL("/*")),
 				AnyCharUntil(Match(GL( "*/")))
 			);
 
+		// SingleLineComment = "//" (not '\n')*
+		inline static Process SingleLineComment =
+			(
+				Match(GL("//")),
+				AnyCharUntil(Match('\n'))
+			);
+
+		// Comment = SingleLineComment | MultiLineComment
+		inline static Process Comment =
+			(
+				SingleLineComment | 
+				MultiLineComment
+			);
+
 		// Term(A) = Space* A
 		static Process Term(ProcessRef lhs)
 		{
-			return *(*Match(CType::isSpace), InlineComment), *Match(CType::isSpace), lhs;
+			return *(*Match(CType::isSpace), Comment), *Match(CType::isSpace), lhs;
 		}
 
 		// BinaryOperator(A,B) = A (B A)*

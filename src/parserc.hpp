@@ -175,6 +175,9 @@ namespace Chtholly
 			};
 		}
 
+		// Atom process
+		inline static Process Atom = Process(BasicProcessWrapper([](Info info) { return info; }), true);
+
 		// Match any character
 		inline static Process AnyChar = Match([](Char) { return true; });
 
@@ -182,10 +185,10 @@ namespace Chtholly
 		static Process AnyCharUntil(ProcessRef lhs)
 		{
 			return 
-				(
-					lhs | 
+				(	
+					lhs |
 					(
-						*( AnyChar ^ lhs ), AnyChar, lhs
+						*(AnyChar ^ lhs), AnyChar, lhs
 					)
 				);
 		}
@@ -221,7 +224,7 @@ namespace Chtholly
 		// operator~(A) = A?
 		friend Process operator~(ProcessRef lhs)
 		{
-			return Process(lhs, true);
+			return Process(lhs, !lhs.IsOptional());
 		}
 
 		// operator+(A) = A A*
@@ -245,14 +248,14 @@ namespace Chtholly
 		// operator^(A,B) = A (not followed by B)
 		friend Process operator^(ProcessRef pro, ProcessRef except)
 		{
-			return [=](Info info)
+			return Process([=](Info info)
 			{
 				if (Info i = pro(info); pro.IsNotEqual(i, info))
 					if (Info j = except(i); !except.IsNotEqual(j, i))
 						return i;
 
 				return info;
-			};
+			}, pro.IsOptional());
 		}
 
 
