@@ -175,23 +175,38 @@ namespace Chtholly
 			};
 		}
 
+		// Match any character
+		inline static Process AnyChar = Match([](Char) { return true; });
+
+		// Match any characters until matching lhs
+		static Process AnyCharUntil(ProcessRef lhs)
+		{
+			return 
+				(
+					lhs | 
+					(
+						*( AnyChar ^ lhs ), AnyChar, lhs
+					)
+				);
+		}
+
 		// operator,(A,B) = A B
 		friend Process operator,(ProcessRef lhs, ProcessRef rhs)
 		{
-			return [=](Info info)
+			return Process([=](Info info)
 			{
 				if (Info i = lhs(info); lhs.IsNotEqual(i, info))
 					if (Info j = rhs(i); rhs.IsNotEqual(j, i))
 						return j;
 
 				return info;
-			};
+			}, lhs.IsOptional() && rhs.IsOptional());
 		}
 
 		// operator|(A,B) = A | B
 		friend Process operator|(ProcessRef lhs, ProcessRef rhs)
 		{
-			return [=](Info info)
+			return Process([=](Info info)
 			{
 				if (Info i = lhs(info); lhs.IsNotEqual(i, info))
 					return i;
@@ -200,7 +215,7 @@ namespace Chtholly
 					return i;
 
 				return info;
-			};
+			}, lhs.IsOptional() && rhs.IsOptional());
 		}
 
 		// operator~(A) = A?

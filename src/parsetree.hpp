@@ -396,7 +396,6 @@ namespace Chtholly
 			root.front().children.emplace_back(root.begin(), std::forward<T>(inValue)...);
 		}
 
-		BasicTree(BasicTree& src) : root(src.root) {}
 		BasicTree(const BasicTree& src) : root(src.root) {}
 
 		BasicTree& operator=(const BasicTree& src)

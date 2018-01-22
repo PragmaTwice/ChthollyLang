@@ -18,7 +18,6 @@
 
 #include <string_view>
 #include <tuple>
-#include <type_traits>
 
 #include "parserc.hpp"
 #include "chartype.hpp"
@@ -59,6 +58,8 @@ namespace Chtholly
 		inline static Process DigitOrLetter = Match(isalnum);
 		*/
 
+		#define GL(stringLiteral) G(Lang,stringLiteral)
+
 		using CType = CharType<Char>;
 
 
@@ -73,11 +74,11 @@ namespace Chtholly
 			return Match(wordList) ^ (Match(CType::isAlphaOrNum) | Match('_'));
 		}
 
-		// IntLiteral = digit+
+		// IntLiteral = Digit+
 		inline static Process IntLiteral =
 			Catch(+Match(CType::isDigit), "IntLiteral");
 
-		// FloatLiteral = IntLiteral '.' IntLiteral£¿ (('E'|'e') ('+'|'-')? IntLiteral)?
+		// FloatLiteral = Digit+ '.' Digit* (('E'|'e') ('+'|'-')? Digit+)?
 		inline static Process FloatLiteral =
 			Catch(
 				(
@@ -133,19 +134,19 @@ namespace Chtholly
 
 		// NullLiteral = "null"
 		inline static Process NullLiteral =
-			Catch(MatchKey(G(Lang,"null")), "NullLiteral");
+			Catch(MatchKey(GL("null")), "NullLiteral");
 
 		// UndefinedLiteral = "undef"
 		inline static Process UndefinedLiteral =
-			Catch(MatchKey(G(Lang, "undef")), "UndefinedLiteral");
+			Catch(MatchKey(GL( "undef")), "UndefinedLiteral");
 
 		// TrueLiteral = "true"
 		inline static Process TrueLiteral =
-			Catch(MatchKey(G(Lang, "true")), "TrueLiteral");
+			Catch(MatchKey(GL( "true")), "TrueLiteral");
 
 		// FalseLiteral = "false"
 		inline static Process FalseLiteral =
-			Catch(MatchKey(G(Lang, "false")), "FalseLiteral");
+			Catch(MatchKey(GL( "false")), "FalseLiteral");
 
 		// Literal = FloatLiteral | IntLiteral | StringLiteral | NullLiteral | UndefinedLiteral | TrueLiteral | FalseLiteral
 		inline static Process Literal =
@@ -159,10 +160,17 @@ namespace Chtholly
 				FalseLiteral
 			);
 
+		// InlineComment = "/*" (not "*/")* "*/"
+		inline static Process InlineComment =
+			(
+				Match(GL("/*")),
+				AnyCharUntil(Match(GL( "*/")))
+			);
+
 		// Term(A) = Space* A
 		static Process Term(ProcessRef lhs)
 		{
-			return *Match(CType::isSpace), lhs;
+			return *(*Match(CType::isSpace), InlineComment), *Match(CType::isSpace), lhs;
 		}
 
 		// BinaryOperator(A,B) = A (B A)*
@@ -231,7 +239,7 @@ namespace Chtholly
 		// VarDefineExpression = "var" Identifier
 		inline static Process VarDefineExpression =
 			(
-				Term(MatchKey(G(Lang, "var"))),
+				Term(MatchKey(GL( "var"))),
 				ChangeIn("VarDefineExpression"),
 				Term(Identifier),
 				ChangeOut()
@@ -240,7 +248,7 @@ namespace Chtholly
 		// ConstDefineExpression = "const" Identifier
 		inline static Process ConstDefineExpression =
 			(
-				Term(MatchKey(G(Lang, "const"))),
+				Term(MatchKey(GL( "const"))),
 				ChangeIn("ConstDefineExpression"),
 				Term(Identifier),
 				ChangeOut()
@@ -260,14 +268,14 @@ namespace Chtholly
 		inline static Process ConditionExpression =
 			(
 				(
-					Term(MatchKey(G(Lang, "if"))),
+					Term(MatchKey(GL( "if"))),
 					ChangeIn("ConditionExpression"),
 					Term(Match('(')),
 					Expression,
 					Term(Match(')')),
 					SigleExpression,
 					~(
-						Term(MatchKey(G(Lang, "else"))),
+						Term(MatchKey(GL( "else"))),
 						SigleExpression
 					),
 					ChangeOut()
@@ -279,7 +287,7 @@ namespace Chtholly
 		inline static Process ReturnExpression =
 			(
 				(
-					Term(MatchKey(G(Lang, "return"))),
+					Term(MatchKey(GL( "return"))),
 					ChangeIn("ReturnExpression"),
 					~Process(SigleExpression),
 					ChangeOut()
@@ -291,7 +299,7 @@ namespace Chtholly
 		inline static Process LoopControlExpression =
 			(
 				(
-					Term(MatchKey({ G(Lang, "break"), G(Lang,"continue") })),
+					Term(MatchKey({ GL( "break"), GL("continue") })),
 					ChangeIn("LoopControlExpression"),
 					~Process(SigleExpression),
 					ChangeOut()
@@ -303,14 +311,14 @@ namespace Chtholly
 		inline static Process WhileLoopExpression =
 			(
 				(
-					Term(MatchKey(G(Lang, "while"))),
+					Term(MatchKey(GL( "while"))),
 					ChangeIn("WhileLoopExpression"),
 					Term(Match('(')),
 					Expression,
 					Term(Match(')')),
 					SigleExpression, 
 					~(
-						Term(MatchKey(G(Lang, "else"))),
+						Term(MatchKey(GL( "else"))),
 						SigleExpression
 					),
 					ChangeOut()
@@ -322,15 +330,15 @@ namespace Chtholly
 		inline static Process DoWhileLoopExpression =
 			(
 				(
-					Term(MatchKey(G(Lang, "do"))),
+					Term(MatchKey(GL( "do"))),
 					ChangeIn("DoWhileLoopExpression"),
 					SigleExpression,
-					Term(MatchKey(G(Lang, "while"))),
+					Term(MatchKey(GL( "while"))),
 					Term(Match('(')),
 					Expression,
 					Term(Match(')')),
 					~(
-						Term(MatchKey(G(Lang, "else"))),
+						Term(MatchKey(GL( "else"))),
 						SigleExpression
 					),
 					ChangeOut()
@@ -354,7 +362,7 @@ namespace Chtholly
 		inline static Process PointExpression =
 			(
 				ChangeIn("PointExpression"),
-				BinaryOperator(FunctionExpression, Match(G(Lang, "->"))),
+				BinaryOperator(FunctionExpression, Match(GL( "->"))),
 				ChangeOut(true)
 			);
 
@@ -365,7 +373,7 @@ namespace Chtholly
 				(
 					(
 						Term(Match({ '+','-' })) |
-						Term(MatchKey(G(Lang, "not")))
+						Term(MatchKey(GL( "not")))
 					),
 					UnaryExpression
 				) |
@@ -393,7 +401,7 @@ namespace Chtholly
 		inline static Process RelationalExpression =
 			(
 				ChangeIn("RelationalExpression"),
-				BinaryOperator(AdditiveExpression, Match({ G(Lang,"<="), G(Lang,">="), G(Lang,"<"), G(Lang,">") })),
+				BinaryOperator(AdditiveExpression, Match({ GL("<="), GL(">="), GL("<"), GL(">") })),
 				ChangeOut(true)
 			);
 
@@ -401,7 +409,7 @@ namespace Chtholly
 		inline static Process EqualityExpression =
 			(
 				ChangeIn("EqualityExpression"),
-				BinaryOperator(RelationalExpression, Match({ G(Lang,"=="),G(Lang,"<>") })),
+				BinaryOperator(RelationalExpression, Match({ GL("=="),GL("<>") })),
 				ChangeOut(true)
 			);
 
@@ -409,7 +417,7 @@ namespace Chtholly
 		inline static Process LogicalAndExpression =
 			(
 				ChangeIn("LogicalAndExpression"),
-				BinaryOperator(EqualityExpression, MatchKey(G(Lang, "and"))),
+				BinaryOperator(EqualityExpression, MatchKey(GL( "and"))),
 				ChangeOut(true)
 			);
 
@@ -417,13 +425,13 @@ namespace Chtholly
 		inline static Process LogicalOrExpression =
 			(
 				ChangeIn("LogicalOrExpression"),
-				BinaryOperator(LogicalAndExpression, MatchKey(G(Lang, "or"))),
+				BinaryOperator(LogicalAndExpression, MatchKey(GL( "or"))),
 				ChangeOut(true)
 			);
 
 		// AssignmentOperator = '=' | '*=' | '/=' | '%=' | '+=' | '-='
 		inline static Process AssignmentOperator =
-			Match({ G(Lang,"="), G(Lang,"*="), G(Lang,"/="), G(Lang,"%="), G(Lang,"+="), G(Lang,"-=") });
+			Match({ GL("="), GL("*="), GL("/="), GL("%="), GL("+="), GL("-=") });
 
 		// AssignmentExpression = LogicalOrExpression | LogicalOrExpression AssignmentOperator SigleExpression
 		inline static Process AssignmentExpression =
@@ -463,6 +471,8 @@ namespace Chtholly
 				ChangeOut(true)
 				)(info);
 		}
+
+		#undef GL
 	};
 
 	using Parser = BasicParser<ParserCombinator::Lang>;
