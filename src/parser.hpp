@@ -233,52 +233,100 @@ namespace Chtholly
 				Term(Match('}'))
 			);
 
-		// NullFunctionArg = '(' ')'
-		inline static Process NullFunctionArg =
+		// UndefExpression = '(' ')'
+		inline static Process UndefExpression =
 			(
 				Term(Match('(')),
 				Term(Match(')')),
-				ChangeIn("NullFunctionArg"),
+				ChangeIn("UndefExpression"),
 				ChangeOut()
 			);
 
-		// FunctionArgList = ExpressionList | ArrayList | DictList
-		inline static Process FunctionArgList =
+		// List = UndefExpression | ExpressionList | ArrayList | DictList
+		inline static Process List =
 			(
+				UndefExpression|
 				ExpressionList |
 				ArrayList      |
 				DictList
 			);
 
-		// VarDefineExpression = "var" Identifier
+		// PrimaryExpression = Literal | Identifier | List
+		inline static Process PrimaryExpression =
+			(
+				Term(Literal)	 |
+				Term(Identifier) |
+				List
+			);
+
+		// ConstraintExperssion = Identifier (':' PrimaryExpression)?
+		inline static Process ConstraintExperssion =
+			(
+				Term(Identifier),
+				~(
+					Term(Match(':')),
+					PrimaryExpression
+				)
+			);
+
+		// ConstraintExperssionAtPatternExperssion = (Identifier "..."? | "...") (':' PrimaryExpression)?
+		inline static Process ConstraintExperssionAtPatternExperssion =
+			(
+				(
+					(
+						Term(Identifier),
+						~Term(Catch(Match(GL("...")), "Separator"))
+					) |
+					Term(Catch(Match(GL("...")),"Separator"))
+				),
+				~(
+					Term(Match(':')),
+					PrimaryExpression
+				)
+			);
+
+		// PatternExperssion = '(' ConstraintExperssionAtPatternExperssion ((','|';') ConstraintExperssionAtPatternExperssion)* (','|';')? ')'
+		inline static Process PatternExperssion =
+			(
+				Term(Match('(')),
+				ChangeIn("PatternExperssion"),
+				ConstraintExperssionAtPatternExperssion,
+				*(
+					Term(Catch(Match({ ',',';' }), "Separator")),
+					ConstraintExperssionAtPatternExperssion
+				),
+				~Term(Catch(Match({ ',',';' }), "Separator")),
+				Term(Match(')')),
+				ChangeOut()
+			);
+
+		// VarDefineExpression = "var" ConstraintExperssion
 		inline static Process VarDefineExpression =
 			(
 				Term(MatchKey(GL( "var"))),
 				ChangeIn("VarDefineExpression"),
-				Term(Identifier),
+				ConstraintExperssion | PatternExperssion,
 				ChangeOut()
 			);
-
-		// ConstDefineExpression = "const" Identifier
+		
+		// ConstDefineExpression = "const" ConstraintExperssion
 		inline static Process ConstDefineExpression =
 			(
 				Term(MatchKey(GL( "const"))),
 				ChangeIn("ConstDefineExpression"),
-				Term(Identifier),
+				ConstraintExperssion | PatternExperssion,
 				ChangeOut()
 			);
 
-		// PrimaryExpression = Identifier | Literal | FunctionArgList | VarDefineExpression | ConstDefineExpression
-		inline static Process PrimaryExpression =
+		// DefineExpression = PrimaryExpression | VarDefineExpression | ConstDefineExpression
+		inline static Process DefineExpression =
 			(
-				Term(Literal)         |
-				VarDefineExpression   |
+				VarDefineExpression |
 				ConstDefineExpression |
-				Term(Identifier)      |
-				FunctionArgList
+				PrimaryExpression
 			);
 
-		// ConditionExpression = PairForDictList | "if" '(' Expression ')' SigleExpression ("else" SigleExpression)?
+		// ConditionExpression = DefineExpression | "if" '(' Expression ')' SigleExpression ("else" SigleExpression)?
 		inline static Process ConditionExpression =
 			(
 				(
@@ -294,7 +342,7 @@ namespace Chtholly
 					),
 					ChangeOut()
 				) |
-				PrimaryExpression
+				DefineExpression
 			);
 
 		// ReturnExpression = ConditionExpression | "return" SigleExpression?
@@ -360,19 +408,16 @@ namespace Chtholly
 				WhileLoopExpression
 			);
 
-		// FunctionExpression = PrimaryExpression (FunctionArgList | NullFunctionArg)*
+		// FunctionExpression = DoWhileLoopExpression List*
 		inline static Process FunctionExpression =
 			(
 				ChangeIn("FunctionExpression"),
 				DoWhileLoopExpression,
-				*(
-					NullFunctionArg |
-					FunctionArgList
-				),
+				*List,
 				ChangeOut(true)
 			);
 
-		// PointExpression = FunctionExpression | PointExpression '->' PrimaryExpression
+		// PointExpression = FunctionExpression | PointExpression '->' FunctionExpression
 		inline static Process PointExpression =
 			(
 				ChangeIn("PointExpression"),
@@ -380,7 +425,16 @@ namespace Chtholly
 				ChangeOut(true)
 			);
 
-		// UnaryExpression = PointExpression | (('+' | '-') | "not") UnaryExpression
+		// FoldExperssion = PointExpression "..."?
+		inline static Process FoldExperssion =
+			(
+				ChangeIn("FoldExperssion"),
+				PointExpression,
+				~Term(Catch(Match(GL("...")),"Separator")),
+				ChangeOut(true)
+			);
+
+		// UnaryExpression = FoldExperssion | (('+' | '-') | "not") UnaryExpression
 		inline static Process UnaryExpression =
 			(
 				ChangeIn("UnaryExpression"),
@@ -391,7 +445,7 @@ namespace Chtholly
 					),
 					UnaryExpression
 				) |
-				PointExpression,
+				FoldExperssion,
 				ChangeOut(true)
 			);
 
@@ -471,19 +525,21 @@ namespace Chtholly
 		}
 
 		// Cannot be inline static Process
-		// Expression = SigleExpression ((';'|',') SigleExpression)* ('.'|';')?
+		// Expression = SigleExpression ((';'|',') SigleExpression)* (';'|',')?
 		static Info Expression(Info info)
 		{
-			return (
+			return 
+			(
 				ChangeIn("Expression"),
 				SigleExpression,
 				*(
 					Term(Catch(Match({ ',',';' }),"Separator")),
 					SigleExpression
-					),
-				~Term(Catch(Match({ '.' , ';' }), "Separator")),
+				),
+				~Term(Catch(Match({ ',',';' }), "Separator")),
 				ChangeOut(true)
-				)(info);
+			)(info);
+			
 		}
 
 		#undef GL
