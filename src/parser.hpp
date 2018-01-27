@@ -282,18 +282,23 @@ namespace Chtholly
 				)
 			);
 
-		// PatternExperssion = '(' ConstraintExperssionAtPatternExperssion ((','|';') ConstraintExperssionAtPatternExperssion)* (','|';')? ')'
+		// PatternExperssion = '(' ( ConstraintExperssionAtPatternExperssion ((','|';') ConstraintExperssionAtPatternExperssion)* (','|';')? | Atom ) ')'
 		inline static Process PatternExperssion =
 			(
 				Term(Match('(')),
 				ChangeIn("PatternExperssion"),
-				ConstraintExperssionAtPatternExperssion,
-				*(
-					Term(Catch(Match({ ',',';' }), "Separator")),
-					ConstraintExperssionAtPatternExperssion
+				(
+					Term(Match(')')) |
+					(
+						ConstraintExperssionAtPatternExperssion,
+						*(
+							Term(Catch(Match({ ',',';' }), "Separator")),
+							ConstraintExperssionAtPatternExperssion
+						),
+						~Term(Catch(Match({ ',',';' }), "Separator")),
+						Term(Match(')'))
+					)
 				),
-				~Term(Catch(Match({ ',',';' }), "Separator")),
-				Term(Match(')')),
 				ChangeOut()
 			);
 
