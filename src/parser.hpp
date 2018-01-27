@@ -269,15 +269,12 @@ namespace Chtholly
 				)
 			);
 
-		// ConstraintExperssionAtPatternExperssion = (Identifier "..."? | "...") (':' PrimaryExpression)?
+		// ConstraintExperssionAtPatternExperssion = Identifier "..."? (':' PrimaryExpression)?
 		inline static Process ConstraintExperssionAtPatternExperssion =
 			(
 				(
-					(
-						Term(Identifier),
-						~Term(Catch(Match(GL("...")), "Separator"))
-					) |
-					Term(Catch(Match(GL("...")),"Separator"))
+					Term(Identifier),
+					~Term(Catch(Match(GL("...")), "Separator"))
 				),
 				~(
 					Term(Match(':')),
@@ -326,7 +323,20 @@ namespace Chtholly
 				PrimaryExpression
 			);
 
-		// ConditionExpression = DefineExpression | "if" '(' Expression ')' SigleExpression ("else" SigleExpression)?
+		// LambdaExperssion = DefineExpression | "fn" PatternExperssion SigleExpression
+		inline static Process LambdaExperssion =
+			(
+				(
+					Term(MatchKey(GL("fn"))),
+					ChangeIn("LambdaExpression"),
+					PatternExperssion,
+					SigleExpression,
+					ChangeOut()
+				) |
+				DefineExpression
+			);
+
+		// ConditionExpression = LambdaExperssion | "if" '(' Expression ')' SigleExpression ("else" SigleExpression)?
 		inline static Process ConditionExpression =
 			(
 				(
@@ -342,7 +352,7 @@ namespace Chtholly
 					),
 					ChangeOut()
 				) |
-				DefineExpression
+				LambdaExperssion
 			);
 
 		// ReturnExpression = ConditionExpression | "return" SigleExpression?
@@ -425,12 +435,12 @@ namespace Chtholly
 				ChangeOut(true)
 			);
 
-		// FoldExperssion = PointExpression "..."?
+		// FoldExperssion = PointExpression "..."*
 		inline static Process FoldExperssion =
 			(
 				ChangeIn("FoldExperssion"),
 				PointExpression,
-				~Term(Catch(Match(GL("...")),"Separator")),
+				*Term(Catch(Match(GL("...")),"Separator")),
 				ChangeOut(true)
 			);
 
