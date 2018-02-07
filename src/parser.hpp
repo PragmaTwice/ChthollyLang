@@ -272,6 +272,7 @@ namespace Chtholly
 		// ConstraintExperssionAtPatternExperssion = Identifier "..."? (':' PrimaryExpression)?
 		inline static Process ConstraintExperssionAtPatternExperssion =
 			(
+				ChangeIn("ConstraintExperssionAtPatternExperssion"),
 				(
 					Term(Identifier),
 					~Term(Catch(Match(GL("...")), "Separator"))
@@ -279,10 +280,11 @@ namespace Chtholly
 				~(
 					Term(Match(':')),
 					PrimaryExpression
-				)
+				),
+				ChangeOut()
 			);
 
-		// PatternExperssion = '(' ( ConstraintExperssionAtPatternExperssion ((','|';') ConstraintExperssionAtPatternExperssion)* (','|';')? | Atom ) ')'
+		// PatternExperssion = '(' ( ConstraintExperssionAtPatternExperssion ((','|';') ConstraintExperssionAtPatternExperssion)* (','|';')? | Atom ) ')' (':' PrimaryExpression)?
 		inline static Process PatternExperssion =
 			(
 				Term(Match('(')),
@@ -296,7 +298,11 @@ namespace Chtholly
 							ConstraintExperssionAtPatternExperssion
 						),
 						~Term(Catch(Match({ ',',';' }), "Separator")),
-						Term(Match(')'))
+						Term(Match(')')),
+						~(
+							Term(Match(':')),
+							PrimaryExpression
+						)
 					)
 				),
 				ChangeOut()
