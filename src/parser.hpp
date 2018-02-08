@@ -284,6 +284,20 @@ namespace Chtholly
 				ChangeOut()
 			);
 
+		// MultiExpressionPackage(exp) = exp ((';'|',') exp)* (';'|',')?
+		static Process MultiExpressionPackage(ProcessRef exp)
+		{
+			return
+				(
+					exp,
+					*(
+						Term(Catch(Match({ ',',';' }), "Separator")),
+						exp
+					),
+					~Term(Catch(Match({ ',',';' }), "Separator"))
+				);
+		}
+
 		// PatternExperssion = '(' ( ConstraintExperssionAtPatternExperssion ((','|';') ConstraintExperssionAtPatternExperssion)* (','|';')? | Atom ) ')' (':' PrimaryExpression)?
 		inline static Process PatternExperssion =
 			(
@@ -292,12 +306,7 @@ namespace Chtholly
 				(
 					Term(Match(')')) |
 					(
-						ConstraintExperssionAtPatternExperssion,
-						*(
-							Term(Catch(Match({ ',',';' }), "Separator")),
-							ConstraintExperssionAtPatternExperssion
-						),
-						~Term(Catch(Match({ ',',';' }), "Separator")),
+						MultiExpressionPackage(ConstraintExperssionAtPatternExperssion),
 						Term(Match(')')),
 						~(
 							Term(Match(':')),
@@ -498,7 +507,7 @@ namespace Chtholly
 		inline static Process EqualityExpression =
 			(
 				ChangeIn("EqualityExpression"),
-				BinaryOperator(RelationalExpression, Match({ GL("=="),GL("<>") })),
+				BinaryOperator(RelationalExpression, Match({ GL("=="), GL("<>") })),
 				ChangeOut(true)
 			);
 
@@ -552,12 +561,7 @@ namespace Chtholly
 			return 
 			(
 				ChangeIn("Expression"),
-				SigleExpression,
-				*(
-					Term(Catch(Match({ ',',';' }),"Separator")),
-					SigleExpression
-				),
-				~Term(Catch(Match({ ',',';' }), "Separator")),
+				MultiExpressionPackage(SigleExpression),
 				ChangeOut(true)
 			)(info);
 			
