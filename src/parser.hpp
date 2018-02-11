@@ -291,7 +291,7 @@ namespace Chtholly
 				(
 					exp,
 					*(
-						Term(Catch(Match({ ',',';' }), "Separator")),
+						Term(Catch(Match({ ',',';' }), "Separator")) ^ Term(Match(')')),
 						exp
 					),
 					~Term(Catch(Match({ ',',';' }), "Separator"))
