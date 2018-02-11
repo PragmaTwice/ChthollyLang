@@ -259,14 +259,17 @@ namespace Chtholly
 				List
 			);
 
+		inline static Process ConstraintPartAtConstraintExperssion =
+			(
+				Term(Match(':')),
+				SigleExpression
+			);
+
 		// ConstraintExperssion = Identifier (':' PrimaryExpression)?
 		inline static Process ConstraintExperssion =
 			(
 				Term(Identifier),
-				~(
-					Term(Match(':')),
-					PrimaryExpression
-				)
+				~ConstraintPartAtConstraintExperssion
 			);
 
 		// ConstraintExperssionAtPatternExperssion = Identifier "..."? (':' PrimaryExpression)?
@@ -277,10 +280,7 @@ namespace Chtholly
 					Term(Identifier),
 					~Term(Catch(Match(GL("...")), "Separator"))
 				),
-				~(
-					Term(Match(':')),
-					PrimaryExpression
-				),
+				~ConstraintPartAtConstraintExperssion,
 				ChangeOut()
 			);
 
@@ -308,10 +308,7 @@ namespace Chtholly
 					(
 						MultiExpressionPackage(ConstraintExperssionAtPatternExperssion),
 						Term(Match(')')),
-						~(
-							Term(Match(':')),
-							PrimaryExpression
-						)
+						~ConstraintPartAtConstraintExperssion
 					)
 				),
 				ChangeOut()
@@ -540,9 +537,9 @@ namespace Chtholly
 			);
 
 		// PairExperssion = AssignmentExpression | PairExperssion ':' SigleExpression
-		inline static Process PairForDictList =
+		inline static Process PairExperssion =
 			(
-				ChangeIn("PairForDictList"),
+				ChangeIn("PairExperssion"),
 				AssignmentExpression, *(Term(Match(':')), SigleExpression),
 				ChangeOut(true)
 			);
@@ -551,7 +548,7 @@ namespace Chtholly
 		// SigleExpression = DoWhileLoopExpression
 		static Info SigleExpression(Info info)
 		{
-			return PairForDictList(info);
+			return PairExperssion(info);
 		}
 
 		// Cannot be inline static Process
