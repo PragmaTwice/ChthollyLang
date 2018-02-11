@@ -465,13 +465,10 @@ namespace Chtholly
 		inline static Process UnaryExpression =
 			(
 				ChangeIn("UnaryExpression"),
-				(
-					(
-						Term(Match({ '+','-' })) |
-						Term(MatchKey(GL( "not")))
-					),
-					UnaryExpression
-				) |
+				*(
+					Term(Catch(Match({ '+','-' }), "UnaryOperator")) |
+					Term(Catch(MatchKey(GL("not")), "UnaryOperator"))
+				),
 				FoldExperssion,
 				ChangeOut(true)
 			);
