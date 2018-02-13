@@ -11,33 +11,40 @@
 using namespace std;
 using namespace Chtholly;
 
-wostream& operator<< (wostream& out, const string& str)
+wstring ToWString(const string& str)
 {
-	for (auto&& elem : str) out << elem;
-	return out;
+	wstring result;
+	for(auto&& elem : str)
+	{
+		result += elem;
+	}
+
+	return result;
 }
 
-wostream& operator<< (wostream& out, const BasicParseTree<wstring_view>::Visitor& v)
+wstring ToWString(const BasicParseTree<wstring_view>::Visitor& v)
 {
+	wstring out;
+
 	const auto isTerm = v.value().type == BasicParseUnit<wstring_view>::Type::term;
 
-	if (isTerm) out << '(';
+	if (isTerm) out += L'(';
 
 	if (isTerm)
 	{
-		out << v.value().name << ' ';
+		out += ToWString(v.value().name) + L' ';
 	}
 	else
 	{
-		out << v.value().name << '[' << v.value().value << L"] ";
+		out += ToWString(v.value().name) + L'[' + wstring(v.value().value) + L"] ";
 	}
 
 	for (auto i = v.childrenBegin(); i != v.childrenEnd(); ++i)
 	{
-		out << i;
+		out += ToWString(i);
 	}
 
-	if (isTerm) out << ')';
+	if (isTerm) out += ')';
 
 	return out;
 }
@@ -49,7 +56,7 @@ void parseInputAndLog(const BasicParser<wstring_view>::Info& info)
 	const auto endTime = chrono::system_clock::now();
 
 	
-	wcout << L"Parse tree : " << info.second << endl;
+	wcout << L"Parse tree : " << ToWString(info.second) << endl;
 	auto trimIter = find_if(result.first.rbegin(), result.first.rend(), [](auto&& elem) { return !iswspace(elem); });
 	result.first.remove_suffix(distance(result.first.rbegin(), trimIter));
 	
@@ -76,7 +83,7 @@ int main()
 
 	while (true)
 	{
-		BasicParseTree<wstring_view> tree(BasicParseUnit<wstring_view>::Type::term, "root");
+		BasicParseTree<wstring_view> tree("root");
 		auto modi = tree.modifier();
 
 		wstring input, line;

@@ -19,13 +19,24 @@
 #include <string_view>
 #include <string>
 #include <list>
+#include <type_traits>
 
 namespace Chtholly
 {
+	template<typename T>
+	T UnusedConstruct(std::in_place_type_t<T>)
+	{
+		return {};
+	}
+
 	template <typename inValueType>
 	class BasicTree
 	{
+	public:
+
 		using ValueType = inValueType;
+
+	protected:
 
 		struct Node
 		{
@@ -38,25 +49,33 @@ namespace Chtholly
 			Iterator parent;
 			Container children;
 
-
-			template <typename ...T>
+			template <typename ...T, std::enable_if_t<std::is_constructible_v<ValueType, T&&...>,int> = 0>
 			Node(T&& ...args) 
 				: value(std::forward<T>(args)...) {}
 
-			template <typename ...T>
+			template <typename ...T, std::enable_if_t<std::is_constructible_v<ValueType, T&&...>, int> = 0>
 			Node(Iterator in_parent, T&& ...args)
 				: value(std::forward<T>(args)...), parent(in_parent) {}
 
-			template <typename ...T>
-			Node(Container in_children, T&& ...args) 
+			template <typename ...T, std::enable_if_t<std::is_constructible_v<ValueType, T&&...>, int> = 0>
+			Node(const Container& in_children, T&& ...args) 
 				: value(std::forward<T>(args)...), children(in_children) {}
 
-			template <typename ...T>
-			Node(Iterator in_parent, Container in_children, T&& ...args)
+			template <typename ...T, std::enable_if_t<std::is_constructible_v<ValueType, T&&...>, int> = 0>
+			Node(Iterator in_parent, const Container& in_children, T&& ...args)
 				: value(std::forward<T>(args)...), parent(in_parent), children(in_children) {}
 
 			Node(const Node& src)
 				: value(src.value), parent(src.parent), children(src.children) {}
+
+			Node(Iterator in_parent, const Node& src)
+				: value(src.value), parent(in_parent), children(src.children) {}
+
+			Node(const Container& in_container, const Node& src)
+				: value(src.value), parent(src.parent), children(in_container) {}
+
+			Node(Iterator in_iterator, const Container& in_container, const Node& src)
+				: value(src.value), parent(in_iterator), children(in_container) {}
 
 			Node& operator=(const Node& src)
 			{
@@ -76,6 +95,7 @@ namespace Chtholly
 				return *this;
 			}
 		};
+
 
 		typename Node::Container root;
 
@@ -207,13 +227,21 @@ namespace Chtholly
 
 			Modifier(const typename Node::Iterator& src) : Visitor(src) {}
 
+			void setParent(const Visitor& parent)
+			{
+				nodeIter->parent = parent.nodeIter;
+			}
+
 			friend class BasicTree<ValueType>;
 
 		public:
 
-			Modifier() {}
-			explicit Modifier(const Visitor& src) : Visitor(src.nodeIter) {}
-			Modifier(const Modifier& src) : Visitor(src.nodeIter) {}
+			Modifier(){}
+
+			explicit Modifier(const Visitor& src) 
+				: Visitor(src.nodeIter) {}
+			Modifier(const Modifier& src) 
+				: Visitor(src.nodeIter) {}
 
 			Modifier& operator=(const Modifier& src)
 			{
@@ -282,10 +310,11 @@ namespace Chtholly
 				nodeIter->children.clear();
 			}
 
-			template <typename ...T>
+			template <typename ...T, std::enable_if_t<std::is_constructible_v<Node, T&&...>, int> = 0>
 			void childrenPushFront(T&& ...inValue)
 			{
 				nodeIter->children.emplace_front(nodeIter, std::forward<T>(inValue)...);
+				BasicTree::FixParent({ childrenBegin() });
 			}
 
 			void childrenPopFront()
@@ -293,10 +322,11 @@ namespace Chtholly
 				nodeIter->children.pop_front();
 			}
 
-			template <typename ...T>
+			template <typename ...T, std::enable_if_t<std::is_constructible_v<Node, T&&...>, int> = 0>
 			void childrenPushBack(T&& ...inValue)
 			{
 				nodeIter->children.emplace_back(nodeIter, std::forward<T>(inValue)...);
+				BasicTree::FixParent({ --childrenEnd() });
 			}
 
 			void childrenPopBack()
@@ -304,16 +334,18 @@ namespace Chtholly
 				nodeIter->children.pop_back();
 			}
 
-			template <typename ...T>
+			template <typename ...T, std::enable_if_t<std::is_constructible_v<Node, T&&...>, int> = 0>
 			void childrenResize(typename Node::Size size, T&& ...inValue)
 			{
 				nodeIter->children.resize(size, Node{ nodeIter, std::forward<T>(inValue)... });
 			}
 
-			template <typename ...T>
+			template <typename ...T, std::enable_if_t<std::is_constructible_v<Node, T&&...>, int> = 0>
 			Modifier childrenInsert(const Modifier& pos, T&& ...inValue)
 			{
-				return nodeIter->children.emplace(pos.nodeIter, nodeIter, std::forward<T>(inValue)...);
+				auto result = nodeIter->children.emplace(pos.nodeIter, nodeIter, std::forward<T>(inValue)...);
+				BasicTree::FixParent({ result });
+				return result;
 			}
 
 			Modifier childrenErase(const Modifier& pos)
@@ -331,7 +363,7 @@ namespace Chtholly
 				Modifier(nodeIter->parent).childrenClear();
 			}
 
-			template <typename ...T>
+			template <typename ...T, std::enable_if_t<std::is_constructible_v<Node, T&&...>, int> = 0>
 			void thisPushFront(T&& ...inValue)
 			{
 				Modifier(nodeIter->parent).childrenPushFront(std::forward<T>(inValue)...);
@@ -342,7 +374,7 @@ namespace Chtholly
 				Modifier(nodeIter->parent).childrenPopFront();
 			}
 
-			template <typename ...T>
+			template <typename ...T, std::enable_if_t<std::is_constructible_v<Node, T&&...>, int> = 0>
 			void thisPushBack(T&& ...inValue)
 			{
 				Modifier(nodeIter->parent).childrenPushBack(std::forward<T>(inValue)...);
@@ -353,13 +385,13 @@ namespace Chtholly
 				Modifier(nodeIter->parent).childrenPopBack();
 			}
 
-			template <typename ...T>
+			template <typename ...T, std::enable_if_t<std::is_constructible_v<Node, T&&...>, int> = 0>
 			void thisResize(typename Node::Size size, T&& ...inValue)
 			{
 				Modifier(nodeIter->parent).childrenResize(size, std::forward<T>(inValue)...);
 			}
 
-			template <typename ...T>
+			template <typename ...T, std::enable_if_t<std::is_constructible_v<Node, T&&...>, int> = 0>
 			Modifier thisInsert(const Modifier& pos, T&& ...inValue)
 			{
 				return Modifier(nodeIter->parent).childrenInsert(pos, std::forward<T>(inValue)...);
@@ -390,8 +422,8 @@ namespace Chtholly
 			~Modifier() {}
 		};
 
-		template <typename ...T>
-		BasicTree(T&& ...inValue) : root{ { std::forward<T>(inValue)... } }
+		template <typename ...T, std::enable_if_t<std::is_constructible_v<Node, T&&...>, int> = 0>
+		BasicTree(T&& ...inValue) : root{ { UnusedConstruct(std::in_place_type<ValueType>) } }
 		{
 			root.front().children.emplace_back(root.begin(), std::forward<T>(inValue)...);
 		}
@@ -420,6 +452,36 @@ namespace Chtholly
 			return root.front().children.begin();
 		}
 
+		static bool CheckParent(const Visitor& vis)
+		{
+			for (auto child = vis.childrenBegin(); child != vis.childrenEnd(); ++child)
+			{
+				if (child.parent() != vis) return false;
+				if (!CheckParent(child)) return false;
+			}
+
+			return true;
+		}
+
+		static void FixParent(Modifier modi)
+		{
+			for (auto child = modi.childrenBegin(); child != modi.childrenEnd(); ++child)
+			{
+				child.setParent(modi);
+				FixParent(child);
+			}
+		}
+
+		bool checkParent()
+		{
+			return CheckParent(visitor());
+		}
+
+		void fixParent()
+		{
+			FixParent(modifier());
+		}
+
 		~BasicTree() {}
 	};
 
@@ -441,7 +503,7 @@ namespace Chtholly
 		String name;
 		StringView value;
 
-		template <typename ...T>
+		template <typename ...T, std::enable_if_t<std::is_constructible_v<StringView, T&&...>, int> = 0>
 		BasicParseUnit(Type inType, const String& inName, T&& ... inValue) : type(inType), name(inName), value(inValue...) {}
 
 		BasicParseUnit(const BasicParseUnit& src) : type(src.type), name(src.name), value(src.value) {}
@@ -451,16 +513,58 @@ namespace Chtholly
 			type = src.type;
 			name = src.name;
 			value = src.value;
+			
 			return *this;
+		}
+
+		bool operator== (const BasicParseUnit& other)
+		{
+			return type == other.type && name == other.name && value == other.value;
+		}
+		bool operator!= (const BasicParseUnit& other)
+		{
+			return !(*this == other);
 		}
 
 		~BasicParseUnit() {}
 	};
 
+	template<typename ValueType>
+	BasicParseUnit<ValueType> UnusedConstruct(std::in_place_type_t<BasicParseUnit<ValueType>>)
+	{
+		return { BasicParseUnit<ValueType>::Type::term, "unused" };
+	}
+
+
 	using ParseUnit = BasicParseUnit<std::string_view>;
 
 	template <typename StringView>
-	using BasicParseTree = BasicTree<BasicParseUnit<StringView>>;
+	class BasicParseTree : public BasicTree<BasicParseUnit<StringView>>
+	{
+	public:
+
+		using Unit		= BasicParseUnit<StringView>;
+		using UnitName	= typename Unit::String;
+		using UnitValue	= typename Unit::StringView;
+		using UnitType	= typename Unit::Type;
+
+		BasicParseTree(const UnitName& rootName) 
+			: BasicTree(UnitType::term, rootName) {}
+
+		static Node Token(const UnitName& name, const UnitValue& value)
+		{
+			return {UnitType::token, name, value};
+		}
+
+		template <typename... Nodes>
+		static Node Term(const UnitName& name, Nodes&& ...nodes)
+		{
+			static_assert(std::conjunction_v<std::is_same<std::remove_reference_t<Nodes>, Node>...>, "BasicParseTree::Term: invalid arguments type");
+			
+			return { Node::Container{ std::forward<Nodes>(nodes)... }, UnitType::term, name };
+		}
+
+	};
 
 	using ParseTree = BasicParseTree<std::string_view>;
 

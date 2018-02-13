@@ -11,27 +11,29 @@
 using namespace std;
 using namespace Chtholly;
 
-ostream& operator<< (ostream& out, const ParseTree::Visitor& v)
+string ToString (const ParseTree::Visitor& v)
 {
+	string out;
+
 	const auto isTerm = v.value().type == ParseUnit::Type::term;
 
-	if (isTerm) out << '(';
+	if (isTerm) out += '(';
 
 	if (isTerm)
 	{
-		out << v.value().name << ' ';
+		out += v.value().name + ' ';
 	}
 	else
 	{
-		out << v.value().name << '[' << v.value().value << "] ";
+		out += v.value().name + '[' + string(v.value().value) + "] ";
 	}
 
 	for (auto i = v.childrenBegin(); i != v.childrenEnd(); ++i)
 	{
-		out << i;
+		out += ToString(i);
 	}
 
-	if (isTerm) out << ')';
+	if (isTerm) out += ')';
 
 	return out;
 }
@@ -43,7 +45,7 @@ void parseInputAndLog(const Parser::Info& info)
 	const auto endTime = chrono::system_clock::now();
 
 
-	cout << "Parse tree : " << info.second << endl;
+	cout << "Parse tree : " << ToString(info.second) << endl;
 	auto trimIter = find_if(result.first.rbegin(), result.first.rend(), [](auto&& elem) { return !isspace(elem); });
 	result.first.remove_suffix(distance(result.first.rbegin(), trimIter));
 
@@ -70,7 +72,7 @@ int main()
 
 	while (true)
 	{
-		ParseTree tree(ParseUnit::Type::term, "root");
+		ParseTree tree("root");
 		auto modi = tree.modifier();
 
 		string input,line;

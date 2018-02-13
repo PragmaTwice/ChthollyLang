@@ -52,3 +52,5 @@
 *.VC.db-shm
 *.VC.db-wal
 
+# temporary test file
+/test/temp*
