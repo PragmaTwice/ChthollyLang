@@ -38,7 +38,7 @@
     <ClCompile Include="..\..\..\demo\wparser.cpp">
       <Filter>DEMO</Filter>
     </ClCompile>
-    <ClCompile Include="..\..\..\test\temp_180213_1.cpp">
+    <ClCompile Include="..\..\..\test\temp\180214_1.cpp">
       <Filter>TEST</Filter>
     </ClCompile>
   </ItemGroup>

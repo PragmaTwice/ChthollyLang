@@ -41,7 +41,10 @@ namespace Chtholly
 		struct Node
 		{
 			using Container = std::list<Node>;
+
+			using ConstIterator = typename Container::const_iterator;
 			using Iterator = typename Container::iterator;
+
 			using Size = typename Container::size_type;
 
 			ValueType value;
@@ -94,6 +97,17 @@ namespace Chtholly
 
 				return *this;
 			}
+
+			bool operator==(const Node& other) const
+			{
+				return value == other.value && children == other.children;
+			}
+
+			bool operator!=(const Node& other) const
+			{
+				return !(*this == other);
+			}
+
 		};
 
 
@@ -101,17 +115,144 @@ namespace Chtholly
 
 	public:
 
+		class Visitor;
+
+		class Observer
+		{
+		protected:
+
+			using Iterator = typename Node::ConstIterator;
+
+			Iterator nodeIter;
+
+			Observer(const Iterator& src) : nodeIter(src) {}
+
+			Observer& operator=(const Iterator& src)
+			{
+				return nodeIter = src;
+			}
+
+			const Node& operator*() const
+			{
+				return *nodeIter;
+			}
+
+			friend class BasicTree<ValueType>;
+
+		public:
+
+			Observer() {}
+			Observer(const Observer& src) : nodeIter(src.nodeIter) {}
+			Observer(const Visitor& src) : nodeIter(src.nodeIter) {}
+
+
+			Observer& operator=(const Observer& src)
+			{
+				return nodeIter = src.nodeIter;
+			}
+			bool operator==(const Observer& other) const
+			{
+				return nodeIter == other.nodeIter;
+			}
+			bool operator!=(const Observer& other) const
+			{
+				return nodeIter != other.nodeIter;
+			}
+
+			Observer& operator++()
+			{
+				++nodeIter;
+				return *this;
+			}
+			Observer& operator--()
+			{
+				--nodeIter;
+				return *this;
+			}
+
+			bool childrenEmpty() const
+			{
+				return nodeIter->children.empty();
+			}
+
+			typename Node::Size thisSize() const
+			{
+				return Observer(nodeIter->parent).childrenSize();
+			}
+			typename Node::Size childrenSize() const
+			{
+				return nodeIter->children.size();
+			}
+
+			Observer parent() const
+			{
+				return nodeIter->parent;
+			}
+
+			Observer thisBegin() const
+			{
+				return Observer(nodeIter->parent).childrenBegin();
+			}
+			Observer thisEnd() const
+			{
+				return Observer(nodeIter->parent).childrenEnd();
+			}
+			Observer thisNext() const
+			{
+				auto tempIter = nodeIter;
+				return ++tempIter;
+			}
+			Observer thisPrev() const
+			{
+				auto tempIter = nodeIter;
+				return --tempIter;
+			}
+
+			Observer childrenBegin() const
+			{
+				return nodeIter->children.begin();
+			}
+			Observer childrenEnd() const
+			{
+				return nodeIter->children.end();
+			}
+
+			const ValueType& value() const
+			{
+				return nodeIter->value;
+			}
+
+			const ValueType& childrenFrontValue() const
+			{
+				return nodeIter->children.front().value;
+			}
+			
+			const ValueType& childrenBackValue() const
+			{
+				return nodeIter->children.back().value;
+			}
+
+			~Observer() {}
+		};
+
 		class Visitor
 		{
 		protected:
 
-			typename Node::Iterator nodeIter;
+			using Iterator = typename Node::Iterator;
 
-			Visitor(const typename Node::Iterator& src) : nodeIter(src) {}
+			Iterator nodeIter;
 
-			Visitor& operator=(const typename Node::Iterator& src)
+			Visitor(const Iterator& src) : nodeIter(src) {}
+
+			Visitor& operator=(const Iterator& src)
 			{
 				return nodeIter = src;
+			}
+			
+			const Node& operator*() const
+			{
+				return *nodeIter;
 			}
 
 			friend class BasicTree<ValueType>;
@@ -225,11 +366,30 @@ namespace Chtholly
 		{
 		protected:
 
-			Modifier(const typename Node::Iterator& src) : Visitor(src) {}
+			Modifier(const Iterator& src) : Visitor(src) {}
 
 			void setParent(const Visitor& parent)
 			{
 				nodeIter->parent = parent.nodeIter;
+			}
+
+			const Node& operator*() const
+			{
+				return *nodeIter;
+			}
+
+			Node& operator*()
+			{
+				return *nodeIter;
+			}
+
+			explicit Modifier(const Visitor& src)
+				: Visitor(src.nodeIter) {}
+
+			Modifier& operator=(const Visitor& src)
+			{
+				nodeIter = src.nodeIter;
+				return *this;
 			}
 
 			friend class BasicTree<ValueType>;
@@ -238,17 +398,10 @@ namespace Chtholly
 
 			Modifier(){}
 
-			explicit Modifier(const Visitor& src) 
-				: Visitor(src.nodeIter) {}
 			Modifier(const Modifier& src) 
 				: Visitor(src.nodeIter) {}
 
 			Modifier& operator=(const Modifier& src)
-			{
-				nodeIter = src.nodeIter;
-				return *this;
-			}
-			Modifier& operator=(const Visitor& src)
 			{
 				nodeIter = src.nodeIter;
 				return *this;
@@ -442,6 +595,11 @@ namespace Chtholly
 			return *this;
 		}
 
+		Observer observer() const
+		{
+			return root.front().children.begin();
+		}
+
 		Visitor visitor()
 		{
 			return root.front().children.begin();
@@ -452,7 +610,7 @@ namespace Chtholly
 			return root.front().children.begin();
 		}
 
-		static bool CheckParent(const Visitor& vis)
+		static bool CheckParent(const Observer& vis)
 		{
 			for (auto child = vis.childrenBegin(); child != vis.childrenEnd(); ++child)
 			{
@@ -470,6 +628,16 @@ namespace Chtholly
 				child.setParent(modi);
 				FixParent(child);
 			}
+		}
+
+		static bool Equals(Observer lhs, Observer rhs)
+		{
+			return *lhs == *rhs;
+		}
+
+		bool operator==(const BasicTree& other)
+		{
+			return Equals(observer(), other.observer());
 		}
 
 		bool checkParent()
@@ -517,11 +685,11 @@ namespace Chtholly
 			return *this;
 		}
 
-		bool operator== (const BasicParseUnit& other)
+		bool operator== (const BasicParseUnit& other) const
 		{
 			return type == other.type && name == other.name && value == other.value;
 		}
-		bool operator!= (const BasicParseUnit& other)
+		bool operator!= (const BasicParseUnit& other) const
 		{
 			return !(*this == other);
 		}
