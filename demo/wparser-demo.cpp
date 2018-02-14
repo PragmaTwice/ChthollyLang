@@ -6,31 +6,42 @@
 #include <string>
 #include <algorithm>
 #include <chrono>
-#include <parser.hpp>
+#include "chtholly.h"
 
 using namespace std;
 using namespace Chtholly;
 
-string ToString (const ParseTree::Observer& v)
+wstring ToWString(const string& str)
 {
-	string out;
+	wstring result;
+	for(auto&& elem : str)
+	{
+		result += elem;
+	}
 
-	const auto isTerm = v.value().type == ParseUnit::Type::term;
+	return result;
+}
 
-	if (isTerm) out += '(';
+wstring ToWString(const BasicParseTree<wstring_view>::Observer& v)
+{
+	wstring out;
+
+	const auto isTerm = v.value().type == BasicParseUnit<wstring_view>::Type::term;
+
+	if (isTerm) out += L'(';
 
 	if (isTerm)
 	{
-		out += v.value().name + ' ';
+		out += ToWString(v.value().name) + L' ';
 	}
 	else
 	{
-		out += v.value().name + '[' + string(v.value().value) + "] ";
+		out += ToWString(v.value().name) + L'[' + wstring(v.value().value) + L"] ";
 	}
 
 	for (auto i = v.childrenBegin(); i != v.childrenEnd(); ++i)
 	{
-		out += ToString(i);
+		out += ToWString(i);
 	}
 
 	if (isTerm) out += ')';
@@ -38,26 +49,26 @@ string ToString (const ParseTree::Observer& v)
 	return out;
 }
 
-void parseInputAndLog(const Parser::Info& info)
+void parseInputAndLog(const BasicParser<wstring_view>::Info& info)
 {
 	const auto beginTime = chrono::system_clock::now();
-	auto result = Parser::Expression(info);
+	auto result = BasicParser<wstring_view>::Expression(info);
 	const auto endTime = chrono::system_clock::now();
 
-
-	cout << "Parse tree : " << ToString(info.second) << endl;
-	auto trimIter = find_if(result.first.rbegin(), result.first.rend(), [](auto&& elem) { return !isspace(elem); });
+	
+	wcout << L"Parse tree : " << ToWString(info.second) << endl;
+	auto trimIter = find_if(result.first.rbegin(), result.first.rend(), [](auto&& elem) { return !iswspace(elem); });
 	result.first.remove_suffix(distance(result.first.rbegin(), trimIter));
+	
+	wcout << L"Time usage : " << std::chrono::duration<double>(endTime - beginTime).count() << L"s" << endl;
+	if (!result.first.empty()) wcout << L"Cannot resolve : " << result.first << endl;
 
-	cout << "Time usage : " << std::chrono::duration<double>(endTime - beginTime).count() << "s" << endl;
-	if (!result.first.empty()) cout << "Cannot resolve : " << result.first << endl;
-
-	cout << endl;
+	wcout << endl;
 }
 
 int main()
 {
-	cout << R"(
+	wcout << LR"(
  ____     __      __    __              ___    ___                __                                   
 /\  _`\  /\ \    /\ \__/\ \            /\_ \  /\_ \              /\ \                                  
 \ \ \/\_\\ \ \___\ \ ,_\ \ \___     ___\//\ \ \//\ \    __  __   \ \ \         __      ___      __     
@@ -72,23 +83,23 @@ int main()
 
 	while (true)
 	{
-		ParseTree tree("root");
+		BasicParseTree<wstring_view> tree("root");
 		auto modi = tree.modifier();
 
-		string input,line;
-		cout << "Input :" << endl;
+		wstring input, line;
+		wcout << L"Input :" << endl;
 
-		while (cin.good())
+		while (wcin.good())
 		{
-			getline(cin, line);
-			input += line + "\n";
+			getline(wcin, line);
+			input += line + L"\n";
 		}
-		cin.clear();
+		wcin.clear();
 
-		static const auto exitCommand = "exit"sv;
-		if (string_view{input.data(), exitCommand.size()} == exitCommand)
+		static const auto exitCommand = L"exit"sv;
+		if (wstring_view{ input.data(), exitCommand.size() } == exitCommand)
 			break;
 
-		parseInputAndLog(Parser::MakeInfo(input,modi));
+		parseInputAndLog(BasicParser<wstring_view>::MakeInfo(input, modi));
 	}
 }
