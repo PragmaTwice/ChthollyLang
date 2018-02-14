@@ -22,7 +22,7 @@ wstring ToWString(const string& str)
 	return result;
 }
 
-wstring ToWString(const BasicParseTree<wstring_view>::Visitor& v)
+wstring ToWString(const BasicParseTree<wstring_view>::Observer& v)
 {
 	wstring out;
 

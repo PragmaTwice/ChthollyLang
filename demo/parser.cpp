@@ -11,7 +11,7 @@
 using namespace std;
 using namespace Chtholly;
 
-string ToString (const ParseTree::Visitor& v)
+string ToString (const ParseTree::Observer& v)
 {
 	string out;
 
