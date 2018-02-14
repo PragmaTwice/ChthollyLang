@@ -425,7 +425,7 @@ namespace Chtholly
 		template <typename ...T, std::enable_if_t<std::is_constructible_v<Node, T&&...>, int> = 0>
 		BasicTree(T&& ...inValue) : root{ { UnusedConstruct(std::in_place_type<ValueType>) } }
 		{
-			root.front().children.emplace_back(root.begin(), std::forward<T>(inValue)...);
+			Modifier(root.begin()).childrenPushBack(std::forward<T>(inValue)...);
 		}
 
 		BasicTree(const BasicTree& src) : root(src.root) {}
@@ -548,8 +548,12 @@ namespace Chtholly
 		using UnitValue	= typename Unit::StringView;
 		using UnitType	= typename Unit::Type;
 
-		BasicParseTree(const UnitName& rootName) 
-			: BasicTree(UnitType::term, rootName) {}
+		template <typename... Nodes>
+		BasicParseTree(const UnitName& rootName, Nodes&& ...nodes) 
+			: BasicTree(Node::Container{ std::forward<Nodes>(nodes)... }, UnitType::term, rootName)
+		{
+			static_assert(std::conjunction_v<std::is_same<std::remove_reference_t<Nodes>, Node>...>, "BasicParseTree::BasicParseTree: invalid arguments type");
+		}
 
 		static Node Token(const UnitName& name, const UnitValue& value)
 		{
