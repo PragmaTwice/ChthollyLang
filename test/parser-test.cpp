@@ -13,13 +13,13 @@ ParseTree parseString(const std::string_view& input_string)
 	return tree;
 }
 
-TEST(Literal, Integer) {
+TEST(Token, IntegerLiteral) {
 	EXPECT_EQ(parseString("1"),ParseTree(ParseTree::Token("IntLiteral","1")));
 	EXPECT_EQ(parseString("1234567890"), ParseTree(ParseTree::Token("IntLiteral", "1234567890")));
 	EXPECT_EQ(parseString("78294385928147234687253"), ParseTree(ParseTree::Token("IntLiteral", "78294385928147234687253")));
 }
 
-TEST(Literal, Float)
+TEST(Token, FloatLiteral)
 {
 	EXPECT_EQ(parseString("1."), ParseTree(ParseTree::Token("FloatLiteral", "1.")));
 	EXPECT_EQ(parseString("2.345"), ParseTree(ParseTree::Token("FloatLiteral", "2.345")));
@@ -27,7 +27,7 @@ TEST(Literal, Float)
 	EXPECT_EQ(parseString("234235.345323333333e+3435756756782"), ParseTree(ParseTree::Token("FloatLiteral", "234235.345323333333e+3435756756782")));
 }
 
-TEST(Literal, String)
+TEST(Token, StringLiteral)
 {
 	EXPECT_EQ(parseString(R"("hello")"), ParseTree(ParseTree::Token("StringLiteral", R"("hello")")));
 
@@ -41,4 +41,20 @@ TEST(Literal, String)
 	")";
 
 	EXPECT_EQ(parseString(tested_string_literal), ParseTree(ParseTree::Token("StringLiteral", tested_string_literal)));
+}
+
+TEST(Token, IdentifierLiteral)
+{
+	EXPECT_EQ(parseString("null"), ParseTree(ParseTree::Token("NullLiteral", "null")));
+	EXPECT_EQ(parseString("undef"), ParseTree(ParseTree::Token("UndefinedLiteral", "undef")));
+	EXPECT_EQ(parseString("true"), ParseTree(ParseTree::Token("TrueLiteral", "true")));
+	EXPECT_EQ(parseString("false"), ParseTree(ParseTree::Token("FalseLiteral", "false")));
+}
+
+TEST(Token, Identifier)
+{
+	EXPECT_EQ(parseString("a"), ParseTree(ParseTree::Token("Identifier", "a")));
+	EXPECT_EQ(parseString("integer_container"), ParseTree(ParseTree::Token("Identifier", "integer_container")));
+	EXPECT_EQ(parseString("_Static_assert"), ParseTree(ParseTree::Token("Identifier", "_Static_assert")));
+	EXPECT_EQ(parseString("iHave100AppleForYou"), ParseTree(ParseTree::Token("Identifier", "iHave100AppleForYou")));
 }
