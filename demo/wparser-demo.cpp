@@ -83,7 +83,7 @@ int main()
 
 	while (true)
 	{
-		BasicParseTree<wstring_view> tree("root");
+		BasicParseTree<wstring_view> tree;
 		auto modi = tree.modifier();
 
 		wstring input, line;

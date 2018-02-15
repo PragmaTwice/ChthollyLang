@@ -72,7 +72,7 @@ int main()
 
 	while (true)
 	{
-		ParseTree tree("root");
+		ParseTree tree;
 		auto modi = tree.modifier();
 
 		string input,line;
