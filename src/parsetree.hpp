@@ -581,11 +581,16 @@ namespace Chtholly
 			Modifier(root.begin()).childrenPushBack(std::forward<T>(inValue)...);
 		}
 
-		BasicTree(const BasicTree& src) : root(src.root) {}
+		BasicTree(const BasicTree& src) : root(src.root)
+		{
+			FixParent(root.begin());
+		}
 
 		BasicTree& operator=(const BasicTree& src)
 		{
 			root = src.root;
+			FixParent(root.begin());
+
 			return *this;
 		}
 
@@ -635,14 +640,14 @@ namespace Chtholly
 			return *lhs == *rhs;
 		}
 
-		bool operator==(const BasicTree& other)
+		bool operator==(const BasicTree& other) const
 		{
 			return Equals(observer(), other.observer());
 		}
 
-		bool checkParent()
+		bool checkParent() const
 		{
-			return CheckParent(visitor());
+			return CheckParent(observer());
 		}
 
 		void fixParent()
@@ -719,6 +724,13 @@ namespace Chtholly
 		template <typename... Nodes>
 		BasicParseTree(const UnitName& rootName, Nodes&& ...nodes) 
 			: BasicTree(Node::Container{ std::forward<Nodes>(nodes)... }, UnitType::term, rootName)
+		{
+			static_assert(std::conjunction_v<std::is_same<std::remove_reference_t<Nodes>, Node>...>, "BasicParseTree::BasicParseTree: invalid arguments type");
+		}
+
+		template <typename... Nodes, std::enable_if_t<std::conjunction_v<std::negation<std::is_constructible<UnitName, Nodes>>...>,int> = 0>
+		BasicParseTree(Nodes&& ...nodes)
+			: BasicParseTree("root", std::forward<Nodes>(nodes)...)
 		{
 			static_assert(std::conjunction_v<std::is_same<std::remove_reference_t<Nodes>, Node>...>, "BasicParseTree::BasicParseTree: invalid arguments type");
 		}

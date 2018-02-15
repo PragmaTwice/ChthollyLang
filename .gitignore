@@ -39,6 +39,7 @@
 **/x64/**
 **/Debug/**
 **/Release/**
+**/packages/**
 
 # MSVC Config Files
 **/.vs/**
