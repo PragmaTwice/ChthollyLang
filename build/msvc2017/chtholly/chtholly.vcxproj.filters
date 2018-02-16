@@ -10,20 +10,20 @@
     </Filter>
   </ItemGroup>
   <ItemGroup>
-    <ClInclude Include="..\..\..\src\parsetree.hpp">
-      <Filter>SRC</Filter>
-    </ClInclude>
-    <ClInclude Include="..\..\..\src\parserc.hpp">
-      <Filter>SRC</Filter>
-    </ClInclude>
-    <ClInclude Include="..\..\..\src\parser.hpp">
-      <Filter>SRC</Filter>
-    </ClInclude>
-    <ClInclude Include="..\..\..\src\chartype.hpp">
-      <Filter>SRC</Filter>
-    </ClInclude>
     <ClInclude Include="..\..\..\src\chtholly.h">
       <Filter>ALL</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\src\chtholly\chartype.hpp">
+      <Filter>SRC</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\src\chtholly\parser.hpp">
+      <Filter>SRC</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\src\chtholly\parserc.hpp">
+      <Filter>SRC</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\src\chtholly\parsetree.hpp">
+      <Filter>SRC</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>
