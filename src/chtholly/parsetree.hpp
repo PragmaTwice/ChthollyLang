@@ -20,6 +20,7 @@
 #include <string>
 #include <list>
 #include <type_traits>
+#include <utility>
 
 namespace Chtholly
 {
@@ -36,9 +37,9 @@ namespace Chtholly
 
 		using ValueType = inValueType;
 
-	protected:
+		struct NodeWrapper;
 
-		class NodeWrapper;
+	protected:
 
 		struct Node
 		{
@@ -375,6 +376,10 @@ namespace Chtholly
 		class Modifier : public Visitor
 		{
 		protected:
+
+			using typename Visitor::Iterator;
+
+			using Visitor::nodeIter;
 
 			Modifier(const Iterator& src) : Visitor(src) {}
 
@@ -726,14 +731,29 @@ namespace Chtholly
 	{
 	public:
 
-		using Unit		= BasicParseUnit<StringView>;
+		using Unit = BasicParseUnit<StringView>;
+
+	private:
+
+		using Super	= BasicTree<Unit>;
+
+		using typename Super::Node;
+
+	public:
+
+		using typename Super::Observer;
+		using typename Super::Visitor;
+		using typename Super::Modifier;
+
+		using typename Super::NodeWrapper;
+
 		using UnitName	= typename Unit::String;
 		using UnitValue	= typename Unit::StringView;
 		using UnitType	= typename Unit::Type;
 
 		template <typename... Nodes>
 		BasicParseTree(const UnitName& rootName, Nodes&& ...nodes) 
-			: BasicTree(Node::Container{ std::forward<Nodes>(nodes)... }, UnitType::term, rootName)
+			: Super(typename Node::Container{ std::forward<Nodes>(nodes)... }, UnitType::term, rootName)
 		{
 			static_assert(std::conjunction_v<std::is_same<std::remove_reference_t<Nodes>, NodeWrapper>...>, "BasicParseTree::BasicParseTree: invalid arguments type");
 		}
@@ -755,7 +775,7 @@ namespace Chtholly
 		{
 			static_assert(std::conjunction_v<std::is_same<std::remove_reference_t<Nodes>, NodeWrapper>...>, "BasicParseTree::Term: invalid arguments type");
 			
-			return { Node::Container{ std::forward<Nodes>(nodes)... }, UnitType::term, name };
+			return { typename Node::Container{ std::forward<Nodes>(nodes)... }, UnitType::term, name };
 		}
 
 	};

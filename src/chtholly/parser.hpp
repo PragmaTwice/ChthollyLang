@@ -33,10 +33,67 @@ namespace Chtholly
 	template <typename StringView>
 	class BasicParser : public BasicParserCombinator<StringView>
 	{
+	protected:
+
+		using Super = BasicParserCombinator<StringView>;
 
 	public:
 
 		BasicParser() = delete;
+
+		// Types:
+
+		using typename Super::Lang;
+		using typename Super::LangRef;
+
+		using typename Super::Tree;
+
+		using typename Super::Modifier;
+		using typename Super::ModifierRef;
+
+		using typename Super::Info;
+		using typename Super::InfoRef;
+
+		using typename Super::Unit;
+
+		using typename Super::Char;
+		using typename Super::Iter;
+		using typename Super::Size;
+
+		using typename Super::Process;
+		using typename Super::ProcessRef;
+
+		template <typename ...Args>
+		using Predicate = typename Super::template Predicate<Args...>;
+
+		template <typename ...Args>
+		using PredicateRef = const Predicate<Args...> &;
+
+		template <typename T>
+		using InitList = typename Super::template InitList<T>;
+
+		template <typename T>
+		using InitListRef = const InitList<T>&;
+
+		using typename Super::ModifierProcess;
+		using typename Super::ModifierProcessRef;
+
+		using typename Super::ModifierChange;
+		using typename Super::ModifierChangeRef;
+
+		// Methods:
+
+		using Super::Match;
+
+		using Super::Atom;
+		using Super::AnyChar;
+		using Super::AnyCharUntil;
+
+		using Super::Catch;
+
+		using Super::Change;
+		using Super::ChangeIn;
+		using Super::ChangeOut;
 
 		/*
 		// Space = '\t' | '\n' | '\v' | '\f' | '\r' | ' '
@@ -95,7 +152,7 @@ namespace Chtholly
 
 		// UnescapedCharacter = not ('"' | '\\')
 		inline static Process UnescapedCharacter =
-			Match([=](Char c)
+			Match([](Char c)
 			{
 				return c != '"' && c != '\\';
 			});

@@ -105,20 +105,20 @@ namespace Chtholly
 		// Match a character with a predicate
 		static Process Match(PredicateRef<Char> predicate)
 		{
-			return [=](Info info)
+			return Process([=](Info info)
 			{
 				if (info.first.empty()) return info;
 
 				if (predicate(info.first.front())) return MoveOn(info);
 
 				return info;
-			};
+			});
 		}
 
 		// Match a character with a character list
 		static Process Match(InitListRef<Char> initList)
 		{
-			return [=](Info info)
+			return Process([=](Info info)
 			{
 				if (info.first.empty()) return info;
 
@@ -129,26 +129,26 @@ namespace Chtholly
 				}
 
 				return info;
-			};
+			});
 		}
 
 		// Match a character with a character
 		static Process Match(Char character)
 		{
-			return [=](Info info)
+			return Process([=](Info info)
 			{
 				if (info.first.empty()) return info;
 
 				if (character == info.first.front()) return MoveOn(info);
 
 				return info;
-			};
+			});
 		}
 
 		// Match a character string with a string list
 		static Process Match(InitListRef<Lang> initList)
 		{
-			return [=](Info info)
+			return Process([=](Info info)
 			{
 				for (auto&& elem : initList)
 				{
@@ -159,20 +159,20 @@ namespace Chtholly
 				}
 
 				return info;
-			};
+			});
 		}
 
 		// Match a character string with a string
 		static Process Match(Lang string)
 		{
-			return [=](Info info)
+			return Process([=](Info info)
 			{
 				Iter i = string.cbegin(), j = info.first.cbegin();
 				while (i != string.cend() && j != info.first.cend() && *i == *j) ++i, ++j;
 				if (i == string.cend()) return MoveOn(info, j);
 
 				return info;
-			};
+			});
 		}
 
 		// Atom process
@@ -230,13 +230,13 @@ namespace Chtholly
 		// operator+(A) = A A*
 		friend Process operator+(ProcessRef lhs)
 		{
-			return [=](Info info)
+			return Process([=](Info info)
 			{
 				if (Info i = lhs(info); lhs.IsNotEqual(i, info))
 					return (+lhs)(i);
 
 				return info;
-			};
+			});
 		}
 
 		// operator*(A) = A*
@@ -265,7 +265,7 @@ namespace Chtholly
 		// Catch Info
 		static Process Catch(ProcessRef pro, ModifierProcessRef mod)
 		{
-			return [=](Info info)
+			return Process([=](Info info)
 			{
 				if (Info i = pro(info); pro.IsNotEqual(i, info))
 				{
@@ -273,7 +273,7 @@ namespace Chtholly
 				}
 
 				return info;
-			};
+			});
 		}
 
 		// Catch Info(token) then push it to the parseTree
@@ -293,10 +293,10 @@ namespace Chtholly
 		// Change modifier in Info
 		static Process Change(ModifierChangeRef mod)
 		{
-			return [=](Info info)
+			return Process([=](Info info)
 			{
 				return Info(info.first, mod(info.second));
-			};
+			});
 		}
 
 		// Enter a term
