@@ -38,6 +38,8 @@ namespace Chtholly
 
 	protected:
 
+		class NodeWrapper;
+
 		struct Node
 		{
 			using Container = std::list<Node>;
@@ -80,6 +82,9 @@ namespace Chtholly
 			Node(Iterator in_iterator, const Container& in_container, const Node& src)
 				: value(src.value), parent(in_iterator), children(in_container) {}
 
+			Node(const NodeWrapper& wrapper)
+				: Node((const Node&)wrapper) {}
+
 			Node& operator=(const Node& src)
 			{
 				value = src.value;
@@ -114,6 +119,11 @@ namespace Chtholly
 		typename Node::Container root;
 
 	public:
+
+		struct NodeWrapper : private Node
+		{
+			using Node::Node;
+		};
 
 		class Visitor;
 
@@ -725,25 +735,25 @@ namespace Chtholly
 		BasicParseTree(const UnitName& rootName, Nodes&& ...nodes) 
 			: BasicTree(Node::Container{ std::forward<Nodes>(nodes)... }, UnitType::term, rootName)
 		{
-			static_assert(std::conjunction_v<std::is_same<std::remove_reference_t<Nodes>, Node>...>, "BasicParseTree::BasicParseTree: invalid arguments type");
+			static_assert(std::conjunction_v<std::is_same<std::remove_reference_t<Nodes>, NodeWrapper>...>, "BasicParseTree::BasicParseTree: invalid arguments type");
 		}
 
 		template <typename... Nodes, std::enable_if_t<std::conjunction_v<std::negation<std::is_constructible<UnitName, Nodes>>...>,int> = 0>
 		BasicParseTree(Nodes&& ...nodes)
 			: BasicParseTree("root", std::forward<Nodes>(nodes)...)
 		{
-			static_assert(std::conjunction_v<std::is_same<std::remove_reference_t<Nodes>, Node>...>, "BasicParseTree::BasicParseTree: invalid arguments type");
+			static_assert(std::conjunction_v<std::is_same<std::remove_reference_t<Nodes>, NodeWrapper>...>, "BasicParseTree::BasicParseTree: invalid arguments type");
 		}
 
-		static Node Token(const UnitName& name, const UnitValue& value)
+		static NodeWrapper Token(const UnitName& name, const UnitValue& value)
 		{
 			return {UnitType::token, name, value};
 		}
 
 		template <typename... Nodes>
-		static Node Term(const UnitName& name, Nodes&& ...nodes)
+		static NodeWrapper Term(const UnitName& name, Nodes&& ...nodes)
 		{
-			static_assert(std::conjunction_v<std::is_same<std::remove_reference_t<Nodes>, Node>...>, "BasicParseTree::Term: invalid arguments type");
+			static_assert(std::conjunction_v<std::is_same<std::remove_reference_t<Nodes>, NodeWrapper>...>, "BasicParseTree::Term: invalid arguments type");
 			
 			return { Node::Container{ std::forward<Nodes>(nodes)... }, UnitType::term, name };
 		}
@@ -752,4 +762,11 @@ namespace Chtholly
 
 	using ParseTree = BasicParseTree<std::string_view>;
 
+	inline auto Token = ParseTree::Token;
+
+	template <typename ...Args>
+	decltype(auto) Term(Args&& ...args)
+	{
+		return ParseTree::Term(std::forward<Args>(args)...);
+	}
 }
