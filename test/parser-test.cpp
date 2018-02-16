@@ -6,9 +6,42 @@
 
 using namespace Chtholly;
 
+std::string ToString(const ParseTree::Observer& v)
+{
+	std::string out;
+
+	const auto isTerm = v.value().type == ParseUnit::Type::term;
+
+	if (isTerm) out += '(';
+
+	if (isTerm)
+	{
+		out += v.value().name + ' ';
+	}
+	else
+	{
+		out += v.value().name + '[' + std::string(v.value().value) + "] ";
+	}
+
+	for (auto i = v.childrenBegin(); i != v.childrenEnd(); ++i)
+	{
+		out += ToString(i);
+	}
+
+	if (isTerm) out += ')';
+
+	return out;
+}
+
+std::ostream& operator<<(std::ostream& out, const ParseTree& tree)
+{
+	out << ToString(tree.observer());
+	return out;
+}
+
 ParseTree parseString(const std::string_view& input_string)
 {
-	ParseTree tree("root");
+	ParseTree tree;
 	Parser::Expression(Parser::MakeInfo(input_string, tree.modifier()));
 	return tree;
 }
@@ -22,6 +55,7 @@ TEST(Token, IntegerLiteral) {
 TEST(Token, FloatLiteral)
 {
 	EXPECT_EQ(parseString("1."), ParseTree(ParseTree::Token("FloatLiteral", "1.")));
+	EXPECT_EQ(parseString("01.e0222"), ParseTree(ParseTree::Token("FloatLiteral", "01.e0222")));
 	EXPECT_EQ(parseString("2.345"), ParseTree(ParseTree::Token("FloatLiteral", "2.345")));
 	EXPECT_EQ(parseString("6.78e-90"), ParseTree(ParseTree::Token("FloatLiteral", "6.78e-90")));
 	EXPECT_EQ(parseString("234235.345323333333e+3435756756782"), ParseTree(ParseTree::Token("FloatLiteral", "234235.345323333333e+3435756756782")));
@@ -57,4 +91,11 @@ TEST(Token, Identifier)
 	EXPECT_EQ(parseString("integer_container"), ParseTree(ParseTree::Token("Identifier", "integer_container")));
 	EXPECT_EQ(parseString("_Static_assert"), ParseTree(ParseTree::Token("Identifier", "_Static_assert")));
 	EXPECT_EQ(parseString("iHave100AppleForYou"), ParseTree(ParseTree::Token("Identifier", "iHave100AppleForYou")));
+}
+
+TEST(Expression, DefineExpression)
+{
+	EXPECT_EQ(parseString("var x"), ParseTree(ParseTree::Term("VarDefineExpression", ParseTree::Token("Identifier", "x"))));
+	EXPECT_EQ(parseString("const hello"), ParseTree(ParseTree::Term("ConstDefineExpression", ParseTree::Token("Identifier", "hello"))));
+	EXPECT_EQ(parseString("var y: int"), ParseTree(ParseTree::Term("VarDefineExpression", ParseTree::Token("Identifier", "y"), ParseTree::Token("Identifier", "int"))));
 }
