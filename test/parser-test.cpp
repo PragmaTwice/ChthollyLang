@@ -95,7 +95,119 @@ TEST(Token, Identifier)
 
 TEST(Expression, DefineExpression)
 {
-	EXPECT_EQ(parseString("var x"), ParseTree(Term("VarDefineExpression", Token("Identifier", "x"))));
-	EXPECT_EQ(parseString("const hello"), ParseTree(Term("ConstDefineExpression", Token("Identifier", "hello"))));
-	EXPECT_EQ(parseString("var y: int"), ParseTree(Term("VarDefineExpression", Token("Identifier", "y"), Token("Identifier", "int"))));
+	EXPECT_EQ(parseString("var x"), ParseTree(
+		Term("VarDefineExpression", Token("Identifier", "x"))
+	));
+	EXPECT_EQ(parseString("const hello"), ParseTree(
+		Term("ConstDefineExpression", Token("Identifier", "hello"))
+	));
+	EXPECT_EQ(parseString("var y: int"), ParseTree(
+		Term("VarDefineExpression", Token("Identifier", "y"), Token("Identifier", "int"))
+	));
+	EXPECT_EQ(parseString("var (x...,y:int,z):number"), ParseTree(
+		Term("VarDefineExpression",
+			Term("PatternExperssion",
+				Term("ConstraintExperssionAtPatternExperssion",Token("Identifier","x"), Token("Separator", "...")),
+				Token("Separator", ","),
+				Term("ConstraintExperssionAtPatternExperssion", Token("Identifier", "y"), Token("Identifier", "int")),
+				Token("Separator", ","),
+				Term("ConstraintExperssionAtPatternExperssion", Token("Identifier", "z")),
+				Token("Identifier", "number")
+			)
+		)
+	));
+}
+
+TEST(Expression, LambdaExpression)
+{
+	EXPECT_EQ(parseString("fn(x) x"), ParseTree(
+		Term("LambdaExpression",
+			Term("PatternExperssion",
+				Term("ConstraintExperssionAtPatternExperssion", Token("Identifier", "x"))
+			),
+			Token("Identifier", "x")
+		)
+	));
+
+	EXPECT_EQ(parseString("fn(x,y) if(x>y) x else y"), ParseTree(
+		Term("LambdaExpression",
+			Term("PatternExperssion",
+				Term("ConstraintExperssionAtPatternExperssion", Token("Identifier", "x")),
+				Token("Separator", ","),
+				Term("ConstraintExperssionAtPatternExperssion", Token("Identifier", "y"))
+			),
+			Term("ConditionExpression",
+				Term("RelationalExpression",
+					Token("Identifier", "x"),
+					Token("BinaryOperator", ">"),
+					Token("Identifier", "y")
+				),
+				Token("Identifier", "x"),
+				Token("Identifier", "y")
+			)
+		)
+	));
+
+	EXPECT_EQ(parseString("fn(x,y,z):number x*x+y*y+z*z"), ParseTree(
+		Term("LambdaExpression",
+			Term("PatternExperssion",
+				Term("ConstraintExperssionAtPatternExperssion", Token("Identifier", "x")),
+				Token("Separator", ","),
+				Term("ConstraintExperssionAtPatternExperssion", Token("Identifier", "y")),
+				Token("Separator", ","),
+				Term("ConstraintExperssionAtPatternExperssion", Token("Identifier", "z")),
+				Token("Identifier", "number")
+			),
+			Term("AdditiveExpression",
+				Term("MultiplicativeExpression",
+					Token("Identifier", "x"),
+					Token("BinaryOperator", "*"),
+					Token("Identifier", "x")
+				),
+				Token("BinaryOperator", "+"),
+				Term("MultiplicativeExpression",
+					Token("Identifier", "y"),
+					Token("BinaryOperator", "*"),
+					Token("Identifier", "y")
+				),
+				Token("BinaryOperator", "+"),
+				Term("MultiplicativeExpression",
+					Token("Identifier", "z"),
+					Token("BinaryOperator", "*"),
+					Token("Identifier", "z")
+				)
+			)
+		)
+	));
+
+	EXPECT_EQ(parseString("fn(x,y) (var temp=x, x=y; y=temp)"), ParseTree(
+		Term("LambdaExpression",
+			Term("PatternExperssion",
+				Term("ConstraintExperssionAtPatternExperssion", Token("Identifier", "x")),
+				Token("Separator", ","),
+				Term("ConstraintExperssionAtPatternExperssion", Token("Identifier", "y"))
+			),
+			Term("Expression",
+				Term("AssignmentExpression",
+					Term("VarDefineExpression",
+						Token("Identifier", "temp")
+					),
+					Token("BinaryOperator","="),
+					Token("Identifier", "x")
+				),
+				Token("Separator", ","),
+				Term("AssignmentExpression",
+					Token("Identifier", "x"),
+					Token("BinaryOperator", "="),
+					Token("Identifier", "y")
+				),
+				Token("Separator", ";"),
+				Term("AssignmentExpression",
+					Token("Identifier", "y"),
+					Token("BinaryOperator", "="),
+					Token("Identifier", "temp")
+				)
+			)
+		)
+	));
 }
