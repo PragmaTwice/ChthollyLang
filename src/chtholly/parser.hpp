@@ -97,22 +97,22 @@ namespace Chtholly
 
 		/*
 		// Space = '\t' | '\n' | '\v' | '\f' | '\r' | ' '
-		inline static Process Space = Match(isspace);
+		inline static const Process Space = Match(isspace);
 
 		// Digit = '0' ... '9'
-		inline static Process Digit = Match(isdigit);
+		inline static const Process Digit = Match(isdigit);
 
 		// UpperCaseLetter = 'A' ... 'Z'
-		inline static Process UpperCaseLetter = Match(isupper);
+		inline static const Process UpperCaseLetter = Match(isupper);
 
 		// LowerCaseLetter = 'a' ... 'z'
-		inline static Process LowerCaseLetter = Match(islower);
+		inline static const Process LowerCaseLetter = Match(islower);
 
 		// Letter = UpperCaseLetter | LowerCaseLetter
-		inline static Process Letter = Match(isalpha);
+		inline static const Process Letter = Match(isalpha);
 
 		// DigitOrLetter = Digit | Letter
-		inline static Process DigitOrLetter = Match(isalnum);
+		inline static const Process DigitOrLetter = Match(isalnum);
 		*/
 
 		#define GL(stringLiteral) G(Lang,stringLiteral)
@@ -132,11 +132,11 @@ namespace Chtholly
 		}
 
 		// IntLiteral = Digit+
-		inline static Process IntLiteral =
+		inline static const Process IntLiteral =
 			Catch(+Match(CType::isDigit), "IntLiteral");
 
 		// FloatLiteral = Digit+ '.' Digit* (('E'|'e') ('+'|'-')? Digit+)?
-		inline static Process FloatLiteral =
+		inline static const Process FloatLiteral =
 			Catch(
 				(
 					+Match(CType::isDigit),
@@ -151,21 +151,21 @@ namespace Chtholly
 				"FloatLiteral");
 
 		// UnescapedCharacter = not ('"' | '\\')
-		inline static Process UnescapedCharacter =
+		inline static const Process UnescapedCharacter =
 			Match([](Char c)
 			{
 				return c != '"' && c != '\\';
 			});
 
 		// EscapedCharacter = '\\' ('"' | '\\' | 'b' | 'f' | 'n' | 'r' | 't' | 'v')
-		inline static Process EscapedCharacter =
+		inline static const Process EscapedCharacter =
 			(
 				Match('\\'),
 				Match({ '"','\\','b','f','n','r','t','v' })
 			);
 
 		// StringLiteral = '"' (EscapedCharacter|UnescapedCharacter)* '"'
-		inline static Process StringLiteral =
+		inline static const Process StringLiteral =
 			Catch(
 				(
 					Match('"'),
@@ -177,7 +177,7 @@ namespace Chtholly
 			"StringLiteral");
 
 		// Identifier = (Letter | '_') (DigitOrLetter | '_')*
-		inline static Process Identifier =
+		inline static const Process Identifier =
 			Catch(
 				(
 					(
@@ -190,23 +190,23 @@ namespace Chtholly
 			"Identifier");
 
 		// NullLiteral = "null"
-		inline static Process NullLiteral =
+		inline static const Process NullLiteral =
 			Catch(MatchKey(GL("null")), "NullLiteral");
 
 		// UndefinedLiteral = "undef"
-		inline static Process UndefinedLiteral =
+		inline static const Process UndefinedLiteral =
 			Catch(MatchKey(GL( "undef")), "UndefinedLiteral");
 
 		// TrueLiteral = "true"
-		inline static Process TrueLiteral =
+		inline static const Process TrueLiteral =
 			Catch(MatchKey(GL( "true")), "TrueLiteral");
 
 		// FalseLiteral = "false"
-		inline static Process FalseLiteral =
+		inline static const Process FalseLiteral =
 			Catch(MatchKey(GL( "false")), "FalseLiteral");
 
 		// Literal = FloatLiteral | IntLiteral | StringLiteral | NullLiteral | UndefinedLiteral | TrueLiteral | FalseLiteral
-		inline static Process Literal =
+		inline static const Process Literal =
 			(
 				FloatLiteral     |
 				IntLiteral       |
@@ -218,21 +218,21 @@ namespace Chtholly
 			);
 
 		// MultiLineComment = "/*" (not "*/")* "*/"
-		inline static Process MultiLineComment =
+		inline static const Process MultiLineComment =
 			(
 				Match(GL("/*")),
 				AnyCharUntil(Match(GL( "*/")))
 			);
 
 		// SingleLineComment = "//" (not '\n')*
-		inline static Process SingleLineComment =
+		inline static const Process SingleLineComment =
 			(
 				Match(GL("//")),
 				AnyCharUntil(Match('\n'))
 			);
 
 		// Comment = SingleLineComment | MultiLineComment
-		inline static Process Comment =
+		inline static const Process Comment =
 			(
 				SingleLineComment | 
 				MultiLineComment
@@ -251,7 +251,7 @@ namespace Chtholly
 		}
 
 		// ExpressionList = '(' Expression ')'
-		inline static Process ExpressionList =
+		inline static const Process ExpressionList =
 			(
 				Term(Match('(')),
 				Expression,
@@ -259,7 +259,7 @@ namespace Chtholly
 			);
 
 		// ArrayList = '[' (SigleExpression (',' SigleExpression)*)? ']'
-		inline static Process ArrayList =
+		inline static const Process ArrayList =
 			(
 				Term(Match('[')),
 				ChangeIn("ArrayList"),
@@ -275,7 +275,7 @@ namespace Chtholly
 			);
 
 		// DictList = '{' (SigleExpression (',' SigleExpression)*)? '}'
-		inline static Process DictList =
+		inline static const Process DictList =
 			(
 				Term(Match('{')),
 				ChangeIn("DictList"),
@@ -291,7 +291,7 @@ namespace Chtholly
 			);
 
 		// UndefExpression = '(' ')'
-		inline static Process UndefExpression =
+		inline static const Process UndefExpression =
 			(
 				Term(Match('(')),
 				Term(Match(')')),
@@ -300,7 +300,7 @@ namespace Chtholly
 			);
 
 		// List = UndefExpression | ExpressionList | ArrayList | DictList
-		inline static Process List =
+		inline static const Process List =
 			(
 				UndefExpression|
 				ExpressionList |
@@ -309,28 +309,28 @@ namespace Chtholly
 			);
 
 		// PrimaryExpression = Literal | Identifier | List
-		inline static Process PrimaryExpression =
+		inline static const Process PrimaryExpression =
 			(
 				Term(Literal)	 |
 				Term(Identifier) |
 				List
 			);
 
-		inline static Process ConstraintPartAtConstraintExperssion =
+		inline static const Process ConstraintPartAtConstraintExperssion =
 			(
 				Term(Match(':')),
 				SigleExpression
 			);
 
 		// ConstraintExperssion = Identifier (':' PrimaryExpression)?
-		inline static Process ConstraintExperssion =
+		inline static const Process ConstraintExperssion =
 			(
 				Term(Identifier),
 				~ConstraintPartAtConstraintExperssion
 			);
 
 		// ConstraintExperssionAtPatternExperssion = Identifier "..."? (':' PrimaryExpression)?
-		inline static Process ConstraintExperssionAtPatternExperssion =
+		inline static const Process ConstraintExperssionAtPatternExperssion =
 			(
 				ChangeIn("ConstraintExperssionAtPatternExperssion"),
 				(
@@ -356,7 +356,7 @@ namespace Chtholly
 		}
 
 		// PatternExperssion = '(' ( ConstraintExperssionAtPatternExperssion ((','|';') ConstraintExperssionAtPatternExperssion)* (','|';')? | Atom ) ')' (':' PrimaryExpression)?
-		inline static Process PatternExperssion =
+		inline static const Process PatternExperssion =
 			(
 				Term(Match('(')),
 				ChangeIn("PatternExperssion"),
@@ -372,7 +372,7 @@ namespace Chtholly
 			);
 
 		// VarDefineExpression = "var" ConstraintExperssion
-		inline static Process VarDefineExpression =
+		inline static const Process VarDefineExpression =
 			(
 				Term(MatchKey(GL( "var"))),
 				ChangeIn("VarDefineExpression"),
@@ -381,7 +381,7 @@ namespace Chtholly
 			);
 		
 		// ConstDefineExpression = "const" ConstraintExperssion
-		inline static Process ConstDefineExpression =
+		inline static const Process ConstDefineExpression =
 			(
 				Term(MatchKey(GL( "const"))),
 				ChangeIn("ConstDefineExpression"),
@@ -390,7 +390,7 @@ namespace Chtholly
 			);
 
 		// DefineExpression = PrimaryExpression | VarDefineExpression | ConstDefineExpression
-		inline static Process DefineExpression =
+		inline static const Process DefineExpression =
 			(
 				VarDefineExpression |
 				ConstDefineExpression |
@@ -398,7 +398,7 @@ namespace Chtholly
 			);
 
 		// LambdaExperssion = DefineExpression | "fn" PatternExperssion SigleExpression
-		inline static Process LambdaExperssion =
+		inline static const Process LambdaExperssion =
 			(
 				(
 					Term(MatchKey(GL("fn"))),
@@ -411,7 +411,7 @@ namespace Chtholly
 			);
 
 		// ConditionExpression = LambdaExperssion | "if" '(' Expression ')' SigleExpression ("else" SigleExpression)?
-		inline static Process ConditionExpression =
+		inline static const Process ConditionExpression =
 			(
 				(
 					Term(MatchKey(GL( "if"))),
@@ -430,7 +430,7 @@ namespace Chtholly
 			);
 
 		// ReturnExpression = ConditionExpression | "return" SigleExpression?
-		inline static Process ReturnExpression =
+		inline static const Process ReturnExpression =
 			(
 				(
 					Term(MatchKey(GL( "return"))),
@@ -442,7 +442,7 @@ namespace Chtholly
 			);
 
 		// LoopControlExpression = ReturnExpression | ("break"|"continue") SigleExpression?
-		inline static Process LoopControlExpression =
+		inline static const Process LoopControlExpression =
 			(
 				(
 					Term(MatchKey({ GL( "break"), GL("continue") })),
@@ -454,7 +454,7 @@ namespace Chtholly
 			);
 
 		// WhileLoopExpression = LoopControlExpression | "while" '(' Expression ')' SigleExpression
-		inline static Process WhileLoopExpression =
+		inline static const Process WhileLoopExpression =
 			(
 				(
 					Term(MatchKey(GL( "while"))),
@@ -473,7 +473,7 @@ namespace Chtholly
 			);
 
 		// DoWhileLoopExpression = WhileLoopExpression | "do" SigleExpression "while" '(' Expression ')'
-		inline static Process DoWhileLoopExpression =
+		inline static const Process DoWhileLoopExpression =
 			(
 				(
 					Term(MatchKey(GL( "do"))),
@@ -493,7 +493,7 @@ namespace Chtholly
 			);
 
 		// FunctionExpression = DoWhileLoopExpression List*
-		inline static Process FunctionExpression =
+		inline static const Process FunctionExpression =
 			(
 				ChangeIn("FunctionExpression"),
 				DoWhileLoopExpression,
@@ -502,7 +502,7 @@ namespace Chtholly
 			);
 
 		// PointExpression = FunctionExpression | PointExpression '->' FunctionExpression
-		inline static Process PointExpression =
+		inline static const Process PointExpression =
 			(
 				ChangeIn("PointExpression"),
 				BinaryOperator(FunctionExpression, Match(GL( "->"))),
@@ -510,7 +510,7 @@ namespace Chtholly
 			);
 
 		// FoldExperssion = PointExpression "..."*
-		inline static Process FoldExperssion =
+		inline static const Process FoldExperssion =
 			(
 				ChangeIn("FoldExperssion"),
 				PointExpression,
@@ -519,7 +519,7 @@ namespace Chtholly
 			);
 
 		// UnaryExpression = FoldExperssion | (('+' | '-') | "not") UnaryExpression
-		inline static Process UnaryExpression =
+		inline static const Process UnaryExpression =
 			(
 				ChangeIn("UnaryExpression"),
 				*(
@@ -531,7 +531,7 @@ namespace Chtholly
 			);
 
 		// MultiplicativeExpression = UnaryExpression | MultiplicativeExpression ('*'|'/'|'%') UnaryExpression
-		inline static Process MultiplicativeExpression =
+		inline static const Process MultiplicativeExpression =
 			(
 				ChangeIn("MultiplicativeExpression"),
 				BinaryOperator(UnaryExpression, Match({ '*','/','%' }) ^Match('=')),
@@ -539,7 +539,7 @@ namespace Chtholly
 			);
 
 		// AdditiveExpression = MultiplicativeExpression | AdditiveExpression ('+'|'-') MultiplicativeExpression
-		inline static Process AdditiveExpression =
+		inline static const Process AdditiveExpression =
 			(
 				ChangeIn("AdditiveExpression"),
 				BinaryOperator(MultiplicativeExpression, Match({ '+','-' }) ^Match('=')),
@@ -547,7 +547,7 @@ namespace Chtholly
 			);
 
 		// RelationalExpression = AdditiveExpression | RelationalExpression ("<="|">="|'<'|'>') AdditiveExpression
-		inline static Process RelationalExpression =
+		inline static const Process RelationalExpression =
 			(
 				ChangeIn("RelationalExpression"),
 				BinaryOperator(AdditiveExpression, Match({ GL("<="), GL(">="), GL("<"), GL(">") })),
@@ -555,7 +555,7 @@ namespace Chtholly
 			);
 
 		// EqualityExpression = RelationalExpression | EqualityExpression ("=="|"<>") RelationalExpression
-		inline static Process EqualityExpression =
+		inline static const Process EqualityExpression =
 			(
 				ChangeIn("EqualityExpression"),
 				BinaryOperator(RelationalExpression, Match({ GL("=="), GL("<>") })),
@@ -563,7 +563,7 @@ namespace Chtholly
 			);
 
 		// LogicalAndExpression = EqualityExpression | LogicalAndExpression "and" EqualityExpression
-		inline static Process LogicalAndExpression =
+		inline static const Process LogicalAndExpression =
 			(
 				ChangeIn("LogicalAndExpression"),
 				BinaryOperator(EqualityExpression, MatchKey(GL( "and"))),
@@ -571,7 +571,7 @@ namespace Chtholly
 			);
 
 		// LogicalOrExpression = LogicalAndExpression | LogicalOrExpression "or" LogicalAndExpression
-		inline static Process LogicalOrExpression =
+		inline static const Process LogicalOrExpression =
 			(
 				ChangeIn("LogicalOrExpression"),
 				BinaryOperator(LogicalAndExpression, MatchKey(GL( "or"))),
@@ -579,11 +579,11 @@ namespace Chtholly
 			);
 
 		// AssignmentOperator = '=' | '*=' | '/=' | '%=' | '+=' | '-='
-		inline static Process AssignmentOperator =
+		inline static const Process AssignmentOperator =
 			Match({ GL("="), GL("*="), GL("/="), GL("%="), GL("+="), GL("-=") });
 
 		// AssignmentExpression = LogicalOrExpression | LogicalOrExpression AssignmentOperator SigleExpression
-		inline static Process AssignmentExpression =
+		inline static const Process AssignmentExpression =
 			(
 				ChangeIn("AssignmentExpression"),
 				LogicalOrExpression, *(Term(Catch(AssignmentOperator,"BinaryOperator")), SigleExpression),
@@ -591,21 +591,21 @@ namespace Chtholly
 			);
 
 		// PairExperssion = AssignmentExpression | PairExperssion ':' SigleExpression
-		inline static Process PairExperssion =
+		inline static const Process PairExperssion =
 			(
 				ChangeIn("PairExperssion"),
 				AssignmentExpression, *(Term(Match(':')), SigleExpression),
 				ChangeOut(true)
 			);
 
-		// Cannot be inline static Process
+		// Cannot be inline static const Process
 		// SigleExpression = DoWhileLoopExpression
 		static Info SigleExpression(Info info)
 		{
 			return PairExperssion(info);
 		}
 
-		// Cannot be inline static Process
+		// Cannot be inline static const Process
 		// Expression = SigleExpression ((';'|',') SigleExpression)* (';'|',')?
 		static Info Expression(Info info)
 		{

@@ -176,10 +176,10 @@ namespace Chtholly
 		}
 
 		// Atom process
-		inline static Process Atom = Process(BasicProcessWrapper([](Info info) { return info; }), true);
+		inline static const Process Atom = Process(BasicProcessWrapper([](Info info) { return info; }), true);
 
 		// Match any character
-		inline static Process AnyChar = Match([](Char) { return true; });
+		inline static const Process AnyChar = Match([](Char) { return true; });
 
 		// Match any characters until matching lhs
 		static Process AnyCharUntil(ProcessRef lhs)
