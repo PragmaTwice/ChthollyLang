@@ -244,6 +244,26 @@ namespace Chtholly
 			return *(*Match(CType::isSpace), Comment), *Match(CType::isSpace), lhs;
 		}
 
+		// Cannot be inline static const Process
+		// SigleExpression = DoWhileLoopExpression
+		static Info SigleExpression(Info info)
+		{
+			return PairExperssion(info);
+		}
+
+		// Cannot be inline static const Process
+		// Expression = SigleExpression ((';'|',') SigleExpression)* (';'|',')?
+		static Info Expression(Info info)
+		{
+			return
+				(
+					ChangeIn("Expression"),
+					MultiExpressionPackage(SigleExpression),
+					ChangeOut(true)
+					)(info);
+
+		}
+
 		// BinaryOperator(A,B) = A (B A)*
 		static Process BinaryOperator(ProcessRef operatorUponIt, ProcessRef operatorMatcher)
 		{
@@ -597,26 +617,6 @@ namespace Chtholly
 				AssignmentExpression, *(Term(Match(':')), SigleExpression),
 				ChangeOut(true)
 			);
-
-		// Cannot be inline static const Process
-		// SigleExpression = DoWhileLoopExpression
-		static Info SigleExpression(Info info)
-		{
-			return PairExperssion(info);
-		}
-
-		// Cannot be inline static const Process
-		// Expression = SigleExpression ((';'|',') SigleExpression)* (';'|',')?
-		static Info Expression(Info info)
-		{
-			return 
-			(
-				ChangeIn("Expression"),
-				MultiExpressionPackage(SigleExpression),
-				ChangeOut(true)
-			)(info);
-			
-		}
 
 		#undef GL
 	};
