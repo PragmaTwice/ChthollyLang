@@ -260,7 +260,7 @@ namespace Chtholly
 					ChangeIn("Expression"),
 					MultiExpressionPackage(SigleExpression),
 					ChangeOut(true)
-					)(info);
+				)(info);
 
 		}
 
@@ -336,20 +336,28 @@ namespace Chtholly
 				List
 			);
 
+		// ConstraintPartAtConstraintExperssion = ':' PrimaryExpression
 		inline static const Process ConstraintPartAtConstraintExperssion =
+			(
+				Term(Match(':')),
+				PrimaryExpression
+			);
+
+		// ConstraintPartAtConstraintExperssionAtPatternExperssion = ':' SigleExpression
+		inline static const Process ConstraintPartAtConstraintExperssionAtPatternExperssion =
 			(
 				Term(Match(':')),
 				SigleExpression
 			);
 
-		// ConstraintExperssion = Identifier (':' PrimaryExpression)?
+		// ConstraintExperssion = Identifier ConstraintPartAtConstraintExperssion?
 		inline static const Process ConstraintExperssion =
 			(
 				Term(Identifier),
 				~ConstraintPartAtConstraintExperssion
 			);
 
-		// ConstraintExperssionAtPatternExperssion = Identifier "..."? (':' PrimaryExpression)?
+		// ConstraintExperssionAtPatternExperssion = Identifier "..."? ConstraintPartAtConstraintExperssionAtPatternExperssion?
 		inline static const Process ConstraintExperssionAtPatternExperssion =
 			(
 				ChangeIn("ConstraintExperssionAtPatternExperssion"),
@@ -357,7 +365,7 @@ namespace Chtholly
 					Term(Identifier),
 					~Term(Catch(Match(GL("...")), "Separator"))
 				),
-				~ConstraintPartAtConstraintExperssion,
+				~ConstraintPartAtConstraintExperssionAtPatternExperssion,
 				ChangeOut()
 			);
 
@@ -375,7 +383,7 @@ namespace Chtholly
 				);
 		}
 
-		// PatternExperssion = '(' ( ConstraintExperssionAtPatternExperssion ((','|';') ConstraintExperssionAtPatternExperssion)* (','|';')? | Atom ) ')' (':' PrimaryExpression)?
+		// PatternExperssion = '(' ( ConstraintExperssionAtPatternExperssion ((','|';') ConstraintExperssionAtPatternExperssion)* (','|';')? | Atom ) ')' ConstraintPartAtConstraintExperssion?
 		inline static const Process PatternExperssion =
 			(
 				Term(Match('(')),
@@ -391,21 +399,23 @@ namespace Chtholly
 				ChangeOut()
 			);
 
-		// VarDefineExpression = "var" ConstraintExperssion
+		// VarDefineExpression = "var" (ConstraintExperssion | PatternExperssion) ~List
 		inline static const Process VarDefineExpression =
 			(
 				Term(MatchKey(GL( "var"))),
 				ChangeIn("VarDefineExpression"),
 				ConstraintExperssion | PatternExperssion,
+				~List,
 				ChangeOut()
 			);
 		
-		// ConstDefineExpression = "const" ConstraintExperssion
+		// ConstDefineExpression = "const" (ConstraintExperssion | PatternExperssion) ~List
 		inline static const Process ConstDefineExpression =
 			(
 				Term(MatchKey(GL( "const"))),
 				ChangeIn("ConstDefineExpression"),
 				ConstraintExperssion | PatternExperssion,
+				~List,
 				ChangeOut()
 			);
 
