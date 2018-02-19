@@ -211,3 +211,45 @@ TEST(Expression, LambdaExpression)
 		)
 	));
 }
+
+TEST(Expression, ConditionExpression)
+{
+	EXPECT_EQ(parseString("if(1 > 2) 1 else 2"), ParseTree(
+		Term("ConditionExpression",
+			Term("RelationalExpression",
+				Token("IntLiteral", "1"),
+				Token("BinaryOperator", ">"),
+				Token("IntLiteral", "2")
+			),
+			Token("IntLiteral","1"),
+			Token("IntLiteral","2")
+		)
+	));
+
+	EXPECT_EQ(parseString("if (isNumber(x)) x+1"), ParseTree(
+		Term("ConditionExpression",
+			Term("FunctionExpression",
+				Token("Identifier", "isNumber"),
+				Token("Identifier", "x")
+			),
+			Term("AdditiveExpression",
+				Token("Identifier", "x"),
+				Token("BinaryOperator", "+"),
+				Token("IntLiteral", "1")
+			)
+		)
+	));
+
+	EXPECT_EQ(parseString("if(true) (x;y;z)"), ParseTree(
+		Term("ConditionExpression",
+			Token("TrueLiteral", "true"),
+			Term("Expression",
+				Token("Identifier", "x"),
+				Token("Separator", ";"),
+				Token("Identifier", "y"),
+				Token("Separator", ";"),
+				Token("Identifier", "z")
+			)
+		)
+	));
+}
