@@ -353,8 +353,10 @@ namespace Chtholly
 		// ConstraintExperssion = Identifier ConstraintPartAtConstraintExperssion?
 		inline static const Process ConstraintExperssion =
 			(
+				ChangeIn("ConstraintExperssion"),
 				Term(Identifier),
-				~ConstraintPartAtConstraintExperssion
+				~ConstraintPartAtConstraintExperssion,
+				ChangeOut()
 			);
 
 		// ConstraintExperssionAtPatternExperssion = Identifier "..."? ConstraintPartAtConstraintExperssionAtPatternExperssion?
@@ -404,7 +406,7 @@ namespace Chtholly
 			(
 				Term(MatchKey(GL( "var"))),
 				ChangeIn("VarDefineExpression"),
-				ConstraintExperssion | PatternExperssion,
+				PatternExperssion | ConstraintExperssion,
 				~List,
 				ChangeOut()
 			);
@@ -414,7 +416,7 @@ namespace Chtholly
 			(
 				Term(MatchKey(GL( "const"))),
 				ChangeIn("ConstDefineExpression"),
-				ConstraintExperssion | PatternExperssion,
+				PatternExperssion | ConstraintExperssion,
 				~List,
 				ChangeOut()
 			);

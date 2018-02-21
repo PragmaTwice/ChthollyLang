@@ -96,13 +96,27 @@ TEST(Token, Identifier)
 TEST(Expression, DefineExpression)
 {
 	EXPECT_EQ(parseString("var x"), ParseTree(
-		Term("VarDefineExpression", Token("Identifier", "x"))
+		Term("VarDefineExpression", 
+			Term("ConstraintExperssion",
+				Token("Identifier", "x")
+			)
+		)
 	));
-	EXPECT_EQ(parseString("const hello"), ParseTree(
-		Term("ConstDefineExpression", Token("Identifier", "hello"))
+	EXPECT_EQ(parseString("const hello(0)"), ParseTree(
+		Term("ConstDefineExpression", 
+			Term("ConstraintExperssion",
+				Token("Identifier", "hello")
+			),
+			Token("IntLiteral", "0")
+		)
 	));
 	EXPECT_EQ(parseString("var y: int"), ParseTree(
-		Term("VarDefineExpression", Token("Identifier", "y"), Token("Identifier", "int"))
+		Term("VarDefineExpression", 
+			Term("ConstraintExperssion",
+				Token("Identifier", "y"), 
+				Token("Identifier", "int")
+			)
+		)
 	));
 	EXPECT_EQ(parseString("var (x...,y:int,z):number"), ParseTree(
 		Term("VarDefineExpression",
@@ -190,7 +204,9 @@ TEST(Expression, LambdaExpression)
 			Term("Expression",
 				Term("AssignmentExpression",
 					Term("VarDefineExpression",
-						Token("Identifier", "temp")
+						Term("ConstraintExperssion",
+							Token("Identifier", "temp")
+						)
 					),
 					Token("BinaryOperator","="),
 					Token("Identifier", "x")
