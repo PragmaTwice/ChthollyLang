@@ -296,34 +296,80 @@ namespace Chtholly
 			return Process([=](Info info)
 			{
 				return Info(info.first, mod(info.second));
-			});
+			},true);
+		}
+
+		static ModifierChange IntoTerm(const typename Unit::String& termName)
+		{
+			return [=](Modifier modi)
+			{
+				modi.childrenPushBack(Unit::Type::term, termName);
+				return --modi.childrenEnd();
+			};
 		}
 
 		// Enter a term
 		static Process ChangeIn(const typename Unit::String& termName)
 		{
-			return ~Change([=](Modifier modi)
-			{
-				modi.childrenPushBack(Unit::Type::term, termName);
-				return --modi.childrenEnd();
-			});
+			return Change(IntoTerm(termName));
 		}
+
+		inline static const ModifierChange OutofTerm = [](Modifier modi)
+		{
+			return modi.parent();
+		};
+
+		static ModifierChange OutofTermWithCuttingUnused(Size minAllowedChildSize)
+		{
+			return [=](Modifier modi)
+			{
+				if(minAllowedChildSize > modi.childrenSize())
+				{
+					if (modi.childrenSize() != 0)
+					{
+						for (auto moved = modi.childrenBegin(); moved != modi.childrenEnd(); ++moved)
+						{
+							moved.thisCopyTo(modi);
+						}
+					}
+
+					auto parent = modi.parent();
+					modi.thisErase(modi);
+					return parent;
+				}
+
+				return OutofTerm(modi);
+			};
+		}
+
+		inline static const ModifierChange RemoveFailedBlankTerm = [](Modifier modi)
+		{
+			if(modi.childrenSize() > 0)
+			{
+				auto removed = --modi.childrenEnd();
+
+				auto i = removed;
+				for (; i.childrenSize() == 1; i = i.childrenBegin());
+				if (i.childrenSize() == 0)
+				{
+					removed.thisErase(removed);
+				}
+			}
+
+			return modi;
+		};
 
 		// Leave a term
 		static Process ChangeOut(const bool cutUnusedUnit = false)
 		{
-			return ~Change([=](Modifier modi)
+			return Change([=](Modifier modi)
 			{
 				if (cutUnusedUnit)
 				{
-					if (modi.childrenSize() == 1)
-					{
-						auto cutted = modi.childrenBegin().thisMoveTo(modi);
-						modi.thisErase(modi);
-						return cutted.parent();
-					}
+					return OutofTermWithCuttingUnused(2)(modi);
 				}
-				return modi.parent();
+
+				return OutofTerm(modi);
 			});
 		}
 	};

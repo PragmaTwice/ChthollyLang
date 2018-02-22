@@ -118,7 +118,7 @@ TEST(Expression, DefineExpression)
 			)
 		)
 	));
-	EXPECT_EQ(parseString("var (x...,y:int,z):number"), ParseTree(
+	EXPECT_EQ(parseString("var (x...,y:int,z):numbers"), ParseTree(
 		Term("VarDefineExpression",
 			Term("PatternExperssion",
 				Term("ConstraintExperssionAtPatternExperssion",Token("Identifier","x"), Token("Separator", "...")),
@@ -126,7 +126,7 @@ TEST(Expression, DefineExpression)
 				Term("ConstraintExperssionAtPatternExperssion", Token("Identifier", "y"), Token("Identifier", "int")),
 				Token("Separator", ","),
 				Term("ConstraintExperssionAtPatternExperssion", Token("Identifier", "z")),
-				Token("Identifier", "number")
+				Token("Identifier", "numbers")
 			)
 		)
 	));
@@ -265,6 +265,54 @@ TEST(Expression, ConditionExpression)
 				Token("Identifier", "y"),
 				Token("Separator", ";"),
 				Token("Identifier", "z")
+			)
+		)
+	));
+}
+
+TEST(Expression, ReturnExpression)
+{
+	EXPECT_EQ(parseString("return"), ParseTree(
+		Term("ReturnExpression")
+	));
+	EXPECT_EQ(parseString("return a+b"), ParseTree(
+		Term("ReturnExpression",
+			Term("AdditiveExpression",
+				Token("Identifier", "a"),
+				Token("BinaryOperator", "+"),
+				Token("Identifier", "b")
+			)
+		)
+	));
+}
+
+TEST(Expression, BreakExpression)
+{
+	EXPECT_EQ(parseString("break"), ParseTree(
+		Term("BreakExpression")
+	));
+	EXPECT_EQ(parseString("break a+b"), ParseTree(
+		Term("BreakExpression",
+			Term("AdditiveExpression",
+				Token("Identifier", "a"),
+				Token("BinaryOperator", "+"),
+				Token("Identifier", "b")
+			)
+		)
+	));
+}
+
+TEST(Expression, ContinueExpression)
+{
+	EXPECT_EQ(parseString("continue"), ParseTree(
+		Term("ContinueExpression")
+	));
+	EXPECT_EQ(parseString("continue a+b"), ParseTree(
+		Term("ContinueExpression",
+			Term("AdditiveExpression",
+				Token("Identifier", "a"),
+				Token("BinaryOperator", "+"),
+				Token("Identifier", "b")
 			)
 		)
 	));

@@ -92,8 +92,12 @@ namespace Chtholly
 		using Super::Catch;
 
 		using Super::Change;
+		using Super::IntoTerm;
 		using Super::ChangeIn;
+		using Super::OutofTerm;
+		using Super::OutofTermWithCuttingUnused;
 		using Super::ChangeOut;
+		using Super::RemoveFailedBlankTerm;
 
 		/*
 		// Space = '\t' | '\n' | '\v' | '\f' | '\r' | ' '
@@ -468,20 +472,35 @@ namespace Chtholly
 					Term(MatchKey(GL( "return"))),
 					ChangeIn("ReturnExpression"),
 					~Process(SigleExpression),
+					Change(RemoveFailedBlankTerm),
 					ChangeOut()
 				) |
 				ConditionExpression
 			);
 
+		inline static const Process BreakExpression =
+			(
+				Term(MatchKey(GL("break"))),
+				ChangeIn("BreakExpression"),
+				~Process(SigleExpression),
+				Change(RemoveFailedBlankTerm),
+				ChangeOut()
+			);
+
+		inline static const Process ContinueExpression =
+			(
+				Term(MatchKey(GL("continue"))),
+				ChangeIn("ContinueExpression"),
+				~Process(SigleExpression),
+				Change(RemoveFailedBlankTerm),
+				ChangeOut()
+			);
+
 		// LoopControlExpression = ReturnExpression | ("break"|"continue") SigleExpression?
 		inline static const Process LoopControlExpression =
 			(
-				(
-					Term(MatchKey({ GL( "break"), GL("continue") })),
-					ChangeIn("LoopControlExpression"),
-					~Process(SigleExpression),
-					ChangeOut()
-				) |
+				BreakExpression		|
+				ContinueExpression	|
 				ReturnExpression
 			);
 
