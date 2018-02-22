@@ -382,9 +382,10 @@ namespace Chtholly
 				(
 					exp,
 					*(
-						Term(Catch(Match({ ',',';' }), "Separator")) ^ Term(Match(')')),
+						Term(Catch(Match({ ',',';' }), "Separator")),
 						exp
 					),
+					Change(RemoveFailedBlankTerm),
 					~Term(Catch(Match({ ',',';' }), "Separator"))
 				);
 		}
@@ -478,6 +479,7 @@ namespace Chtholly
 				ConditionExpression
 			);
 
+		// BreakExpression = "break" SigleExpression?
 		inline static const Process BreakExpression =
 			(
 				Term(MatchKey(GL("break"))),
@@ -487,6 +489,7 @@ namespace Chtholly
 				ChangeOut()
 			);
 
+		// ContinueExpression = "continue" SigleExpression?
 		inline static const Process ContinueExpression =
 			(
 				Term(MatchKey(GL("continue"))),
@@ -496,7 +499,7 @@ namespace Chtholly
 				ChangeOut()
 			);
 
-		// LoopControlExpression = ReturnExpression | ("break"|"continue") SigleExpression?
+		// LoopControlExpression = ReturnExpression | (BreakExpression | ContinueExpression)
 		inline static const Process LoopControlExpression =
 			(
 				BreakExpression		|

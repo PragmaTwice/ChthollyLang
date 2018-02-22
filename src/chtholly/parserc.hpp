@@ -350,7 +350,7 @@ namespace Chtholly
 
 				auto i = removed;
 				for (; i.childrenSize() == 1; i = i.childrenBegin());
-				if (i.childrenSize() == 0)
+				if (i.childrenSize() == 0 && i.value().type == Unit::Type::term)
 				{
 					removed.thisErase(removed);
 				}
