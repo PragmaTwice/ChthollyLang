@@ -349,7 +349,7 @@ namespace Chtholly
 				auto removed = --modi.childrenEnd();
 
 				auto i = removed;
-				for (; i.childrenSize() == 1; i = i.childrenBegin());
+				while (i.childrenSize() == 1)  i = i.childrenBegin();
 				if (i.childrenSize() == 0 && i.value().type == Unit::Type::term)
 				{
 					removed.thisErase(removed);
@@ -362,15 +362,7 @@ namespace Chtholly
 		// Leave a term
 		static Process ChangeOut(const bool cutUnusedUnit = false)
 		{
-			return Change([=](Modifier modi)
-			{
-				if (cutUnusedUnit)
-				{
-					return OutofTermWithCuttingUnused(2)(modi);
-				}
-
-				return OutofTerm(modi);
-			});
+			return Change(OutofTermWithCuttingUnused(cutUnusedUnit? 2:0));
 		}
 	};
 

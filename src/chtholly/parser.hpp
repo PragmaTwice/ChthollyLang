@@ -385,7 +385,7 @@ namespace Chtholly
 						Term(Catch(Match({ ',',';' }), "Separator")),
 						exp
 					),
-					Change(RemoveFailedBlankTerm),
+					//Change(RemoveFailedBlankTerm),
 					~Term(Catch(Match({ ',',';' }), "Separator"))
 				);
 		}
