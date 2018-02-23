@@ -633,7 +633,7 @@ namespace Chtholly
 		inline static const Process RelationalExpression =
 			(
 				ChangeIn("RelationalExpression"),
-				BinaryOperator(AdditiveExpression, Match({ GL("<="), GL(">="), GL("<"), GL(">") })),
+				BinaryOperator(AdditiveExpression, Match({ GL("<="), GL(">="), GL(">") }) | (Match('<') ^ Match('>'))),
 				ChangeOut(true)
 			);
 
