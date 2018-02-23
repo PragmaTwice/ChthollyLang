@@ -342,23 +342,6 @@ namespace Chtholly
 			};
 		}
 
-		inline static const ModifierChange RemoveFailedBlankTerm = [](Modifier modi)
-		{
-			if(modi.childrenSize() > 0)
-			{
-				auto removed = --modi.childrenEnd();
-
-				auto i = removed;
-				while (i.childrenSize() == 1)  i = i.childrenBegin();
-				if (i.childrenSize() == 0 && i.value().type == Unit::Type::term)
-				{
-					removed.thisErase(removed);
-				}
-			}
-
-			return modi;
-		};
-
 		// Leave a term
 		static Process ChangeOut(const bool cutUnusedUnit = false)
 		{

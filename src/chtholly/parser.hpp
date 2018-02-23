@@ -97,7 +97,24 @@ namespace Chtholly
 		using Super::OutofTerm;
 		using Super::OutofTermWithCuttingUnused;
 		using Super::ChangeOut;
-		using Super::RemoveFailedBlankTerm;
+		
+
+		inline static const ModifierChange RemoveFailedBlankTerm = [](Modifier modi)
+		{
+			if (modi.childrenSize() > 0)
+			{
+				auto removed = --modi.childrenEnd();
+
+				auto i = removed;
+				while (i.childrenSize() == 1)  i = i.childrenBegin();
+				if (i.childrenSize() == 0 && i.value().type == Unit::Type::term && i.value().name == "FunctionExpression")
+				{
+					removed.thisErase(removed);
+				}
+			}
+
+			return modi;
+		};
 
 		/*
 		// Space = '\t' | '\n' | '\v' | '\f' | '\r' | ' '
@@ -385,7 +402,7 @@ namespace Chtholly
 						Term(Catch(Match({ ',',';' }), "Separator")),
 						exp
 					),
-					//Change(RemoveFailedBlankTerm),
+					Change(RemoveFailedBlankTerm),
 					~Term(Catch(Match({ ',',';' }), "Separator"))
 				);
 		}
