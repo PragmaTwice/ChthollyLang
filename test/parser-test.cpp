@@ -118,7 +118,7 @@ TEST(Expression, DefineExpression)
 			)
 		)
 	));
-	EXPECT_EQ(parseString("var (x...,y:int,z):numbers"), ParseTree(
+	EXPECT_EQ(parseString("var (x...,y:int,z):numbers(1.0;2.0;3;4;5.0)"), ParseTree(
 		Term("VarDefineExpression",
 			Term("PatternExperssion",
 				Term("ConstraintExperssionAtPatternExperssion",Token("Identifier","x"), Token("Separator", "...")),
@@ -127,6 +127,17 @@ TEST(Expression, DefineExpression)
 				Token("Separator", ","),
 				Term("ConstraintExperssionAtPatternExperssion", Token("Identifier", "z")),
 				Token("Identifier", "numbers")
+			),
+			Term("Expression",
+				Token("FloatLiteral", "1.0"),
+				Token("Separator", ";"),
+				Token("FloatLiteral", "2.0"),
+				Token("Separator", ";"),
+				Token("IntLiteral", "3"),
+				Token("Separator", ";"),
+				Token("IntLiteral", "4"),
+				Token("Separator", ";"),
+				Token("FloatLiteral", "5.0")
 			)
 		)
 	));
@@ -291,12 +302,12 @@ TEST(Expression, BreakExpression)
 	EXPECT_EQ(parseString("break"), ParseTree(
 		Term("BreakExpression")
 	));
-	EXPECT_EQ(parseString("break a+b"), ParseTree(
+	EXPECT_EQ(parseString("break (1;a)"), ParseTree(
 		Term("BreakExpression",
-			Term("AdditiveExpression",
-				Token("Identifier", "a"),
-				Token("BinaryOperator", "+"),
-				Token("Identifier", "b")
+			Term("Expression",
+				Token("IntLiteral", "1"),
+				Token("Separator", ";"),
+				Token("Identifier", "a")
 			)
 		)
 	));
@@ -307,12 +318,97 @@ TEST(Expression, ContinueExpression)
 	EXPECT_EQ(parseString("continue"), ParseTree(
 		Term("ContinueExpression")
 	));
-	EXPECT_EQ(parseString("continue a+b"), ParseTree(
+	EXPECT_EQ(parseString("continue a"), ParseTree(
 		Term("ContinueExpression",
-			Term("AdditiveExpression",
-				Token("Identifier", "a"),
-				Token("BinaryOperator", "+"),
-				Token("Identifier", "b")
+			Token("Identifier", "a")
+		)
+	));
+}
+
+TEST(Expression, WhileLoopExpression)
+{
+	EXPECT_EQ(parseString("while(true) dosomething()"), ParseTree(
+		Term("WhileLoopExpression",
+			Token("TrueLiteral", "true"),
+			Term("FunctionExpression",
+				Token("Identifier", "dosomething"),
+				Term("UndefExpression")
+			)
+		)
+	));
+
+	EXPECT_EQ(parseString("var i(0),var sum(0) += while(i<10) i+=1"), ParseTree(
+		Term("Expression",
+			Term("VarDefineExpression",
+				Term("ConstraintExperssion",
+					Token("Identifier", "i")
+				),
+				Token("IntLiteral", "0")
+			),
+			Token("Separator", ","),
+			Term("AssignmentExpression",
+				Term("VarDefineExpression",
+					Term("ConstraintExperssion",
+						Token("Identifier", "sum")
+					),
+					Token("IntLiteral", "0")
+				),
+				Token("BinaryOperator", "+="),
+				Term("WhileLoopExpression",
+					Term("RelationalExpression",
+						Token("Identifier", "i"),
+						Token("BinaryOperator", "<"),
+						Token("IntLiteral", "10")
+					),
+					Term("AssignmentExpression",
+						Token("Identifier", "i"),
+						Token("BinaryOperator", "+="),
+						Token("IntLiteral", "1")
+					)
+				)
+			)
+		)
+	));
+
+	EXPECT_EQ(parseString("var i(0),while(len(array) > i and array->i == 233) (i+=1,) else i"), ParseTree(
+		Term("Expression",
+			Term("VarDefineExpression",
+				Term("ConstraintExperssion",
+					Token("Identifier", "i")
+				),
+				Token("IntLiteral", "0")
+			),
+			Token("Separator", ","),
+			Term("WhileLoopExpression",
+				Term("LogicalAndExpression",
+					Term("RelationalExpression",
+						Term("FunctionExpression",
+							Token("Identifier", "len"),
+							Token("Identifier", "array")
+						),
+						Token("BinaryOperator", ">"),
+						Token("Identifier", "i")
+					),
+					Token("BinaryOperator", "and"),
+					Term("EqualityExpression",
+						Term("PointExpression",
+							Token("Identifier", "array"),
+							Token("BinaryOperator", "->"),
+							Token("Identifier", "i")
+						),
+						Token("BinaryOperator", "=="),
+						Token("IntLiteral", "233")
+					)
+				),
+				Term("Expression",
+					Term("AssignmentExpression",
+						Token("Identifier", "i"),
+						Token("BinaryOperator", "+="),
+						Token("IntLiteral", "1")
+					),
+					Token("Separator", ",")
+				),
+				Token("Identifier", "i")
 			)
 		)
 	));
