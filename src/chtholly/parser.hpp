@@ -403,7 +403,19 @@ namespace Chtholly
 						exp
 					),
 					Change(RemoveFailedBlankTerm),
-					~Term(Catch(Match({ ',',';' }), "Separator"))
+					~Term(Catch(Match({ ',',';' }), "Separator")),
+					Change([](Modifier modi)
+					{
+						if (modi.childrenSize() < 2) return modi;
+						
+						auto back = --modi.childrenEnd();
+						if(back.value().name == "Separator" && (--back).value().name == "Separator")
+						{
+							back.thisErase(back);
+						}
+
+						return modi;
+					})
 				);
 		}
 
