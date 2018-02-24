@@ -370,7 +370,7 @@ TEST(Expression, WhileLoopExpression)
 		)
 	));
 
-	EXPECT_EQ(parseString("var i(0),while(len(array) > i and array->i == 233) (i+=1,) else i"), ParseTree(
+	EXPECT_EQ(parseString("var i(0),while(len(array) > i and array->i <> 233) (i+=1,) else i"), ParseTree(
 		Term("Expression",
 			Term("VarDefineExpression",
 				Term("ConstraintExperssion",
@@ -396,7 +396,7 @@ TEST(Expression, WhileLoopExpression)
 							Token("BinaryOperator", "->"),
 							Token("Identifier", "i")
 						),
-						Token("BinaryOperator", "=="),
+						Token("BinaryOperator", "<>"),
 						Token("IntLiteral", "233")
 					)
 				),
@@ -410,6 +410,41 @@ TEST(Expression, WhileLoopExpression)
 				),
 				Token("Identifier", "i")
 			)
+		)
+	));
+}
+
+TEST(Expression, DoWhileLoopExpression)
+{
+	EXPECT_EQ(parseString("do i = randomNumber() while(not exists(array;i))"), ParseTree(
+		Term("DoWhileLoopExpression",
+			Term("AssignmentExpression",
+				Token("Identifier", "i"),
+				Token("BinaryOperator", "="),
+				Term("FunctionExpression",
+					Token("Identifier", "randomNumber"),
+					Term("UndefExpression")
+				)
+			),
+			Term("UnaryExpression",
+				Token("UnaryOperator","not"),
+				Term("FunctionExpression",
+					Token("Identifier", "exists"),
+					Term("Expression",
+						Token("Identifier", "array"),
+						Token("Separator", ";"),
+						Token("Identifier", "i")
+					)
+				)
+			)
+		)
+	));
+
+	EXPECT_EQ(parseString("do something while(somecondition) else otherthing"), ParseTree(
+		Term("DoWhileLoopExpression",
+			Token("Identifier", "something"),
+			Token("Identifier", "somecondition"),
+			Token("Identifier", "otherthing")
 		)
 	));
 }
