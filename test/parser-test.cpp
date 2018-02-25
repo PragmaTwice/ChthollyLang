@@ -448,3 +448,112 @@ TEST(Expression, DoWhileLoopExpression)
 		)
 	));
 }
+
+TEST(Expression, FunctionExpression)
+{
+	EXPECT_EQ(parseString("dosomething()"), ParseTree(
+		Term("FunctionExpression",
+			Token("Identifier", "dosomething"),
+			Term("UndefExpression")
+		)
+	));
+
+	EXPECT_EQ(parseString("f(x)"), ParseTree(
+		Term("FunctionExpression",
+			Token("Identifier", "f"),
+			Token("Identifier", "x")
+		)
+	));
+
+	EXPECT_EQ(parseString("sin(2*PI)"), ParseTree(
+		Term("FunctionExpression",
+			Token("Identifier", "sin"),
+			Term("MultiplicativeExpression",
+				Token("IntLiteral", "2"),
+				Token("BinaryOperator", "*"),
+				Token("Identifier", "PI")
+			)
+		)
+	));
+
+	EXPECT_EQ(parseString("sort(fn(x,y) x<y)(begin(array);end(array))"), ParseTree(
+		Term("FunctionExpression",
+			Token("Identifier", "sort"),
+			Term("LambdaExpression",
+				Term("PatternExperssion",
+					Term("ConstraintExperssionAtPatternExperssion", Token("Identifier", "x")),
+					Token("Separator", ","),
+					Term("ConstraintExperssionAtPatternExperssion", Token("Identifier", "y"))
+				),
+				Term("RelationalExpression",
+					Token("Identifier", "x"),
+					Token("BinaryOperator", "<"),
+					Token("Identifier", "y")
+				)
+			),
+			Term("Expression",
+				Term("FunctionExpression",
+					Token("Identifier", "begin"),
+					Token("Identifier", "array")
+				),
+				Token("Separator", ";"),
+				Term("FunctionExpression",
+					Token("Identifier", "end"),
+					Token("Identifier", "array")
+				)
+			)
+		)
+	));
+}
+
+TEST(Expression, PointExpression)
+{
+	EXPECT_EQ(parseString("array -> n"), ParseTree(
+		Term("PointExpression",
+			Token("Identifier", "array"),
+			Token("BinaryOperator", "->"),
+			Token("Identifier", "n")
+		)
+	));
+
+	EXPECT_EQ(parseString(R"(map -> "elem1")"), ParseTree(
+		Term("PointExpression",
+			Token("Identifier", "map"),
+			Token("BinaryOperator", "->"),
+			Token("StringLiteral", R"("elem1")")
+		)
+	));
+
+	EXPECT_EQ(parseString(R"(matrix->0->2)"), ParseTree(
+		Term("PointExpression",
+			Token("Identifier", "matrix"),
+			Token("BinaryOperator", "->"),
+			Token("IntLiteral", "0"),
+			Token("BinaryOperator", "->"),
+			Token("IntLiteral", "2")
+		)
+	));
+
+	EXPECT_EQ(parseString("array -> n"), ParseTree(
+		Term("PointExpression",
+			Token("Identifier", "array"),
+			Token("BinaryOperator", "->"),
+			Token("Identifier", "n")
+		)
+	));
+
+	EXPECT_EQ(parseString("array -> find(array;1)"), ParseTree(
+		Term("PointExpression",
+			Token("Identifier", "array"),
+			Token("BinaryOperator", "->"),
+			Term("FunctionExpression",
+				Token("Identifier", "find"),
+				Term("Expression",
+					Token("Identifier", "array"),
+					Token("Separator", ";"),
+					Token("IntLiteral", "1")
+				)
+			)
+		)
+	));
+}
