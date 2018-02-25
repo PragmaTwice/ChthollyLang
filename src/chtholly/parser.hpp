@@ -272,18 +272,13 @@ namespace Chtholly
 			return PairExperssion(info);
 		}
 
-		// Cannot be inline static const Process
 		// Expression = SigleExpression ((';'|',') SigleExpression)* (';'|',')?
-		static Info Expression(Info info)
-		{
-			return
-				(
-					ChangeIn("Expression"),
-					MultiExpressionPackage(SigleExpression),
-					ChangeOut(true)
-				)(info);
-
-		}
+		inline static const Process Expression =
+			(
+				ChangeIn("Expression"),
+				MultiExpressionPackage(SigleExpression),
+				ChangeOut(true)
+			);
 
 		// BinaryOperator(A,B) = A (B A)*
 		static Process BinaryOperator(ProcessRef operatorUponIt, ProcessRef operatorMatcher)
@@ -482,9 +477,7 @@ namespace Chtholly
 				(
 					Term(MatchKey(GL( "if"))),
 					ChangeIn("ConditionExpression"),
-					Term(Match('(')),
-					Expression,
-					Term(Match(')')),
+					ExpressionList,
 					SigleExpression,
 					~(
 						Term(MatchKey(GL( "else"))),
@@ -542,9 +535,7 @@ namespace Chtholly
 				(
 					Term(MatchKey(GL( "while"))),
 					ChangeIn("WhileLoopExpression"),
-					Term(Match('(')),
-					Expression,
-					Term(Match(')')),
+					ExpressionList,
 					SigleExpression, 
 					~(
 						Term(MatchKey(GL( "else"))),
@@ -563,9 +554,7 @@ namespace Chtholly
 					ChangeIn("DoWhileLoopExpression"),
 					SigleExpression,
 					Term(MatchKey(GL( "while"))),
-					Term(Match('(')),
-					Expression,
-					Term(Match(')')),
+					ExpressionList,
 					~(
 						Term(MatchKey(GL( "else"))),
 						SigleExpression
