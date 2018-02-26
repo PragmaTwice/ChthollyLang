@@ -3,15 +3,16 @@
 *A **simple implmentation** of Yet another script language Chtholly*
 
 ## Requires
-* Compiler with C++17 support (necessary)
-* Microsoft Visual Studio 2017 15.5 (optional)
+* Compiler with [C++17 support](http://en.cppreference.com/w/cpp/compiler_support) *(necessary)*
+* [Google Test](https://github.com/google/googletest) *(if you want to run [unit testings](https://github.com/PragmaTwice/ChthollyLang/tree/master/test))*
 
-*You can use MSVC 2017 15.5 to compile it without any modification*
+*You can use MSVC 2017 15.5+ to compile it without any modification*
 
 *Because of terrible support for C++17 in MSVC 15.5, I did some ill-looking work to make it compile successfully*
 
 ## Language Feature
-* No statement but all **expression**
+* No statement but all expression
+* Simple but complete grammar
 
 ## Implmentation Feature
 * Functional usage of C++ (with little consideration of runtime performance)
@@ -24,3 +25,6 @@ Just nearly finish parser
 
 ### 2017/12/10
 Fuck you, MSVC ICE
+
+### 2018/2/26
+finish parser development
