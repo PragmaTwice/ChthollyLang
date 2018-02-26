@@ -557,3 +557,80 @@ TEST(Expression, PointExpression)
 		)
 	));
 }
+
+TEST(Expression, FoldExpression)
+{
+	EXPECT_EQ(parseString("args..."), ParseTree(
+		Term("FoldExperssion",
+			Token("Identifier", "args"),
+			Token("Separator","...")
+		)
+	));
+
+	EXPECT_EQ(parseString("(args + 1)..."), ParseTree(
+		Term("FoldExperssion",
+			Term("AdditiveExpression",
+				Token("Identifier", "args"),
+				Token("BinaryOperator", "+"),
+				Token("IntLiteral", "1")
+			),
+			Token("Separator", "...")
+		)
+	));
+
+	EXPECT_EQ(parseString("fn(f,x...) f(x...)"), ParseTree(
+		Term("LambdaExpression",
+			Term("PatternExperssion",
+				Term("ConstraintExperssionAtPatternExperssion", Token("Identifier", "f")),
+				Token("Separator", ","),
+				Term("ConstraintExperssionAtPatternExperssion", Token("Identifier", "x"), Token("Separator", "..."))
+			),
+			Term("FunctionExpression",
+				Token("Identifier", "f"),
+				Term("FoldExperssion",
+					Token("Identifier", "x"),
+					Token("Separator", "...")
+				)
+			)
+		)
+	));
+}
+
+TEST(Expression, UnaryExpression)
+{
+	EXPECT_EQ(parseString("+a"), ParseTree(
+		Term("UnaryExpression",
+			Token("UnaryOperator", "+"),
+			Token("Identifier", "a")
+		)
+	));
+
+	EXPECT_EQ(parseString("not b"), ParseTree(
+		Term("UnaryExpression",
+			Token("UnaryOperator", "not"),
+			Token("Identifier", "b")
+		)
+	));
+
+	EXPECT_EQ(parseString("+a + +c"), ParseTree(
+		Term("AdditiveExpression",
+			Term("UnaryExpression",
+				Token("UnaryOperator", "+"),
+				Token("Identifier", "a")
+			),
+			Token("BinaryOperator", "+"),
+			Term("UnaryExpression",
+				Token("UnaryOperator", "+"),
+				Token("Identifier", "c")
+			)
+		)
+	));
+
+	EXPECT_EQ(parseString("not not b"), ParseTree(
+		Term("UnaryExpression",
+			Token("UnaryOperator", "not"),
+			Token("UnaryOperator", "not"),
+			Token("Identifier", "b")
+		)
+	));
+}
