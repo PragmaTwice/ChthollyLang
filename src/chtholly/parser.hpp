@@ -582,11 +582,11 @@ namespace Chtholly
 			);
 
 		// FoldExperssion = PointExpression "..."*
-		inline static const Process FoldExperssion =
+		inline static const Process FoldExpression =
 			(
 				ChangeIn("FoldExperssion"),
 				PointExpression,
-				*Term(Catch(Match(GL("...")),"Separator")),
+				~Term(Catch(Match(GL("...")),"Separator")),
 				ChangeOut(true)
 			);
 
@@ -598,7 +598,7 @@ namespace Chtholly
 					Term(Catch(Match({ '+','-' }), "UnaryOperator")) |
 					Term(Catch(MatchKey(GL("not")), "UnaryOperator"))
 				),
-				FoldExperssion,
+				FoldExpression,
 				ChangeOut(true)
 			);
 
