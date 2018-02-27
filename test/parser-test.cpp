@@ -1018,6 +1018,25 @@ TEST(Expression, PairExpression)
 	));
 }
 
+TEST(Expression, UndefExpression)
+{
+	EXPECT_EQ(parseString("()"), ParseTree(
+		Term("UndefExpression")
+	));
+
+	EXPECT_EQ(parseString("((()))"), ParseTree(
+		Term("UndefExpression")
+	));
+
+	EXPECT_EQ(parseString("() + 1"), ParseTree(
+		Term("AdditiveExpression",
+			Term("UndefExpression"),
+			Token("BinaryOperator", "+"),
+			Token("IntLiteral", "1")
+		)
+	));
+}
+
 TEST(Expression, ExpressionList)
 {
 	EXPECT_EQ(parseString("(((a)))"), ParseTree(
