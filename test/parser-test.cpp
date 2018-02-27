@@ -1017,3 +1017,65 @@ TEST(Expression, PairExperssion)
 		)
 	));
 }
+
+TEST(Expression, ExpressionList)
+{
+	EXPECT_EQ(parseString("(((a)))"), ParseTree(
+		Token("Identifier", "a")
+	));
+
+	EXPECT_EQ(parseString("(a,b,c;d,e;f;g)"), ParseTree(
+		Term("Expression",
+			Token("Identifier", "a"),
+			Token("Separator", ","),
+			Token("Identifier", "b"),
+			Token("Separator", ","),
+			Token("Identifier", "c"),
+			Token("Separator", ";"),
+			Token("Identifier", "d"),
+			Token("Separator", ","),
+			Token("Identifier", "e"),
+			Token("Separator", ";"),
+			Token("Identifier", "f"),
+			Token("Separator", ";"),
+			Token("Identifier", "g")
+		)
+	));
+
+	EXPECT_EQ(parseString("(a+b, var c = 2, d*e, if(true) (f,g;),)"), ParseTree(
+		Term("Expression",
+			Term("AdditiveExpression",
+				Token("Identifier", "a"),
+				Token("BinaryOperator", "+"),
+				Token("Identifier", "b")
+			),
+			Token("Separator", ","),
+			Term("AssignmentExpression",
+				Term("VarDefineExpression",
+					Term("ConstraintExperssion",
+						Token("Identifier", "c")
+					)
+				),
+				Token("BinaryOperator", "="),
+				Token("IntLiteral", "2")
+			),
+			Token("Separator", ","),
+			Term("MultiplicativeExpression",
+				Token("Identifier", "d"),
+				Token("BinaryOperator", "*"),
+				Token("Identifier", "e")
+			),
+			Token("Separator", ","),
+			Term("ConditionExpression",
+				Token("TrueLiteral", "true"),
+				Term("Expression",
+					Token("Identifier", "f"),
+					Token("Separator", ","),
+					Token("Identifier", "g"),
+					Token("Separator", ";")
+				)
+			),
+			Token("Separator", ",")
+		)
+	));
+}
