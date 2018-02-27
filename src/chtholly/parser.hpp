@@ -269,7 +269,7 @@ namespace Chtholly
 		// SigleExpression = DoWhileLoopExpression
 		static Info SigleExpression(Info info)
 		{
-			return PairExperssion(info);
+			return PairExpression(info);
 		}
 
 		// Expression = SigleExpression ((';'|',') SigleExpression)* (';'|',')?
@@ -306,8 +306,9 @@ namespace Chtholly
 						SigleExpression
 					)
 				),
-				ChangeOut(),
-				Term(Match(']'))
+				Term(Match(']')),
+				Change(RemoveFailedBlankTerm),
+				ChangeOut()
 			);
 
 		// DictList = '{' (SigleExpression (',' SigleExpression)*)? '}'
@@ -322,8 +323,9 @@ namespace Chtholly
 						SigleExpression
 					)
 				),
-				ChangeOut(),
-				Term(Match('}'))
+				Term(Match('}')),
+				Change(RemoveFailedBlankTerm),
+				ChangeOut()
 			);
 
 		// UndefExpression = '(' ')'
@@ -663,9 +665,9 @@ namespace Chtholly
 			);
 
 		// PairExperssion = AssignmentExpression | PairExperssion ':' SigleExpression
-		inline static const Process PairExperssion =
+		inline static const Process PairExpression =
 			(
-				ChangeIn("PairExperssion"),
+				ChangeIn("PairExpression"),
 				AssignmentExpression, *(Term(Match(':')), SigleExpression),
 				ChangeOut(true)
 			);

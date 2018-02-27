@@ -980,17 +980,17 @@ TEST(Expression, AssignmentExpression)
 	));
 }
 
-TEST(Expression, PairExperssion)
+TEST(Expression, PairExpression)
 {
 	EXPECT_EQ(parseString("a : b"), ParseTree(
-		Term("PairExperssion",
+		Term("PairExpression",
 			Token("Identifier", "a"),
 			Token("Identifier", "b")
 		)
 	));
 
 	EXPECT_EQ(parseString("a + c : b + c"), ParseTree(
-		Term("PairExperssion",
+		Term("PairExpression",
 			Term("AdditiveExpression",
 				Token("Identifier", "a"),
 				Token("BinaryOperator", "+"),
@@ -1005,11 +1005,11 @@ TEST(Expression, PairExperssion)
 	));
 
 	EXPECT_EQ(parseString("a : b : c : d"), ParseTree(
-		Term("PairExperssion",
+		Term("PairExpression",
 			Token("Identifier", "a"),
-			Term("PairExperssion",
+			Term("PairExpression",
 				Token("Identifier", "b"),
-				Term("PairExperssion",
+				Term("PairExpression",
 					Token("Identifier", "c"),
 					Token("Identifier", "d")
 				)
@@ -1076,6 +1076,100 @@ TEST(Expression, ExpressionList)
 				)
 			),
 			Token("Separator", ",")
+		)
+	));
+}
+
+TEST(Expression, ArrayList)
+{
+	EXPECT_EQ(parseString("[]"), ParseTree(
+		Term("ArrayList")
+	));
+
+	EXPECT_EQ(parseString("[a,b,c,d,e,f,g]"), ParseTree(
+		Term("ArrayList",
+			Token("Identifier", "a"),
+			Token("Identifier", "b"),
+			Token("Identifier", "c"),
+			Token("Identifier", "d"),
+			Token("Identifier", "e"),
+			Token("Identifier", "f"),
+			Token("Identifier", "g")
+		)
+	));
+
+	EXPECT_EQ(parseString("[0, while((var i(0) +=1) < 10) i]"), ParseTree(
+		Term("ArrayList",
+			Token("IntLiteral", "0"),
+			Term("WhileLoopExpression",
+				Term("RelationalExpression",
+					Term("AssignmentExpression",
+						Term("VarDefineExpression",
+							Term("ConstraintExperssion",
+								Token("Identifier", "i")
+							),
+							Token("IntLiteral", "0")
+						),
+						Token("BinaryOperator", "+="),
+						Token("IntLiteral", "1")
+					),
+					Token("BinaryOperator", "<"),
+					Token("IntLiteral", "10")
+				),
+				Token("Identifier", "i")
+			)
+		)
+	));
+}
+
+TEST(Expression, DictList)
+{
+	EXPECT_EQ(parseString("{}"), ParseTree(
+		Term("DictList")
+	));
+
+	EXPECT_EQ(parseString("{a,b,c,d,e,f,g}"), ParseTree(
+		Term("DictList",
+			Token("Identifier", "a"),
+			Token("Identifier", "b"),
+			Token("Identifier", "c"),
+			Token("Identifier", "d"),
+			Token("Identifier", "e"),
+			Token("Identifier", "f"),
+			Token("Identifier", "g")
+		)
+	));
+
+	EXPECT_EQ(parseString("{0 : 1, while((var i(0) +=1) < 10) i:i+1}"), ParseTree(
+		Term("DictList",
+			Term("PairExpression",
+				Token("IntLiteral", "0"),
+				Token("IntLiteral", "1")
+			),
+			Term("WhileLoopExpression",
+				Term("RelationalExpression",
+					Term("AssignmentExpression",
+						Term("VarDefineExpression",
+							Term("ConstraintExperssion",
+								Token("Identifier", "i")
+							),
+							Token("IntLiteral", "0")
+						),
+						Token("BinaryOperator", "+="),
+						Token("IntLiteral", "1")
+					),
+					Token("BinaryOperator", "<"),
+					Token("IntLiteral", "10")
+				),
+				Term("PairExpression",
+					Token("Identifier", "i"),
+					Term("AdditiveExpression",
+						Token("Identifier", "i"),
+						Token("BinaryOperator", "+"),
+						Token("IntLiteral", "1")
+					)
+				)
+			)
 		)
 	));
 }
