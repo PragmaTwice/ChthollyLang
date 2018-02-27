@@ -634,3 +634,246 @@ TEST(Expression, UnaryExpression)
 		)
 	));
 }
+
+TEST(Expression, MultiplicativeExpression)
+{
+	EXPECT_EQ(parseString("a*b"), ParseTree(
+		Term("MultiplicativeExpression",
+			Token("Identifier", "a"),
+			Token("BinaryOperator", "*"),
+			Token("Identifier", "b")
+		)
+	));
+	EXPECT_EQ(parseString("a/b"), ParseTree(
+		Term("MultiplicativeExpression",
+			Token("Identifier", "a"),
+			Token("BinaryOperator", "/"),
+			Token("Identifier", "b")
+		)
+	));
+	EXPECT_EQ(parseString("a%b"), ParseTree(
+		Term("MultiplicativeExpression",
+			Token("Identifier", "a"),
+			Token("BinaryOperator", "%"),
+			Token("Identifier", "b")
+		)
+	));
+
+	EXPECT_EQ(parseString("a*b*c/d*e/f"), ParseTree(
+		Term("MultiplicativeExpression",
+			Token("Identifier", "a"),
+			Token("BinaryOperator", "*"),
+			Token("Identifier", "b"),
+			Token("BinaryOperator", "*"),
+			Token("Identifier", "c"),
+			Token("BinaryOperator", "/"),
+			Token("Identifier", "d"),
+			Token("BinaryOperator", "*"),
+			Token("Identifier", "e"),
+			Token("BinaryOperator", "/"),
+			Token("Identifier", "f")
+		)
+	));
+
+	EXPECT_EQ(parseString("a*b+c/d"), ParseTree(
+		Term("AdditiveExpression",
+			Term("MultiplicativeExpression",
+				Token("Identifier", "a"),
+				Token("BinaryOperator", "*"),
+				Token("Identifier", "b")
+			),
+			Token("BinaryOperator", "+"),
+			Term("MultiplicativeExpression",
+				Token("Identifier", "c"),
+				Token("BinaryOperator", "/"),
+				Token("Identifier", "d")
+			)
+		)
+	));
+}
+
+TEST(Expression, AdditiveExpression)
+{
+	EXPECT_EQ(parseString("a+b"), ParseTree(
+		Term("AdditiveExpression",
+			Token("Identifier", "a"),
+			Token("BinaryOperator", "+"),
+			Token("Identifier", "b")
+		)
+	));
+	EXPECT_EQ(parseString("a-b"), ParseTree(
+		Term("AdditiveExpression",
+			Token("Identifier", "a"),
+			Token("BinaryOperator", "-"),
+			Token("Identifier", "b")
+		)
+	));
+
+	EXPECT_EQ(parseString("a+b-c+d-e"), ParseTree(
+		Term("AdditiveExpression",
+			Token("Identifier", "a"),
+			Token("BinaryOperator", "+"),
+			Token("Identifier", "b"),
+			Token("BinaryOperator", "-"),
+			Token("Identifier", "c"),
+			Token("BinaryOperator", "+"),
+			Token("Identifier", "d"),
+			Token("BinaryOperator", "-"),
+			Token("Identifier", "e")
+		)
+	));
+
+	EXPECT_EQ(parseString("a-b>c+d-e"), ParseTree(
+		Term("RelationalExpression",
+			Term("AdditiveExpression",
+				Token("Identifier", "a"),
+				Token("BinaryOperator", "-"),
+				Token("Identifier", "b")
+			),
+			Token("BinaryOperator", ">"),
+			Term("AdditiveExpression",
+				Token("Identifier", "c"),
+				Token("BinaryOperator", "+"),
+				Token("Identifier", "d"),
+				Token("BinaryOperator", "-"),
+				Token("Identifier", "e")
+			)
+		)
+	));
+}
+
+TEST(Expression, RelationalExpression)
+{
+	EXPECT_EQ(parseString("a<=b"), ParseTree(
+		Term("RelationalExpression",
+			Token("Identifier", "a"),
+			Token("BinaryOperator", "<="),
+			Token("Identifier", "b")
+		)
+	));
+	EXPECT_EQ(parseString("a>=b"), ParseTree(
+		Term("RelationalExpression",
+			Token("Identifier", "a"),
+			Token("BinaryOperator", ">="),
+			Token("Identifier", "b")
+		)
+	));
+	EXPECT_EQ(parseString("a<b"), ParseTree(
+		Term("RelationalExpression",
+			Token("Identifier", "a"),
+			Token("BinaryOperator", "<"),
+			Token("Identifier", "b")
+		)
+	));
+	EXPECT_EQ(parseString("a>b"), ParseTree(
+		Term("RelationalExpression",
+			Token("Identifier", "a"),
+			Token("BinaryOperator", ">"),
+			Token("Identifier", "b")
+		)
+	));
+
+	EXPECT_EQ(parseString("a<b and b<=c"), ParseTree(
+		Term("LogicalAndExpression",
+			Term("RelationalExpression",
+				Token("Identifier", "a"),
+				Token("BinaryOperator", "<"),
+				Token("Identifier", "b")
+			),
+			Token("BinaryOperator", "and"),
+			Term("RelationalExpression",
+				Token("Identifier", "b"),
+				Token("BinaryOperator", "<="),
+				Token("Identifier", "c")
+			)
+		)
+	));
+}
+
+TEST(Expression, EqualityExpression)
+{
+	EXPECT_EQ(parseString("a==b"), ParseTree(
+		Term("EqualityExpression",
+			Token("Identifier", "a"),
+			Token("BinaryOperator", "=="),
+			Token("Identifier", "b")
+		)
+	));
+	EXPECT_EQ(parseString("a<>b"), ParseTree(
+		Term("EqualityExpression",
+			Token("Identifier", "a"),
+			Token("BinaryOperator", "<>"),
+			Token("Identifier", "b")
+		)
+	));
+
+	EXPECT_EQ(parseString("a==b or a<>c"), ParseTree(
+		Term("LogicalOrExpression",
+			Term("EqualityExpression",
+				Token("Identifier", "a"),
+				Token("BinaryOperator", "=="),
+				Token("Identifier", "b")
+			),
+			Token("BinaryOperator", "or"),
+			Term("EqualityExpression",
+				Token("Identifier", "a"),
+				Token("BinaryOperator", "<>"),
+				Token("Identifier", "c")
+			)
+		)
+	));
+}
+
+TEST(Expression, LogicalAndExpression)
+{
+	EXPECT_EQ(parseString("a and b"), ParseTree(
+		Term("LogicalAndExpression",
+			Token("Identifier", "a"),
+			Token("BinaryOperator", "and"),
+			Token("Identifier", "b")
+		)
+	));
+
+	EXPECT_EQ(parseString("a and b or c and d"), ParseTree(
+		Term("LogicalOrExpression",
+			Term("LogicalAndExpression",
+				Token("Identifier", "a"),
+				Token("BinaryOperator", "and"),
+				Token("Identifier", "b")
+			),
+			Token("BinaryOperator", "or"),
+			Term("LogicalAndExpression",
+				Token("Identifier", "c"),
+				Token("BinaryOperator", "and"),
+				Token("Identifier", "d")
+			)
+		)
+	));
+}
+
+TEST(Expression, LogicalOrExpression)
+{
+	EXPECT_EQ(parseString("a or b"), ParseTree(
+		Term("LogicalOrExpression",
+			Token("Identifier", "a"),
+			Token("BinaryOperator", "or"),
+			Token("Identifier", "b")
+		)
+	));
+
+	EXPECT_EQ(parseString("a or b or c and d and e"), ParseTree(
+		Term("LogicalOrExpression",
+			Token("Identifier", "a"),
+			Token("BinaryOperator", "or"),
+			Token("Identifier", "b"),
+			Token("BinaryOperator", "or"),
+			Term("LogicalAndExpression",
+				Token("Identifier", "c"),
+				Token("BinaryOperator", "and"),
+				Token("Identifier", "d"),
+				Token("BinaryOperator", "and"),
+				Token("Identifier", "e")
+			)
+		)
+	));
+}
