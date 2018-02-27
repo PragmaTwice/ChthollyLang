@@ -241,6 +241,14 @@ TEST(Expression, LambdaExpression)
 
 TEST(Expression, ConditionExpression)
 {
+	EXPECT_EQ(parseString("if(cond) true_branch else false_branch"), ParseTree(
+		Term("ConditionExpression",
+			Token("Identifier", "cond"),
+			Token("Identifier", "true_branch"),
+			Token("Identifier", "false_branch")
+		)
+	));
+
 	EXPECT_EQ(parseString("if(1 > 2) 1 else 2"), ParseTree(
 		Term("ConditionExpression",
 			Term("RelationalExpression",
@@ -327,6 +335,14 @@ TEST(Expression, ContinueExpression)
 
 TEST(Expression, WhileLoopExpression)
 {
+	EXPECT_EQ(parseString("while(cond) something else otherthing"), ParseTree(
+		Term("WhileLoopExpression",
+			Token("Identifier", "cond"),
+			Token("Identifier", "something"),
+			Token("Identifier", "otherthing")
+		)
+	));
+
 	EXPECT_EQ(parseString("while(true) dosomething()"), ParseTree(
 		Term("WhileLoopExpression",
 			Token("TrueLiteral", "true"),
@@ -416,6 +432,14 @@ TEST(Expression, WhileLoopExpression)
 
 TEST(Expression, DoWhileLoopExpression)
 {
+	EXPECT_EQ(parseString("do something while(somecondition) else otherthing"), ParseTree(
+		Term("DoWhileLoopExpression",
+			Token("Identifier", "something"),
+			Token("Identifier", "somecondition"),
+			Token("Identifier", "otherthing")
+		)
+	));
+
 	EXPECT_EQ(parseString("do i = randomNumber() while(not exists(array;i))"), ParseTree(
 		Term("DoWhileLoopExpression",
 			Term("AssignmentExpression",
@@ -437,14 +461,6 @@ TEST(Expression, DoWhileLoopExpression)
 					)
 				)
 			)
-		)
-	));
-
-	EXPECT_EQ(parseString("do something while(somecondition) else otherthing"), ParseTree(
-		Term("DoWhileLoopExpression",
-			Token("Identifier", "something"),
-			Token("Identifier", "somecondition"),
-			Token("Identifier", "otherthing")
 		)
 	));
 }
@@ -524,7 +540,7 @@ TEST(Expression, PointExpression)
 		)
 	));
 
-	EXPECT_EQ(parseString(R"(matrix->0->2)"), ParseTree(
+	EXPECT_EQ(parseString("matrix->0->2"), ParseTree(
 		Term("PointExpression",
 			Token("Identifier", "matrix"),
 			Token("BinaryOperator", "->"),
@@ -644,6 +660,7 @@ TEST(Expression, MultiplicativeExpression)
 			Token("Identifier", "b")
 		)
 	));
+
 	EXPECT_EQ(parseString("a/b"), ParseTree(
 		Term("MultiplicativeExpression",
 			Token("Identifier", "a"),
@@ -651,6 +668,7 @@ TEST(Expression, MultiplicativeExpression)
 			Token("Identifier", "b")
 		)
 	));
+
 	EXPECT_EQ(parseString("a%b"), ParseTree(
 		Term("MultiplicativeExpression",
 			Token("Identifier", "a"),
@@ -701,6 +719,7 @@ TEST(Expression, AdditiveExpression)
 			Token("Identifier", "b")
 		)
 	));
+
 	EXPECT_EQ(parseString("a-b"), ParseTree(
 		Term("AdditiveExpression",
 			Token("Identifier", "a"),
@@ -751,6 +770,7 @@ TEST(Expression, RelationalExpression)
 			Token("Identifier", "b")
 		)
 	));
+
 	EXPECT_EQ(parseString("a>=b"), ParseTree(
 		Term("RelationalExpression",
 			Token("Identifier", "a"),
@@ -758,6 +778,7 @@ TEST(Expression, RelationalExpression)
 			Token("Identifier", "b")
 		)
 	));
+
 	EXPECT_EQ(parseString("a<b"), ParseTree(
 		Term("RelationalExpression",
 			Token("Identifier", "a"),
@@ -765,6 +786,7 @@ TEST(Expression, RelationalExpression)
 			Token("Identifier", "b")
 		)
 	));
+
 	EXPECT_EQ(parseString("a>b"), ParseTree(
 		Term("RelationalExpression",
 			Token("Identifier", "a"),
@@ -799,6 +821,7 @@ TEST(Expression, EqualityExpression)
 			Token("Identifier", "b")
 		)
 	));
+
 	EXPECT_EQ(parseString("a<>b"), ParseTree(
 		Term("EqualityExpression",
 			Token("Identifier", "a"),
@@ -873,6 +896,123 @@ TEST(Expression, LogicalOrExpression)
 				Token("Identifier", "d"),
 				Token("BinaryOperator", "and"),
 				Token("Identifier", "e")
+			)
+		)
+	));
+}
+
+TEST(Expression, AssignmentExpression)
+{
+	EXPECT_EQ(parseString("a = b"), ParseTree(
+		Term("AssignmentExpression",
+			Token("Identifier", "a"),
+			Token("BinaryOperator", "="),
+			Token("Identifier", "b")
+		)
+	));
+
+	EXPECT_EQ(parseString("a *= b"), ParseTree(
+		Term("AssignmentExpression",
+			Token("Identifier", "a"),
+			Token("BinaryOperator", "*="),
+			Token("Identifier", "b")
+		)
+	));
+
+	EXPECT_EQ(parseString("a /= b"), ParseTree(
+		Term("AssignmentExpression",
+			Token("Identifier", "a"),
+			Token("BinaryOperator", "/="),
+			Token("Identifier", "b")
+		)
+	));
+
+	EXPECT_EQ(parseString("a %= b"), ParseTree(
+		Term("AssignmentExpression",
+			Token("Identifier", "a"),
+			Token("BinaryOperator", "%="),
+			Token("Identifier", "b")
+		)
+	));
+
+	EXPECT_EQ(parseString("a += b"), ParseTree(
+		Term("AssignmentExpression",
+			Token("Identifier", "a"),
+			Token("BinaryOperator", "+="),
+			Token("Identifier", "b")
+		)
+	));
+
+	EXPECT_EQ(parseString("a -= b"), ParseTree(
+		Term("AssignmentExpression",
+			Token("Identifier", "a"),
+			Token("BinaryOperator", "-="),
+			Token("Identifier", "b")
+		)
+	));
+
+	EXPECT_EQ(parseString("a = b + c"), ParseTree(
+		Term("AssignmentExpression",
+			Token("Identifier", "a"),
+			Token("BinaryOperator", "="),
+			Term("AdditiveExpression",
+				Token("Identifier", "b"),
+				Token("BinaryOperator", "+"),
+				Token("Identifier", "c")
+			)
+		)
+	));
+
+	EXPECT_EQ(parseString("a = b /= c += d"), ParseTree(
+		Term("AssignmentExpression",
+			Token("Identifier", "a"),
+			Token("BinaryOperator", "="),
+			Term("AssignmentExpression",
+				Token("Identifier", "b"),
+				Token("BinaryOperator", "/="),
+				Term("AssignmentExpression",
+					Token("Identifier", "c"),
+					Token("BinaryOperator", "+="),
+					Token("Identifier", "d")
+				)
+			)
+		)
+	));
+}
+
+TEST(Expression, PairExperssion)
+{
+	EXPECT_EQ(parseString("a : b"), ParseTree(
+		Term("PairExperssion",
+			Token("Identifier", "a"),
+			Token("Identifier", "b")
+		)
+	));
+
+	EXPECT_EQ(parseString("a + c : b + c"), ParseTree(
+		Term("PairExperssion",
+			Term("AdditiveExpression",
+				Token("Identifier", "a"),
+				Token("BinaryOperator", "+"),
+				Token("Identifier", "c")
+			),
+			Term("AdditiveExpression",
+				Token("Identifier", "b"),
+				Token("BinaryOperator", "+"),
+				Token("Identifier", "c")
+			)
+		)
+	));
+
+	EXPECT_EQ(parseString("a : b : c : d"), ParseTree(
+		Term("PairExperssion",
+			Token("Identifier", "a"),
+			Term("PairExperssion",
+				Token("Identifier", "b"),
+				Term("PairExperssion",
+					Token("Identifier", "c"),
+					Token("Identifier", "d")
+				)
 			)
 		)
 	));
