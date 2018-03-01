@@ -87,7 +87,7 @@ Let A and B be two (non-)terminal symbols:
 
 ### ***comments***
 
-**MultiLineComment** = "/*" AnyCharUntil("*/")
+**MultiLineComment** = "/\*" AnyCharUntil("*/")
 
 **SingleLineComment** = "//" AnyCharUntil('\n')
 
