@@ -14,7 +14,7 @@ Let A and B be two (non-)terminal symbols:
 * **A - B** : a non-terminal derived as A except B
 * **A = B** : A will be derived as B
 
-### **Rules only for Chtholly Lang**
+### **rules only for Chtholly Lang**
 
 * **"characters"** :  a terminal derived as 'characters'
 
