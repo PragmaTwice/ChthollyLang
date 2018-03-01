@@ -43,7 +43,7 @@ Let A and B be two (non-)terminal symbols:
 
 **AnyCharUntil(A)** = A | ( (AnyChar ^ A), AnyChar, A )
 
-**Term(A)** = ( Space\*, Comment ) Space* A
+**Term(A)** = ( Space* Comment ) Space* A
 
 **MultiExpressionPackage(A)** = A ( (';'|',') A )* (';'|',')?
 
