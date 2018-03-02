@@ -41,130 +41,130 @@ Let A and B be two (non-)terminal symbols:
 
 ### ***generators***
 
-**AnyCharUntil(A)** = A | ( (AnyChar ^ A), AnyChar, A )
+* **AnyCharUntil(A)** = A | ( (AnyChar ^ A), AnyChar, A )
 
-**Term(A)** = ( Space* Comment ) Space* A
+* **Term(A)** = ( Space* Comment ) Space* A
 
-**MultiExpressionPackage(A)** = A ( (';'|',') A )* (';'|',')?
+* **MultiExpressionPackage(A)** = A ( (';'|',') A )* (';'|',')?
 
-**BinaryOperator(A,B)** = A (B A)*
+* **BinaryOperator(A,B)** = A (B A)*
 
 ### ***tokens***
 
-**Space** = '\t' | '\n' | '\v' | '\f' | '\r' | ' '
+* **Space** = '\t' | '\n' | '\v' | '\f' | '\r' | ' '
 
-**Digit** = '0' ... '9'
+* **Digit** = '0' ... '9'
 
-**UpperCaseLetter** = 'A' ... 'Z'
+* **UpperCaseLetter** = 'A' ... 'Z'
 
-**LowerCaseLetter** = 'a' ... 'z'
+* **LowerCaseLetter** = 'a' ... 'z'
 
-**Letter** = UpperCaseLetter | LowerCaseLetter
+* **Letter** = UpperCaseLetter | LowerCaseLetter
 
-**DigitOrLetter** = Digit | Letter
+* **DigitOrLetter** = Digit | Letter
 
-**IntLiteral** = Digit+
+* **IntLiteral** = Digit+
 
-**FloatLiteral** = Digit+ '.' Digit* (('E'|'e') ('+'|'-')? Digit+)?
+* **FloatLiteral** = Digit+ '.' Digit* (('E'|'e') ('+'|'-')? Digit+)?
 
-**UnescapedCharacter** = AnyChar - ('"' | '\\')
+* **UnescapedCharacter** = AnyChar - ('"' | '\\')
 
-**EscapedCharacter** = '\\' ('"' | '\\' | 'b' | 'f' | 'n' | 'r' | 't' | 'v')
+* **EscapedCharacter** = '\\' ('"' | '\\' | 'b' | 'f' | 'n' | 'r' | 't' | 'v')
 
-**StringLiteral** = '"' (EscapedCharacter|UnescapedCharacter)* '"'
+* **StringLiteral** = '"' (EscapedCharacter|UnescapedCharacter)* '"'
 
-**Identifier** = (Letter | '\_') (DigitOrLetter | '\_')*
+* **Identifier** = (Letter | '\_') (DigitOrLetter | '\_')*
 
-**NullLiteral** = "null"
+* **NullLiteral** = "null"
 
-**UndefinedLiteral** = "undef"
+* **UndefinedLiteral** = "undef"
 
-**TrueLiteral** = "true"
+* **TrueLiteral** = "true"
 
-**FalseLiteral** = "false"
+* **FalseLiteral** = "false"
 
-**Literal** = FloatLiteral | IntLiteral | StringLiteral | NullLiteral | UndefinedLiteral | TrueLiteral | FalseLiteral
+* **Literal** = FloatLiteral | IntLiteral | StringLiteral | NullLiteral | UndefinedLiteral | TrueLiteral | FalseLiteral
 
 ### ***comments***
 
-**MultiLineComment** = "/\*" AnyCharUntil("*/")
+* **MultiLineComment** = "/\*" AnyCharUntil("*/")
 
-**SingleLineComment** = "//" AnyCharUntil('\n')
+* **SingleLineComment** = "//" AnyCharUntil('\n')
 
-**Comment** = SingleLineComment | MultiLineComment
+* **Comment** = SingleLineComment | MultiLineComment
 
 ### ***expressions***
 
-**SigleExpression** = PairExpression
+* **SigleExpression** = PairExpression
 
-**Expression** = MultiExpressionPackage(SigleExpression)
+* **Expression** = MultiExpressionPackage(SigleExpression)
 
-**ExpressionList** = '(' Expression ')'
+* **ExpressionList** = '(' Expression ')'
 
-**ArrayList** = '[' (SigleExpression (',' SigleExpression)*)? ']'
+* **ArrayList** = '[' (SigleExpression (',' SigleExpression)*)? ']'
 
-**DictList** = '{' (SigleExpression (',' SigleExpression)*)? '}'
+* **DictList** = '{' (SigleExpression (',' SigleExpression)*)? '}'
 
-**UndefExpression** = '(' ')'
+* **UndefExpression** = '(' ')'
 
-**List** = UndefExpression | ExpressionList | ArrayList | DictList
+* **List** = UndefExpression | ExpressionList | ArrayList | DictList
 
-**PrimaryExpression** = Literal | Identifier | List
+* **PrimaryExpression** = Literal | Identifier | List
 
-**ConstraintPartAtConstraintExperssion** = ':' PrimaryExpression
+* **ConstraintPartAtConstraintExperssion** = ':' PrimaryExpression
 
-**ConstraintPartAtConstraintExperssionAtPatternExperssion** = ':' SigleExpression
+* **ConstraintPartAtConstraintExperssionAtPatternExperssion** = ':' SigleExpression
 
-**ConstraintExperssion** = Identifier ConstraintPartAtConstraintExperssion?
+* **ConstraintExperssion** = Identifier ConstraintPartAtConstraintExperssion?
 
-**ConstraintExperssionAtPatternExperssion** = Identifier "..."? ConstraintPartAtConstraintExperssionAtPatternExperssion?
+* **ConstraintExperssionAtPatternExperssion** = Identifier "..."? ConstraintPartAtConstraintExperssionAtPatternExperssion?
 
-**PatternExperssion** = '(' MultiExpressionPackage(ConstraintExperssionAtPatternExperssion) ')' ConstraintPartAtConstraintExperssion?
+* **PatternExperssion** = '(' MultiExpressionPackage(ConstraintExperssionAtPatternExperssion) ')' ConstraintPartAtConstraintExperssion?
 
-**VarDefineExpression** = "var" (ConstraintExperssion | PatternExperssion) List?
+* **VarDefineExpression** = "var" (ConstraintExperssion | PatternExperssion) List?
 
-**ConstDefineExpression** = "const" (ConstraintExperssion | PatternExperssion) List?
+* **ConstDefineExpression** = "const" (ConstraintExperssion | PatternExperssion) List?
 
-**DefineExpression** = PrimaryExpression | VarDefineExpression | ConstDefineExpression
+* **DefineExpression** = PrimaryExpression | VarDefineExpression | ConstDefineExpression
 
-**LambdaExperssion** = DefineExpression | "fn" PatternExperssion SigleExpression
+* **LambdaExperssion** = DefineExpression | "fn" PatternExperssion SigleExpression
 
-**ConditionExpression** = LambdaExperssion | "if" ExpressionList SigleExpression ("else" SigleExpression)?
+* **ConditionExpression** = LambdaExperssion | "if" ExpressionList SigleExpression ("else" SigleExpression)?
 
-**ReturnExpression** = ConditionExpression | "return" SigleExpression?
+* **ReturnExpression** = ConditionExpression | "return" SigleExpression?
 
-**BreakExpression** = "break" SigleExpression?
+* **BreakExpression** = "break" SigleExpression?
 
-**ContinueExpression** = "continue" SigleExpression?
+* **ContinueExpression** = "continue" SigleExpression?
 
-**LoopControlExpression** = ReturnExpression | (BreakExpression | ContinueExpression)
+* **LoopControlExpression** = ReturnExpression | (BreakExpression | ContinueExpression)
 
-**WhileLoopExpression** = LoopControlExpression | "while" ExpressionList SigleExpression
+* **WhileLoopExpression** = LoopControlExpression | "while" ExpressionList SigleExpression
 
-**DoWhileLoopExpression** = WhileLoopExpression | "do" SigleExpression "while" ExpressionList
+* **DoWhileLoopExpression** = WhileLoopExpression | "do" SigleExpression "while" ExpressionList
 
-**FunctionExpression** = DoWhileLoopExpression List*
+* **FunctionExpression** = DoWhileLoopExpression List*
 
-**PointExpression** = FunctionExpression | PointExpression '->' FunctionExpression
+* **PointExpression** = FunctionExpression | PointExpression '->' FunctionExpression
 
-**FoldExperssion** = PointExpression "..."*
+* **FoldExperssion** = PointExpression "..."*
 
-**UnaryExpression** = FoldExperssion | (('+' | '-') | "not") UnaryExpression
+* **UnaryExpression** = FoldExperssion | (('+' | '-') | "not") UnaryExpression
 
-**MultiplicativeExpression** = BinaryOperator( UnaryExpression, '*'|'/'|'%')
+* **MultiplicativeExpression** = BinaryOperator( UnaryExpression, '*'|'/'|'%')
 
-**AdditiveExpression** = BinaryOperator( MultiplicativeExpression, '+'|'-')
+* **AdditiveExpression** = BinaryOperator( MultiplicativeExpression, '+'|'-')
 
-**RelationalExpression** = BinaryOperator( AdditiveExpression, '<'|'>'|"<="|">=")
+* **RelationalExpression** = BinaryOperator( AdditiveExpression, '<'|'>'|"<="|">=")
 
-**EqualityExpression** = BinaryOperator( RelationalExpression, "=="|"<>")
+* **EqualityExpression** = BinaryOperator( RelationalExpression, "=="|"<>")
 
-**LogicalAndExpression** = BinaryOperator( EqualityExpression, "and" )
+* **LogicalAndExpression** = BinaryOperator( EqualityExpression, "and" )
 
-**LogicalOrExpression** = BinaryOperator( LogicalAndExpression, "or" )
+* **LogicalOrExpression** = BinaryOperator( LogicalAndExpression, "or" )
 
-**AssignmentOperator** = '=' | '*=' | '/=' | '%=' | '+=' | '-='
+* **AssignmentOperator** = '=' | '*=' | '/=' | '%=' | '+=' | '-='
 
-**AssignmentExpression** = LogicalOrExpression | LogicalOrExpression AssignmentOperator SigleExpression
+* **AssignmentExpression** = LogicalOrExpression | LogicalOrExpression AssignmentOperator SigleExpression
 
-**PairExperssion** = AssignmentExpression | PairExperssion ':' SigleExpression
+* **PairExperssion** = AssignmentExpression | PairExperssion ':' SigleExpression
