@@ -272,6 +272,33 @@ namespace Chtholly
 			return PairExpression(info);
 		}
 
+		// MultiExpressionPackage(exp) = exp ((';'|',') exp)* (';'|',')?
+		static Process MultiExpressionPackage(ProcessRef exp)
+		{
+			return
+				(
+					exp,
+					*(
+						Term(Catch(Match({ ',',';' }), "Separator")),
+						exp
+					),
+					Change(RemoveFailedBlankTerm),
+					~Term(Catch(Match({ ',',';' }), "Separator")),
+					Change([](Modifier modi)
+					{
+						if (modi.childrenSize() < 2) return modi;
+						
+						auto back = --modi.childrenEnd();
+						if(back.value().name == "Separator" && (--back).value().name == "Separator")
+						{
+							back.thisErase(back);
+						}
+
+						return modi;
+					})
+				);
+		}
+
 		// Expression = SigleExpression ((';'|',') SigleExpression)* (';'|',')?
 		inline static const Process Expression =
 			(
@@ -389,32 +416,6 @@ namespace Chtholly
 				ChangeOut()
 			);
 
-		// MultiExpressionPackage(exp) = exp ((';'|',') exp)* (';'|',')?
-		static Process MultiExpressionPackage(ProcessRef exp)
-		{
-			return
-				(
-					exp,
-					*(
-						Term(Catch(Match({ ',',';' }), "Separator")),
-						exp
-					),
-					Change(RemoveFailedBlankTerm),
-					~Term(Catch(Match({ ',',';' }), "Separator")),
-					Change([](Modifier modi)
-					{
-						if (modi.childrenSize() < 2) return modi;
-						
-						auto back = --modi.childrenEnd();
-						if(back.value().name == "Separator" && (--back).value().name == "Separator")
-						{
-							back.thisErase(back);
-						}
-
-						return modi;
-					})
-				);
-		}
 
 		// PatternExperssion = '(' ( ConstraintExperssionAtPatternExperssion ((','|';') ConstraintExperssionAtPatternExperssion)* (','|';')? | Atom ) ')' ConstraintPartAtConstraintExperssion?
 		inline static const Process PatternExperssion =

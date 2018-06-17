@@ -26,9 +26,4 @@
       <Filter>SRC</Filter>
     </ClInclude>
   </ItemGroup>
-  <ItemGroup>
-    <ClCompile Include="..\..\..\src\chtholly.cpp">
-      <Filter>ALL</Filter>
-    </ClCompile>
-  </ItemGroup>
 </Project>

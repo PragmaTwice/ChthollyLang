@@ -123,7 +123,10 @@ namespace Chtholly
 
 		struct NodeWrapper : private Node
 		{
-			using Node::Node;
+			// using Node::Node;
+			NodeWrapper(const Node& src) : Node(src)
+			{
+			}
 		};
 
 		class Visitor;
@@ -767,7 +770,7 @@ namespace Chtholly
 
 		static NodeWrapper Token(const UnitName& name, const UnitValue& value)
 		{
-			return {UnitType::token, name, value};
+			return Node {UnitType::token, name, value};
 		}
 
 		template <typename... Nodes>
@@ -775,7 +778,7 @@ namespace Chtholly
 		{
 			static_assert(std::conjunction_v<std::is_same<std::remove_reference_t<Nodes>, NodeWrapper>...>, "BasicParseTree::Term: invalid arguments type");
 			
-			return { typename Node::Container{ std::forward<Nodes>(nodes)... }, UnitType::term, name };
+			return Node { typename Node::Container{ std::forward<Nodes>(nodes)... }, UnitType::term, name };
 		}
 
 	};
