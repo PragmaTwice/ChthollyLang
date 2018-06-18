@@ -10,9 +10,6 @@
     </Filter>
   </ItemGroup>
   <ItemGroup>
-    <ClInclude Include="..\..\..\src\chtholly.h">
-      <Filter>ALL</Filter>
-    </ClInclude>
     <ClInclude Include="..\..\..\src\chtholly\chartype.hpp">
       <Filter>SRC</Filter>
     </ClInclude>
@@ -24,6 +21,9 @@
     </ClInclude>
     <ClInclude Include="..\..\..\src\chtholly\parsetree.hpp">
       <Filter>SRC</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\src\chtholly.hpp">
+      <Filter>ALL</Filter>
     </ClInclude>
   </ItemGroup>
 </Project>

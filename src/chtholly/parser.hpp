@@ -266,11 +266,13 @@ namespace Chtholly
 		}
 
 		// Cannot be inline static const Process
-		// SigleExpression = DoWhileLoopExpression
-		static Info SigleExpression(Info info)
+		// SingleExpression = DoWhileLoopExpression
+		static Info SingleExpressionImpl(Info info)
 		{
 			return PairExpression(info);
-		}
+		};
+
+		inline static const Process SingleExpression = Process(SingleExpressionImpl);
 
 		// MultiExpressionPackage(exp) = exp ((';'|',') exp)* (';'|',')?
 		static Process MultiExpressionPackage(ProcessRef exp)
@@ -299,13 +301,15 @@ namespace Chtholly
 				);
 		}
 
-		// Expression = SigleExpression ((';'|',') SigleExpression)* (';'|',')?
-		inline static const Process Expression =
-			(
-				ChangeIn("Expression"),
-				MultiExpressionPackage(SigleExpression),
-				ChangeOut(true)
-			);
+		// Expression = SingleExpression ((';'|',') SingleExpression)* (';'|',')?
+		inline static const Process Expression = Process([](Info info) {
+			return
+				(
+					ChangeIn("Expression"),
+					MultiExpressionPackage(SingleExpression),
+					ChangeOut(true)
+				)(info);
+		});
 
 		// BinaryOperator(A,B) = A (B A)*
 		static Process BinaryOperator(ProcessRef operatorUponIt, ProcessRef operatorMatcher)
@@ -314,364 +318,434 @@ namespace Chtholly
 		}
 
 		// ExpressionList = '(' Expression ')'
-		inline static const Process ExpressionList =
-			(
-				Term(Match('(')),
-				Expression,
-				Term(Match(')'))
-			);
+		inline static const Process ExpressionList = Process([](Info info) {
+			return
+				(
+					Term(Match('(')),
+					Expression,
+					Term(Match(')'))
+				)(info);
+		});
 
-		// ArrayList = '[' (SigleExpression (',' SigleExpression)*)? ']'
-		inline static const Process ArrayList =
-			(
-				Term(Match('[')),
-				ChangeIn("ArrayList"),
-				~(
-					SigleExpression,
-					*(
-						Term(Match(',')),
-						SigleExpression
-					)
-				),
-				Term(Match(']')),
-				Change(RemoveFailedBlankTerm),
-				ChangeOut()
-			);
+		// ArrayList = '[' (SingleExpression (',' SingleExpression)*)? ']'
+		inline static const Process ArrayList = Process([](Info info) {
+			return
+				(
+					Term(Match('[')),
+					ChangeIn("ArrayList"),
+					~(
+						SingleExpression,
+						*(
+							Term(Match(',')),
+							SingleExpression
+							)
+						),
+					Term(Match(']')),
+					Change(RemoveFailedBlankTerm),
+					ChangeOut()
+				)(info);
+		});
 
-		// DictList = '{' (SigleExpression (',' SigleExpression)*)? '}'
-		inline static const Process DictList =
-			(
-				Term(Match('{')),
-				ChangeIn("DictList"),
-				~(
-					SigleExpression,
-					*(
-						Term(Match(',')),
-						SigleExpression
-					)
-				),
-				Term(Match('}')),
-				Change(RemoveFailedBlankTerm),
-				ChangeOut()
-			);
+		// DictList = '{' (SingleExpression (',' SingleExpression)*)? '}'
+		inline static const Process DictList = Process([](Info info) {
+			return
+				(
+					Term(Match('{')),
+					ChangeIn("DictList"),
+					~(
+						SingleExpression,
+						*(
+							Term(Match(',')),
+							SingleExpression
+							)
+						),
+					Term(Match('}')),
+					Change(RemoveFailedBlankTerm),
+					ChangeOut()
+				)(info);
+		});
 
 		// UndefExpression = '(' ')'
-		inline static const Process UndefExpression =
-			(
-				Term(Match('(')),
-				Term(Match(')')),
-				ChangeIn("UndefExpression"),
-				ChangeOut()
-			);
+		inline static const Process UndefExpression = Process([](Info info) {
+			return
+				(
+					Term(Match('(')),
+					Term(Match(')')),
+					ChangeIn("UndefExpression"),
+					ChangeOut()
+				)(info);
+		});
 
 		// List = UndefExpression | ExpressionList | ArrayList | DictList
-		inline static const Process List =
-			(
-				UndefExpression|
-				ExpressionList |
-				ArrayList      |
-				DictList
-			);
+		inline static const Process List = Process([](Info info) {
+			return
+				(
+					UndefExpression |
+					ExpressionList |
+					ArrayList |
+					DictList
+				)(info);
+		});
 
 		// PrimaryExpression = Literal | Identifier | List
-		inline static const Process PrimaryExpression =
-			(
-				Term(Literal)	 |
-				Term(Identifier) |
-				List
-			);
+		inline static const Process PrimaryExpression = Process([](Info info) {
+			return
+				(
+					Term(Literal) |
+					Term(Identifier) |
+					List
+				)(info);
+		});
 
 		// ConstraintPartAtConstraintExperssion = ':' PrimaryExpression
-		inline static const Process ConstraintPartAtConstraintExperssion =
-			(
-				Term(Match(':')),
-				PrimaryExpression
-			);
+		inline static const Process ConstraintPartAtConstraintExperssion = Process([](Info info) {
+			return
+				(
+					Term(Match(':')),
+					PrimaryExpression
+				)(info);
+		});
 
-		// ConstraintPartAtConstraintExperssionAtPatternExperssion = ':' SigleExpression
-		inline static const Process ConstraintPartAtConstraintExperssionAtPatternExperssion =
-			(
-				Term(Match(':')),
-				SigleExpression
-			);
+		// ConstraintPartAtConstraintExperssionAtPatternExperssion = ':' SingleExpression
+		inline static const Process ConstraintPartAtConstraintExperssionAtPatternExperssion = Process([](Info info) {
+			return
+				(
+					Term(Match(':')),
+					SingleExpression
+				)(info);
+		});
 
 		// ConstraintExperssion = Identifier ConstraintPartAtConstraintExperssion?
-		inline static const Process ConstraintExperssion =
-			(
-				ChangeIn("ConstraintExperssion"),
-				Term(Identifier),
-				~ConstraintPartAtConstraintExperssion,
-				ChangeOut()
-			);
+		inline static const Process ConstraintExperssion = Process([](Info info) {
+			return
+				(
+					ChangeIn("ConstraintExperssion"),
+					Term(Identifier),
+					~ConstraintPartAtConstraintExperssion,
+					ChangeOut()
+				)(info);
+		});
 
 		// ConstraintExperssionAtPatternExperssion = Identifier "..."? ConstraintPartAtConstraintExperssionAtPatternExperssion?
-		inline static const Process ConstraintExperssionAtPatternExperssion =
-			(
-				ChangeIn("ConstraintExperssionAtPatternExperssion"),
+		inline static const Process ConstraintExperssionAtPatternExperssion = Process([](Info info) {
+			return
 				(
-					Term(Identifier),
-					~Term(Catch(Match(GL("...")), "Separator"))
-				),
-				~ConstraintPartAtConstraintExperssionAtPatternExperssion,
-				ChangeOut()
-			);
+					ChangeIn("ConstraintExperssionAtPatternExperssion"),
+					(
+						Term(Identifier),
+						~Term(Catch(Match(GL("...")), "Separator"))
+						),
+					~ConstraintPartAtConstraintExperssionAtPatternExperssion,
+					ChangeOut()
+				)(info);
+		});
 
 
 		// PatternExperssion = '(' ( ConstraintExperssionAtPatternExperssion ((','|';') ConstraintExperssionAtPatternExperssion)* (','|';')? | Atom ) ')' ConstraintPartAtConstraintExperssion?
-		inline static const Process PatternExperssion =
-			(
-				Term(Match('(')),
-				ChangeIn("PatternExperssion"),
+		inline static const Process PatternExperssion = Process([](Info info) {
+			return
 				(
-					Term(Match(')')) |
+					Term(Match('(')),
+					ChangeIn("PatternExperssion"),
 					(
-						MultiExpressionPackage(ConstraintExperssionAtPatternExperssion),
-						Term(Match(')')),
-						~ConstraintPartAtConstraintExperssion
-					)
-				),
-				ChangeOut()
-			);
+						Term(Match(')')) |
+						(
+							MultiExpressionPackage(ConstraintExperssionAtPatternExperssion),
+							Term(Match(')')),
+							~ConstraintPartAtConstraintExperssion
+							)
+						),
+					ChangeOut()
+				)(info);
+		});
 
 		// VarDefineExpression = "var" (ConstraintExperssion | PatternExperssion) ~List
-		inline static const Process VarDefineExpression =
-			(
-				Term(MatchKey(GL( "var"))),
-				ChangeIn("VarDefineExpression"),
-				PatternExperssion | ConstraintExperssion,
-				~List,
-				ChangeOut()
-			);
+		inline static const Process VarDefineExpression = Process([](Info info) {
+			return
+				(
+					Term(MatchKey(GL("var"))),
+					ChangeIn("VarDefineExpression"),
+					PatternExperssion | ConstraintExperssion,
+					~List,
+					ChangeOut()
+				)(info);
+		});
 		
 		// ConstDefineExpression = "const" (ConstraintExperssion | PatternExperssion) ~List
-		inline static const Process ConstDefineExpression =
-			(
-				Term(MatchKey(GL( "const"))),
-				ChangeIn("ConstDefineExpression"),
-				PatternExperssion | ConstraintExperssion,
-				~List,
-				ChangeOut()
-			);
+		inline static const Process ConstDefineExpression = Process([](Info info) {
+			return
+				(
+					Term(MatchKey(GL( "const"))),
+					ChangeIn("ConstDefineExpression"),
+					PatternExperssion | ConstraintExperssion,
+					~List,
+					ChangeOut()
+				)(info);
+		});
 
 		// DefineExpression = PrimaryExpression | VarDefineExpression | ConstDefineExpression
-		inline static const Process DefineExpression =
-			(
-				VarDefineExpression |
-				ConstDefineExpression |
-				PrimaryExpression
-			);
-
-		// LambdaExperssion = DefineExpression | "fn" PatternExperssion SigleExpression
-		inline static const Process LambdaExperssion =
-			(
+		inline static const Process DefineExpression = Process([](Info info) {
+			return
 				(
-					Term(MatchKey(GL("fn"))),
-					ChangeIn("LambdaExpression"),
-					PatternExperssion,
-					SigleExpression,
-					ChangeOut()
-				) |
-				DefineExpression
-			);
+					VarDefineExpression |
+					ConstDefineExpression |
+					PrimaryExpression
+				)(info);
+		});
 
-		// ConditionExpression = LambdaExperssion | "if" '(' Expression ')' SigleExpression ("else" SigleExpression)?
-		inline static const Process ConditionExpression =
-			(
+		// LambdaExperssion = DefineExpression | "fn" PatternExperssion SingleExpression
+		inline static const Process LambdaExperssion = Process([](Info info) {
+			return
 				(
-					Term(MatchKey(GL( "if"))),
-					ChangeIn("ConditionExpression"),
-					ExpressionList,
-					SigleExpression,
-					~(
-						Term(MatchKey(GL( "else"))),
-						SigleExpression
-					),
-					ChangeOut()
-				) |
-				LambdaExperssion
-			);
+					(
+						Term(MatchKey(GL("fn"))),
+						ChangeIn("LambdaExpression"),
+						PatternExperssion,
+						SingleExpression,
+						ChangeOut()
+					) |
+					DefineExpression
+				)(info);
+		});
 
-		// ReturnExpression = ConditionExpression | "return" SigleExpression?
-		inline static const Process ReturnExpression =
-			(
+		// ConditionExpression = LambdaExperssion | "if" '(' Expression ')' SingleExpression ("else" SingleExpression)?
+		inline static const Process ConditionExpression = Process([](Info info) {
+			return
 				(
-					Term(MatchKey(GL( "return"))),
-					ChangeIn("ReturnExpression"),
-					~Process(SigleExpression),
+					(
+						Term(MatchKey(GL( "if"))),
+						ChangeIn("ConditionExpression"),
+						ExpressionList,
+						SingleExpression,
+						~(
+							Term(MatchKey(GL( "else"))),
+							SingleExpression
+						),
+						ChangeOut()
+					) |
+					LambdaExperssion
+				)(info);
+		});
+
+		// ReturnExpression = ConditionExpression | "return" SingleExpression?
+		inline static const Process ReturnExpression = Process([](Info info) {
+			return
+				(
+					(
+						Term(MatchKey(GL( "return"))),
+						ChangeIn("ReturnExpression"),
+						~Process(SingleExpression),
+						Change(RemoveFailedBlankTerm),
+						ChangeOut()
+					) |
+					ConditionExpression
+				)(info);
+		});
+
+		// BreakExpression = "break" SingleExpression?
+		inline static const Process BreakExpression = Process([](Info info) {
+			return
+				(
+					Term(MatchKey(GL("break"))),
+					ChangeIn("BreakExpression"),
+					~Process(SingleExpression),
 					Change(RemoveFailedBlankTerm),
 					ChangeOut()
-				) |
-				ConditionExpression
-			);
+				)(info);
+		});
 
-		// BreakExpression = "break" SigleExpression?
-		inline static const Process BreakExpression =
-			(
-				Term(MatchKey(GL("break"))),
-				ChangeIn("BreakExpression"),
-				~Process(SigleExpression),
-				Change(RemoveFailedBlankTerm),
-				ChangeOut()
-			);
-
-		// ContinueExpression = "continue" SigleExpression?
-		inline static const Process ContinueExpression =
-			(
-				Term(MatchKey(GL("continue"))),
-				ChangeIn("ContinueExpression"),
-				~Process(SigleExpression),
-				Change(RemoveFailedBlankTerm),
-				ChangeOut()
-			);
+		// ContinueExpression = "continue" SingleExpression?
+		inline static const Process ContinueExpression = Process([](Info info) {
+			return
+				(
+					Term(MatchKey(GL("continue"))),
+					ChangeIn("ContinueExpression"),
+					~Process(SingleExpression),
+					Change(RemoveFailedBlankTerm),
+					ChangeOut()
+				)(info);
+		});
 
 		// LoopControlExpression = ReturnExpression | (BreakExpression | ContinueExpression)
-		inline static const Process LoopControlExpression =
-			(
-				BreakExpression		|
-				ContinueExpression	|
-				ReturnExpression
-			);
-
-		// WhileLoopExpression = LoopControlExpression | "while" '(' Expression ')' SigleExpression
-		inline static const Process WhileLoopExpression =
-			(
+		inline static const Process LoopControlExpression = Process([](Info info) {
+			return
 				(
-					Term(MatchKey(GL( "while"))),
-					ChangeIn("WhileLoopExpression"),
-					ExpressionList,
-					SigleExpression, 
-					~(
-						Term(MatchKey(GL( "else"))),
-						SigleExpression
-					),
-					ChangeOut()
-				) |
-				LoopControlExpression
-			);
+					BreakExpression		|
+					ContinueExpression	|
+					ReturnExpression
+				)(info);
+		});
 
-		// DoWhileLoopExpression = WhileLoopExpression | "do" SigleExpression "while" '(' Expression ')'
-		inline static const Process DoWhileLoopExpression =
-			(
+		// WhileLoopExpression = LoopControlExpression | "while" '(' Expression ')' SingleExpression
+		inline static const Process WhileLoopExpression = Process([](Info info) {
+			return
 				(
-					Term(MatchKey(GL( "do"))),
-					ChangeIn("DoWhileLoopExpression"),
-					SigleExpression,
-					Term(MatchKey(GL( "while"))),
-					ExpressionList,
-					~(
-						Term(MatchKey(GL( "else"))),
-						SigleExpression
-					),
-					ChangeOut()
-				) |
-				WhileLoopExpression
-			);
+					(
+						Term(MatchKey(GL( "while"))),
+						ChangeIn("WhileLoopExpression"),
+						ExpressionList,
+						SingleExpression, 
+						~(
+							Term(MatchKey(GL( "else"))),
+							SingleExpression
+						),
+						ChangeOut()
+					) |
+					LoopControlExpression
+				)(info);
+		});
+
+		// DoWhileLoopExpression = WhileLoopExpression | "do" SingleExpression "while" '(' Expression ')'
+		inline static const Process DoWhileLoopExpression = Process([](Info info) {
+			return
+				(
+					(
+						Term(MatchKey(GL( "do"))),
+						ChangeIn("DoWhileLoopExpression"),
+						SingleExpression,
+						Term(MatchKey(GL( "while"))),
+						ExpressionList,
+						~(
+							Term(MatchKey(GL( "else"))),
+							SingleExpression
+						),
+						ChangeOut()
+					) |
+					WhileLoopExpression
+				)(info);
+		});
 
 		// FunctionExpression = DoWhileLoopExpression List*
-		inline static const Process FunctionExpression =
-			(
-				ChangeIn("FunctionExpression"),
-				DoWhileLoopExpression,
-				*List,
-				ChangeOut(true)
-			);
+		inline static const Process FunctionExpression = Process([](Info info) {
+			return
+				(
+					ChangeIn("FunctionExpression"),
+					DoWhileLoopExpression,
+					*List,
+					ChangeOut(true)
+				)(info);
+		});
 
 		// PointExpression = FunctionExpression | PointExpression '->' FunctionExpression
-		inline static const Process PointExpression =
-			(
-				ChangeIn("PointExpression"),
-				BinaryOperator(FunctionExpression, Match(GL( "->"))),
-				ChangeOut(true)
-			);
+		inline static const Process PointExpression = Process([](Info info) {
+			return
+				(
+					ChangeIn("PointExpression"),
+					BinaryOperator(FunctionExpression, Match(GL( "->"))),
+					ChangeOut(true)
+				)(info);
+		});
 
 		// FoldExperssion = PointExpression "..."*
-		inline static const Process FoldExpression =
-			(
-				ChangeIn("FoldExperssion"),
-				PointExpression,
-				~Term(Catch(Match(GL("...")),"Separator")),
-				ChangeOut(true)
-			);
+		inline static const Process FoldExpression = Process([](Info info) {
+			return
+				(
+					ChangeIn("FoldExperssion"),
+					PointExpression,
+					~Term(Catch(Match(GL("...")),"Separator")),
+					ChangeOut(true)
+				)(info);
+		});
 
 		// UnaryExpression = FoldExperssion | (('+' | '-') | "not") UnaryExpression
-		inline static const Process UnaryExpression =
-			(
-				ChangeIn("UnaryExpression"),
-				*(
-					Term(Catch(Match({ '+','-' }), "UnaryOperator")) |
-					Term(Catch(MatchKey(GL("not")), "UnaryOperator"))
-				),
-				FoldExpression,
-				ChangeOut(true)
-			);
+		inline static const Process UnaryExpression = Process([](Info info) {
+			return
+				(
+					ChangeIn("UnaryExpression"),
+					*(
+						Term(Catch(Match({ '+','-' }), "UnaryOperator")) |
+						Term(Catch(MatchKey(GL("not")), "UnaryOperator"))
+					),
+					FoldExpression,
+					ChangeOut(true)
+				)(info);
+		});
 
 		// MultiplicativeExpression = UnaryExpression | MultiplicativeExpression ('*'|'/'|'%') UnaryExpression
-		inline static const Process MultiplicativeExpression =
-			(
-				ChangeIn("MultiplicativeExpression"),
-				BinaryOperator(UnaryExpression, Match({ '*','/','%' }) ^Match('=')),
-				ChangeOut(true)
-			);
+		inline static const Process MultiplicativeExpression = Process([](Info info) {
+			return
+				(
+					ChangeIn("MultiplicativeExpression"),
+					BinaryOperator(UnaryExpression, Match({ '*','/','%' }) ^Match('=')),
+					ChangeOut(true)
+				)(info);
+		});
 
 		// AdditiveExpression = MultiplicativeExpression | AdditiveExpression ('+'|'-') MultiplicativeExpression
-		inline static const Process AdditiveExpression =
-			(
-				ChangeIn("AdditiveExpression"),
-				BinaryOperator(MultiplicativeExpression, Match({ '+','-' }) ^Match('=')),
-				ChangeOut(true)
-			);
+		inline static const Process AdditiveExpression = Process([](Info info) {
+			return
+				(
+					ChangeIn("AdditiveExpression"),
+					BinaryOperator(MultiplicativeExpression, Match({ '+','-' }) ^Match('=')),
+					ChangeOut(true)
+				)(info);
+		});
 
 		// RelationalExpression = AdditiveExpression | RelationalExpression ("<="|">="|'<'|'>') AdditiveExpression
-		inline static const Process RelationalExpression =
-			(
-				ChangeIn("RelationalExpression"),
-				BinaryOperator(AdditiveExpression, Match({ GL("<="), GL(">="), GL(">") }) | (Match('<') ^ Match('>'))),
-				ChangeOut(true)
-			);
+		inline static const Process RelationalExpression = Process([](Info info) {
+			return
+				(
+					ChangeIn("RelationalExpression"),
+					BinaryOperator(AdditiveExpression, Match({ GL("<="), GL(">="), GL(">") }) | (Match('<') ^ Match('>'))),
+					ChangeOut(true)
+				)(info);
+		});
 
 		// EqualityExpression = RelationalExpression | EqualityExpression ("=="|"<>") RelationalExpression
-		inline static const Process EqualityExpression =
-			(
-				ChangeIn("EqualityExpression"),
-				BinaryOperator(RelationalExpression, Match({ GL("=="), GL("<>") })),
-				ChangeOut(true)
-			);
+		inline static const Process EqualityExpression = Process([](Info info) {
+			return
+				(
+					ChangeIn("EqualityExpression"),
+					BinaryOperator(RelationalExpression, Match({ GL("=="), GL("<>") })),
+					ChangeOut(true)
+				)(info);
+		});
 
 		// LogicalAndExpression = EqualityExpression | LogicalAndExpression "and" EqualityExpression
-		inline static const Process LogicalAndExpression =
-			(
-				ChangeIn("LogicalAndExpression"),
-				BinaryOperator(EqualityExpression, MatchKey(GL( "and"))),
-				ChangeOut(true)
-			);
+		inline static const Process LogicalAndExpression = Process([](Info info) {
+			return
+				(
+					ChangeIn("LogicalAndExpression"),
+					BinaryOperator(EqualityExpression, MatchKey(GL( "and"))),
+					ChangeOut(true)
+				)(info);
+		});
 
 		// LogicalOrExpression = LogicalAndExpression | LogicalOrExpression "or" LogicalAndExpression
-		inline static const Process LogicalOrExpression =
-			(
-				ChangeIn("LogicalOrExpression"),
-				BinaryOperator(LogicalAndExpression, MatchKey(GL( "or"))),
-				ChangeOut(true)
-			);
+		inline static const Process LogicalOrExpression = Process([](Info info) {
+			return
+				(
+					ChangeIn("LogicalOrExpression"),
+					BinaryOperator(LogicalAndExpression, MatchKey(GL( "or"))),
+					ChangeOut(true)
+				)(info);
+		});
 
 		// AssignmentOperator = '=' | '*=' | '/=' | '%=' | '+=' | '-='
-		inline static const Process AssignmentOperator =
-			Match({ GL("="), GL("*="), GL("/="), GL("%="), GL("+="), GL("-=") });
+		inline static const Process AssignmentOperator = Process([](Info info) {
+			return
+				Match({ GL("="), GL("*="), GL("/="), GL("%="), GL("+="), GL("-=") })(info);
+		});
 
-		// AssignmentExpression = LogicalOrExpression | LogicalOrExpression AssignmentOperator SigleExpression
-		inline static const Process AssignmentExpression =
-			(
-				ChangeIn("AssignmentExpression"),
-				LogicalOrExpression, *(Term(Catch(AssignmentOperator,"BinaryOperator")), SigleExpression),
-				ChangeOut(true)
-			);
+		// AssignmentExpression = LogicalOrExpression | LogicalOrExpression AssignmentOperator SingleExpression
+		inline static const Process AssignmentExpression = Process([](Info info) {
+			return
+				(
+					ChangeIn("AssignmentExpression"),
+					LogicalOrExpression, *(Term(Catch(AssignmentOperator,"BinaryOperator")), SingleExpression),
+					ChangeOut(true)
+				)(info);
+		});
 
-		// PairExperssion = AssignmentExpression | PairExperssion ':' SigleExpression
-		inline static const Process PairExpression =
-			(
-				ChangeIn("PairExpression"),
-				AssignmentExpression, *(Term(Match(':')), SigleExpression),
-				ChangeOut(true)
-			);
+		// PairExperssion = AssignmentExpression | PairExperssion ':' SingleExpression
+		inline static const Process PairExpression = Process([](Info info) {
+			return
+				(
+					ChangeIn("PairExpression"),
+					AssignmentExpression, *(Term(Match(':')), SingleExpression),
+					ChangeOut(true)
+				)(info);
+		});
 
 		#undef GL
 	};

@@ -57,9 +57,9 @@ namespace Chtholly
 		private:
 			bool isOptional;
 
-		public:
-			Process(const BasicProcessWrapper& pro, const bool _isOptional = false) : BasicProcessWrapper(pro), isOptional(_isOptional) {}
-			Process(BasicProcess* const pro, const bool _isOptional = false) : BasicProcessWrapper(pro), isOptional(_isOptional) {}
+		public:			
+			//explicit Process(BasicProcess* const pro, const bool _isOptional = false) : BasicProcessWrapper(pro), isOptional(_isOptional) {}
+			explicit Process(const BasicProcessWrapper& pro, const bool _isOptional = false) : BasicProcessWrapper(pro), isOptional(_isOptional) {}
 
 			bool IsOptional() const { return isOptional; }
 

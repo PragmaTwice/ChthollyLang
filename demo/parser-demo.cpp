@@ -6,7 +6,7 @@
 #include <string>
 #include <algorithm>
 #include <chrono>
-#include "chtholly.h"
+#include "chtholly.hpp"
 
 using namespace std;
 using namespace Chtholly;
