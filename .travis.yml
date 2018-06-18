@@ -40,7 +40,7 @@ script:
   # Run Test
   - ./parser-test
   # Run Codecov
-  - gcov-7 -n -o . parser-test.cpp > /dev/null
+  - gcov-7 -o . parser-test.cpp
   - codecov
 
 after_success: 
