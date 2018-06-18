@@ -31,7 +31,8 @@ before_install:
 
 install:
   # Gcov
-  - sudo update-alternatives --install /usr/bin/gcov gcov /usr/bin/gcov-5 90
+  - ls /usr/bin/
+  - sudo update-alternatives --install /usr/bin/gcov gcov /usr/bin/gcov-7 90
 
 script:
   # Compile Test
