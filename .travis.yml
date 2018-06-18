@@ -14,7 +14,11 @@ addons:
       - cmake
       - libgtest-dev
 env:
-  - MATRIX_EVAL="CC=clang-6.0 && CXX=clang++-6.0" CC=clang-6.0 CXX=clang++-6.0
+  global:
+    - CPPFLAGS="-std=c++2a -stdlib=libstdc++ -lpthread"
+  matrix:
+    - MATRIX_EVAL="CC=clang-6.0 && CXX=clang++-6.0" CC=clang-6.0 CXX=clang++-6.0 COV="llvm-cov gcov"
+    - MATRIX_EVAL="CC=gcc-7 && CXX=g++-7" CC=gcc-7 CXX=g++-7 COV=gcov-7
 
 before_install:
   # Codecov
@@ -38,11 +42,11 @@ install:
 script:
   # Compile Test
   - cd test
-  - clang++-6.0 -fprofile-arcs -ftest-coverage -std=c++2a -stdlib=libstdc++ -I ../src/ -lpthread -lgtest_main -lgtest parser-test.cpp -o parser-test
+  - $CXX $CXXFLAGS -fprofile-arcs -ftest-coverage  -I ../src/ -lgtest_main -lgtest parser-test.cpp -o parser-test
   # Run Test
   - ./parser-test
   # Run Codecov
-  - llvm-cov gcov -n -o . parser-test.cpp > /dev/null
+  - $COV -n -o . parser-test.cpp > /dev/null
 
 after_success: 
   # Send report
