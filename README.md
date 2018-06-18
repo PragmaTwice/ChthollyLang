@@ -8,12 +8,13 @@
 *A **simple implmentation** of Yet another script language Chtholly*
 
 ## Requires
-* Compiler with [C++17 support](http://en.cppreference.com/w/cpp/compiler_support) *(necessary)*
+* Compiler and std Library with [C++17 support](http://en.cppreference.com/w/cpp/compiler_support) *(necessary)*
 * [Google Test](https://github.com/google/googletest) *(if you want to run [unit testings](https://github.com/PragmaTwice/ChthollyLang/tree/master/test))*
 
-*You can use MSVC 2017 15.5+ to compile it without any modification*
-
-*Because of terrible support for C++17 in MSVC 15.5, I did some ill-looking work to make it compile successfully*
+Successfully compiled and passed all tests in:
+* LLVM/clang-cl 6 with MSVC 15.7/stdlib in Windows
+* LLVM/clang 6 with libstdc++ in Linux
+*Maybe other environment, but you should test and verify by yourself.*
 
 ## Language Feature
 * No statement but all expression
