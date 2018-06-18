@@ -9,15 +9,12 @@ addons:
       - ubuntu-toolchain-r-test
       - llvm-toolchain-trusty-6.0
     packages:
+      - g++-7
       - clang-6.0
       - cmake
       - libgtest-dev
 env:
-  - MATRIX_EVAL="CC=clang-6.0 && CXX=clang++-6.0"
-  - CC=clang-6.0
-  - CMAKE_C_COMPILER=clang-6.0
-  - CXX=clang++-6.0
-  - CMAKE_CXX_COMPILER=clang++-6.0
+  - MATRIX_EVAL="CC=clang-6.0 && CXX=clang++-6.0" CC=clang-6.0 CXX=clang++-6.0
 
 before_install:
 - cd /usr/src/gtest
@@ -29,5 +26,5 @@ before_install:
 - cd "${TRAVIS_BUILD_DIR}"
 
 script:
-- clang++ -std=c++2a -I ./src/ -l gtest_main -l gtest ./test/parser-test.cpp -o parser-test
+- clang++-6.0 -std=c++2a -stdlib=libc++ -I ./src/ -l gtest_main -l gtest ./test/parser-test.cpp -o parser-test
 - ./parser-test
