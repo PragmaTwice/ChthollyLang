@@ -18,6 +18,8 @@ env:
   - MATRIX_EVAL="CC=clang-6.0 && CXX=clang++-6.0"
 
 before_install:
+- sudo deb http://apt.llvm.org/stretch/ llvm-toolchain-stretch-6.0 main
+- sudo deb-src http://apt.llvm.org/stretch/ llvm-toolchain-stretch-6.0 main
 - sudo apt-get install libgtest-dev
 - cd /usr/src/gtest
 - sudo cmake -E make_directory build
