@@ -15,7 +15,7 @@ addons:
       - libgtest-dev
 env:
   global:
-    - CPPFLAGS="-std=c++2a -stdlib=libstdc++ -lpthread"
+    - CXXFLAGS="-std=c++2a -stdlib=libstdc++ -lpthread"
   matrix:
     - MATRIX_EVAL="CC=clang-6.0 && CXX=clang++-6.0" CC=clang-6.0 CXX=clang++-6.0 COV="llvm-cov gcov"
     - MATRIX_EVAL="CC=gcc-7 && CXX=g++-7" CC=gcc-7 CXX=g++-7 COV=gcov-7
