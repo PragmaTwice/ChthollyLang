@@ -16,8 +16,8 @@ addons:
       - libgtest-dev
 env:
   matrix:
-    - MATRIX_EVAL="CC=clang-6.0 && CXX=clang++-6.0 && COV='llvm-cov gcov'"
-    - MATRIX_EVAL="CC=gcc-7 && CXX=g++-7 && COV=gcov-7"
+    - MATRIX_EVAL="CC=clang-6.0 && CXX=clang++-6.0 && CXXSTD='-std=c++17 -stdlib=libstdc++' && COV='llvm-cov gcov'"
+    - MATRIX_EVAL="CC=gcc-7 && CXX=g++-7 && CXXSTD='-std=c++17' && COV=gcov-7"
 
 before_install:
   - eval $MATRIX_EVAL
@@ -36,7 +36,7 @@ before_install:
 script:
   # Compile Test
   - cd test
-  - $CXX -std=c++2a -stdlib=libstdc++ -lpthread -fprofile-arcs -ftest-coverage  -I ../src/ -lgtest_main -lgtest parser-test.cpp -o parser-test
+  - $CXX $CXXSTD -lpthread -fprofile-arcs -ftest-coverage  -I ../src/ -lgtest_main -lgtest parser-test.cpp -o parser-test
   # Run Test
   - ./parser-test
   # Run Codecov
