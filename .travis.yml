@@ -3,6 +3,7 @@ language: cpp
 sudo: required
 
 os: linux
+
 addons:
   apt:
     sources:
@@ -15,10 +16,11 @@ addons:
       - libgtest-dev
 env:
   matrix:
-    - MATRIX_EVAL="CC=clang-6.0 && CXX=clang++-6.0" CC=clang-6.0 CXX=clang++-6.0 COV="llvm-cov gcov"
-    - MATRIX_EVAL="CC=gcc-7 && CXX=g++-7" CC=gcc-7 CXX=g++-7 COV=gcov-7
+    - MATRIX_EVAL="CC=clang-6.0 && CXX=clang++-6.0 && COV='llvm-cov gcov'"
+    - MATRIX_EVAL="CC=gcc-7 && CXX=g++-7 && COV=gcov-7"
 
 before_install:
+  - eval $MATRIX_EVAL
   # Codecov
   - sudo pip install codecov
   # Google Test
@@ -30,12 +32,6 @@ before_install:
   - sudo rm -rf build
   # Return
   - cd "${TRAVIS_BUILD_DIR}"
-
-install:
-  # Gcov
-  - sudo update-alternatives --install /usr/bin/gcc gcc /usr/bin/gcc-7 90
-  - sudo update-alternatives --install /usr/bin/g++ g++ /usr/bin/g++-7 90
-  - sudo update-alternatives --install /usr/bin/gcov gcov /usr/bin/gcov-7 90
 
 script:
   # Compile Test
