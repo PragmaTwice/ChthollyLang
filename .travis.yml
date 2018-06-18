@@ -2,9 +2,6 @@ language: cpp
 
 sudo: required
 
-compiler:
-- clang
-
 os: linux
 addons:
   apt:
@@ -17,6 +14,10 @@ addons:
       - libgtest-dev
 env:
   - MATRIX_EVAL="CC=clang-6.0 && CXX=clang++-6.0"
+  - CC=clang-6.0
+  - CMAKE_C_COMPILER=clang-6.0
+  - CXX=clang++-6.0
+  - CMAKE_CXX_COMPILER=clang++-6.0
 
 before_install:
 - cd /usr/src/gtest
