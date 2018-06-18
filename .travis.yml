@@ -39,7 +39,7 @@ script:
   # Run Test
   - ./parser-test
   # Run Codecov
-  - gcov-7 -n -o ./test ./test/parser-test.cpp > /dev/null
+  - gcov-7 -n -o . ./parser-test.gcno > /dev/null
   - codecov
 
 after_success: 
