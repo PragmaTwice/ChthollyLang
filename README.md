@@ -1,8 +1,9 @@
 # ![Chtholly Lang Logo](doc/logo/logo180.png) Chtholly Lang
 
+![build-status](https://travis-ci.org/PragmaTwice/ChthollyLang.svg?branch=master)
 [![Join the chat at https://gitter.im/ChthollyLang/Lobby](https://badges.gitter.im/ChthollyLang/Lobby.svg)](https://gitter.im/ChthollyLang/Lobby?utm_source=badge&utm_medium=badge&utm_campaign=pr-badge&utm_content=badge)
 
-![build-status](https://travis-ci.org/PragmaTwice/ChthollyLang.svg?branch=master)
+
 *A **simple implmentation** of Yet another script language Chtholly*
 
 ## Requires
