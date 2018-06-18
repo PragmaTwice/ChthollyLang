@@ -83,7 +83,7 @@ namespace Chtholly
 			Node(Iterator in_iterator, const Container& in_container, const Node& src)
 				: value(src.value), parent(in_iterator), children(in_container) {}
 
-			Node(const NodeWrapper& wrapper)
+			explicit Node(const NodeWrapper& wrapper)
 				: Node((const Node&)wrapper) {}
 
 			Node& operator=(const Node& src)
@@ -124,7 +124,7 @@ namespace Chtholly
 		struct NodeWrapper : private Node
 		{
 			// using Node::Node;
-			NodeWrapper(const Node& src) : Node(src)
+			explicit NodeWrapper(const Node& src) : Node(src)
 			{
 			}
 		};
@@ -139,7 +139,7 @@ namespace Chtholly
 
 			Iterator nodeIter;
 
-			Observer(const Iterator& src) : nodeIter(src) {}
+			explicit Observer(const Iterator& src) : nodeIter(src) {}
 
 			Observer& operator=(const Iterator& src)
 			{
@@ -157,7 +157,7 @@ namespace Chtholly
 
 			Observer() {}
 			Observer(const Observer& src) : nodeIter(src.nodeIter) {}
-			Observer(const Visitor& src) : nodeIter(src.nodeIter) {}
+			explicit Observer(const Visitor& src) : nodeIter(src.nodeIter) {}
 
 
 			Observer& operator=(const Observer& src)
@@ -224,11 +224,11 @@ namespace Chtholly
 
 			Observer childrenBegin() const
 			{
-				return nodeIter->children.begin();
+				return Observer{ nodeIter->children.begin() };
 			}
 			Observer childrenEnd() const
 			{
-				return nodeIter->children.end();
+				return Observer{ nodeIter->children.end() };
 			}
 
 			const ValueType& value() const
@@ -257,7 +257,7 @@ namespace Chtholly
 
 			Iterator nodeIter;
 
-			Visitor(const Iterator& src) : nodeIter(src) {}
+			explicit Visitor(const Iterator& src) : nodeIter(src) {}
 
 			Visitor& operator=(const Iterator& src)
 			{
@@ -340,11 +340,11 @@ namespace Chtholly
 
 			Visitor childrenBegin() const
 			{
-				return nodeIter->children.begin();
+				return Visitor{ nodeIter->children.begin() };
 			}
 			Visitor childrenEnd() const
 			{
-				return nodeIter->children.end();
+				return Visitor{ nodeIter->children.end() };
 			}
 
 			const ValueType& value() const
@@ -384,7 +384,7 @@ namespace Chtholly
 
 			using Visitor::nodeIter;
 
-			Modifier(const Iterator& src) : Visitor(src) {}
+			explicit Modifier(const Iterator& src) : Visitor(src) {}
 
 			void setParent(const Visitor& parent)
 			{
@@ -438,7 +438,7 @@ namespace Chtholly
 
 			Modifier parent() const
 			{
-				return nodeIter->parent;
+				return Modifier{ nodeIter->parent };
 			}
 
 			Modifier thisBegin() const
@@ -515,13 +515,13 @@ namespace Chtholly
 			Modifier childrenInsert(const Modifier& pos, T&& ...inValue)
 			{
 				auto result = nodeIter->children.emplace(pos.nodeIter, nodeIter, std::forward<T>(inValue)...);
-				BasicTree::FixParent({ result });
-				return result;
+				BasicTree::FixParent(Modifier{ result });
+				return Modifier{ result };
 			}
 
 			Modifier childrenErase(const Modifier& pos)
 			{
-				return nodeIter->children.erase(pos.nodeIter);
+				return Modifier{ nodeIter->children.erase(pos.nodeIter) };
 			}
 			Modifier childrenErase(const Modifier& begin, const Modifier& end)
 			{
@@ -601,7 +601,7 @@ namespace Chtholly
 
 		BasicTree(const BasicTree& src) : root(src.root)
 		{
-			FixParent(root.begin());
+			FixParent(Modifier{ root.begin() });
 		}
 
 		BasicTree& operator=(const BasicTree& src)
@@ -620,17 +620,17 @@ namespace Chtholly
 
 		Observer observer() const
 		{
-			return root.front().children.begin();
+			return Observer{ root.front().children.begin() };
 		}
 
 		Visitor visitor()
 		{
-			return root.front().children.begin();
+			return Visitor{ root.front().children.begin() };
 		}
 
 		Modifier modifier()
 		{
-			return root.front().children.begin();
+			return Modifier{ root.front().children.begin() };
 		}
 
 		static bool CheckParent(const Observer& vis)
@@ -756,7 +756,7 @@ namespace Chtholly
 
 		template <typename... Nodes>
 		BasicParseTree(const UnitName& rootName, Nodes&& ...nodes) 
-			: Super(typename Node::Container{ std::forward<Nodes>(nodes)... }, UnitType::term, rootName)
+			: Super(typename Node::Container{ Node{std::forward<Nodes>(nodes)}... }, UnitType::term, rootName)
 		{
 			static_assert(std::conjunction_v<std::is_same<std::remove_reference_t<Nodes>, NodeWrapper>...>, "BasicParseTree::BasicParseTree: invalid arguments type");
 		}
@@ -770,7 +770,7 @@ namespace Chtholly
 
 		static NodeWrapper Token(const UnitName& name, const UnitValue& value)
 		{
-			return Node {UnitType::token, name, value};
+			return NodeWrapper{ Node {UnitType::token, name, value} };
 		}
 
 		template <typename... Nodes>
@@ -778,7 +778,7 @@ namespace Chtholly
 		{
 			static_assert(std::conjunction_v<std::is_same<std::remove_reference_t<Nodes>, NodeWrapper>...>, "BasicParseTree::Term: invalid arguments type");
 			
-			return Node { typename Node::Container{ std::forward<Nodes>(nodes)... }, UnitType::term, name };
+			return NodeWrapper{ Node { typename Node::Container{ Node{ std::forward<Nodes>(nodes) }... }, UnitType::term, name } };
 		}
 
 	};
