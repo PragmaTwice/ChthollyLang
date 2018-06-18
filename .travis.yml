@@ -31,16 +31,15 @@ before_install:
 
 install:
   # Gcov
-  - ls /usr/bin/
   - sudo update-alternatives --install /usr/bin/gcov gcov /usr/bin/gcov-7 90
 
 script:
   # Compile Test
-  - clang++-6.0 -std=c++2a -stdlib=libstdc++ -I ./src/ -lpthread -lgtest_main -lgtest ./test/parser-test.cpp -o parser-test
+  - clang++-6.0 -fprofile-arcs -ftest-coverage -std=c++2a -stdlib=libstdc++ -I ./src/ -lpthread -lgtest_main -lgtest ./test/parser-test.cpp -o parser-test
   # Run Test
   - ./parser-test
   # Run Codecov
-  - for filename in `find test | egrep '\.cpp'`; do gcov-7 -n -o . $filename > /dev/null; done
+  - gcov-7 -n -o ./test ./test/parser-test.cpp > /dev/null
   - codecov
 
 after_success: 
