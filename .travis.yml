@@ -26,5 +26,5 @@ before_install:
 - cd "${TRAVIS_BUILD_DIR}"
 
 script:
-- clang++-6.0 -std=c++2a -stdlib=libstdc++ -I ./src/ -l gtest_main -l gtest ./test/parser-test.cpp -o parser-test
+- clang++-6.0 -std=c++2a -stdlib=libstdc++ -I ./src/ -lpthread -lgtest_main -lgtest ./test/parser-test.cpp -o parser-test
 - ./parser-test
