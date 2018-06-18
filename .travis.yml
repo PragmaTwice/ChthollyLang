@@ -43,7 +43,7 @@ script:
   - ./parser-test
   # Run Codecov
   - llvm-cov gcov -n -o . parser-test.cpp > /dev/null
-  - codecov
+  - codecov -x 'llvm-cov gov'
 
 after_success: 
   # Send report
