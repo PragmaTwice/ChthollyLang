@@ -14,8 +14,6 @@ addons:
       - cmake
       - libgtest-dev
 env:
-  global:
-    - CXXFLAGS="-std=c++2a -stdlib=libstdc++ -lpthread"
   matrix:
     - MATRIX_EVAL="CC=clang-6.0 && CXX=clang++-6.0" CC=clang-6.0 CXX=clang++-6.0 COV="llvm-cov gcov"
     - MATRIX_EVAL="CC=gcc-7 && CXX=g++-7" CC=gcc-7 CXX=g++-7 COV=gcov-7
@@ -42,7 +40,7 @@ install:
 script:
   # Compile Test
   - cd test
-  - $CXX $CXXFLAGS -fprofile-arcs -ftest-coverage  -I ../src/ -lgtest_main -lgtest parser-test.cpp -o parser-test
+  - $CXX -std=c++2a -stdlib=libstdc++ -lpthread -fprofile-arcs -ftest-coverage  -I ../src/ -lgtest_main -lgtest parser-test.cpp -o parser-test
   # Run Test
   - ./parser-test
   # Run Codecov
@@ -50,4 +48,4 @@ script:
 
 after_success: 
   # Send report
-  - bash <(curl -s https://codecov.io/bash) -t a2cd89ab-e481-43e8-b24d-df2f437569a4 -x 'llvm-cov gcov'
+  - bash <(curl -s https://codecov.io/bash) -t a2cd89ab-e481-43e8-b24d-df2f437569a4 -x $COV
