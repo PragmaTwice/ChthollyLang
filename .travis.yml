@@ -17,14 +17,31 @@ env:
   - MATRIX_EVAL="CC=clang-6.0 && CXX=clang++-6.0" CC=clang-6.0 CXX=clang++-6.0
 
 before_install:
-- cd /usr/src/gtest
-- sudo cmake -E make_directory build
-- sudo cmake -E chdir build cmake .. >> /dev/null
-- sudo cmake --build build >> /dev/null
-- sudo cp build/libgtest* /usr/local/lib/
-- sudo rm -rf build
-- cd "${TRAVIS_BUILD_DIR}"
+  # Codecov
+  - sudo pip install codecov
+  # Google Test
+  - cd /usr/src/gtest
+  - sudo cmake -E make_directory build
+  - sudo cmake -E chdir build cmake .. >> /dev/null
+  - sudo cmake --build build >> /dev/null
+  - sudo cp build/libgtest* /usr/local/lib/
+  - sudo rm -rf build
+  # Return
+  - cd "${TRAVIS_BUILD_DIR}"
+
+install:
+  # Gcov
+  - sudo update-alternatives --install /usr/bin/gcov gcov /usr/bin/gcov-5 90
 
 script:
-- clang++-6.0 -std=c++2a -stdlib=libstdc++ -I ./src/ -lpthread -lgtest_main -lgtest ./test/parser-test.cpp -o parser-test
-- ./parser-test
+  # Compile Test
+  - clang++-6.0 -std=c++2a -stdlib=libstdc++ -I ./src/ -lpthread -lgtest_main -lgtest ./test/parser-test.cpp -o parser-test
+  # Run Test
+  - ./parser-test
+  # Run Codecov
+  - for filename in `find test | egrep '\.cpp'`; do gcov-5 -n -o . $filename > /dev/null; done
+  - codecov
+
+after_success: 
+  # Send report
+  - bash <(curl -s https://codecov.io/bash) -t a2cd89ab-e481-43e8-b24d-df2f437569a4
