@@ -37,7 +37,7 @@ install:
 
 script:
   # Compile Test
-  - g++-7 -- version
+  - g++-7 --version
   - clang++-6.0 --version
   - cd test
   - clang++-6.0 -fprofile-arcs -ftest-coverage -std=c++2a -stdlib=libstdc++ -I ../src/ -lpthread -lgtest_main -lgtest parser-test.cpp -o parser-test
