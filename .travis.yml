@@ -43,8 +43,7 @@ script:
   - ./parser-test
   # Run Codecov
   - llvm-cov gcov -n -o . parser-test.cpp > /dev/null
-  - codecov -x 'llvm-cov gov'
 
 after_success: 
   # Send report
-  - bash <(curl -s https://codecov.io/bash) -t a2cd89ab-e481-43e8-b24d-df2f437569a4
+  - bash <(curl -s https://codecov.io/bash) -t a2cd89ab-e481-43e8-b24d-df2f437569a4 -x 'llvm-cov gcov'
