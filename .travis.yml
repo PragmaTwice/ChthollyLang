@@ -40,7 +40,7 @@ script:
   # Run Test
   - ./parser-test
   # Run Codecov
-  - for filename in `find test | egrep '\.cpp'`; do gcov-5 -n -o . $filename > /dev/null; done
+  - for filename in `find test | egrep '\.cpp'`; do gcov-7 -n -o . $filename > /dev/null; done
   - codecov
 
 after_success: 
