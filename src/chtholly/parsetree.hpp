@@ -143,7 +143,8 @@ namespace Chtholly
 
 			Observer& operator=(const Iterator& src)
 			{
-				return nodeIter = src;
+				nodeIter = src;
+				return *this;
 			}
 
 			const Node& operator*() const
@@ -162,7 +163,8 @@ namespace Chtholly
 
 			Observer& operator=(const Observer& src)
 			{
-				return nodeIter = src.nodeIter;
+				nodeIter = src.nodeIter;
+				return *this;
 			}
 			bool operator==(const Observer& other) const
 			{
@@ -261,7 +263,8 @@ namespace Chtholly
 
 			Visitor& operator=(const Iterator& src)
 			{
-				return nodeIter = src;
+				nodeIter = src;
+				return *this;
 			}
 			
 			const Node& operator*() const
@@ -278,7 +281,8 @@ namespace Chtholly
 
 			Visitor& operator=(const Visitor& src)
 			{
-				return nodeIter = src.nodeIter;
+				nodeIter = src.nodeIter;
+				return *this;
 			}
 			bool operator==(const Visitor& other) const
 			{
