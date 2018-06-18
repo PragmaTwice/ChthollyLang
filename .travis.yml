@@ -20,7 +20,9 @@ env:
     - MATRIX_EVAL="CC=gcc-7 && CXX=g++-7 && CXXSTD='-std=c++17' && COV=gcov-7"
 
 before_install:
+  # Compiler Env
   - eval $MATRIX_EVAL
+  - $CXX --version
   # Codecov
   - sudo pip install codecov
   # Google Test
@@ -36,7 +38,7 @@ before_install:
 script:
   # Compile Test
   - cd test
-  - $CXX $CXXSTD -lpthread -fprofile-arcs -ftest-coverage  -I ../src/ -lgtest_main -lgtest parser-test.cpp -o parser-test
+  - $CXX $CXXSTD -pthread -fprofile-arcs -ftest-coverage  -I ../src/ -lgtest_main -lgtest parser-test.cpp -o parser-test
   # Run Test
   - ./parser-test
   # Run Codecov
