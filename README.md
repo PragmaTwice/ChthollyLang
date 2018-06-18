@@ -1,5 +1,5 @@
 # ![Chtholly Lang Logo](doc/logo/logo180.png) Chtholly Lang
-
+![build-status](https://travis-ci.org/PragmaTwice/ChthollyLang.svg?branch=master)
 *A **simple implmentation** of Yet another script language Chtholly*
 
 ## Requires
@@ -27,4 +27,7 @@ Just nearly finish parser
 Fuck you, MSVC ICE
 
 ### 2018/2/26
-finish parser development
+Finish parser development
+
+### 2018/6/18
+Replace MSVC/CL by LLVM/Clang
