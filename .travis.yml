@@ -1,0 +1,32 @@
+language: cpp
+
+sudo: required
+
+compiler:
+- clang
+
+os: linux
+addons:
+  apt:
+    sources:
+      - ubuntu-toolchain-r-test
+      - llvm-toolchain-stretch-6.0
+    packages:
+      - clang-6.0
+      - cmake
+env:
+  - MATRIX_EVAL="CC=clang-6.0 && CXX=clang++-6.0"
+
+before_install:
+- sudo apt-get install libgtest-dev
+- cd /usr/src/gtest
+- sudo cmake -E make_directory build
+- sudo cmake -E chdir build cmake .. >> /dev/null
+- sudo cmake --build build >> /dev/null
+- sudo cp build/libgtest* /usr/local/lib/
+- sudo rm -rf build
+- cd "${TRAVIS_BUILD_DIR}"
+
+script:
+- clang++ -std=c++2a -I ./src/ -l gtest_main -l gtest ./test/parser-test.cpp -o parser-test
+- ./parser-test
