@@ -23,6 +23,19 @@ matrix:
         apt:
           sources:
             - ubuntu-toolchain-r-test
+            - llvm-toolchain-trusty-6.0
+          packages:
+            - libc++-dev
+            - clang-6.0
+            - cmake
+            - libgtest-dev
+      env: MATRIX_EVAL="CC=clang-6.0 && CXX=clang++-6.0 && CXXSTD=-std=c++17 && CXXSTDLIB='-stdlib=libc++ -lc++abi' && COV='llvm-cov gcov'"
+
+    - os: linux
+      addons:
+        apt:
+          sources:
+            - ubuntu-toolchain-r-test
           packages:
             - g++-7
             - cmake
