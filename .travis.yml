@@ -10,14 +10,14 @@ addons:
       - ubuntu-toolchain-r-test
       - llvm-toolchain-trusty-6.0
     packages:
-      - g++-7
+      - g++-8
       - clang-6.0
       - cmake
       - libgtest-dev
 env:
   matrix:
     - MATRIX_EVAL="CC=clang-6.0 && CXX=clang++-6.0 && CXXSTD='-std=c++17 -stdlib=libstdc++' && COV='llvm-cov gcov'"
-    - MATRIX_EVAL="CC=gcc-7 && CXX=g++-7 && CXXSTD='-std=c++17' && COV=gcov-7"
+    - MATRIX_EVAL="CC=gcc-8 && CXX=g++-8 && CXXSTD='-std=c++17' && COV=gcov-8"
 
 before_install:
   # Compiler Env
