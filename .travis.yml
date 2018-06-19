@@ -32,7 +32,7 @@ before_install:
   # Compiler Env
   - echo $MATRIX_EVAL
   - eval $MATRIX_EVAL
-  - $C --version
+  - $CC --version
   - $CXX --version
   # Codecov
   - sudo pip install codecov
