@@ -12,6 +12,7 @@ matrix:
             - ubuntu-toolchain-r-test
             - llvm-toolchain-trusty-6.0
           packages:
+            - libstdc++-8-dev
             - clang-6.0
             - cmake
             - libgtest-dev
@@ -26,7 +27,7 @@ matrix:
             - g++-7
             - cmake
             - libgtest-dev
-      env: MATRIX_EVAL="CC=gcc-7 && CXX=g++-7 && CXXSTD=-std=c++17 && CXXSTDLIB=-stdlib=libstdc++ && COV=gcov-7"
+      env: MATRIX_EVAL="CC=gcc-7 && CXX=g++-7 && CXXSTD=-std=c++17 && CXXSTDLIB= && COV=gcov-7"
 
 before_install:
   # Compiler Env
