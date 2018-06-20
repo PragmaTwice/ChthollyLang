@@ -30,7 +30,7 @@ matrix:
             - clang-6.0
             - cmake
             - libgtest-dev
-      env: MATRIX_EVAL="CC=clang-6.0 && CXX=clang++-6.0 && CXXSTD=-std=c++17 && CXXSTDLIB='-stdlib=libc++ -lc++abi -lc++experimental -I/usr/include/c++/experimental' && COV='llvm-cov gcov'"
+      env: MATRIX_EVAL="CC=clang-6.0 && CXX=clang++-6.0 && CXXSTD=-std=c++17 && CXXSTDLIB='-stdlib=libc++ -lc++abi -lc++experimental -I/usr/include/c++/v1/experimental' && COV='llvm-cov gcov'"
 
     - os: linux
       addons:
