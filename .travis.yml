@@ -26,10 +26,11 @@ matrix:
             - llvm-toolchain-trusty-6.0
           packages:
             - libc++-dev
+            - libc++abi-dev
             - clang-6.0
             - cmake
             - libgtest-dev
-      env: MATRIX_EVAL="CC=clang-6.0 && CXX=clang++-6.0 && CXXSTD=-std=c++17 && CXXSTDLIB='-stdlib=libc++ -lc++abi' && COV='llvm-cov gcov'"
+      env: MATRIX_EVAL="CC=clang-6.0 && CXX=clang++-6.0 && CXXSTD=-std=c++17 && CXXSTDLIB='-stdlib=libc++ -lc++abi -I$CPLUS_INCLUDE_PREFIX/v1' && COV='llvm-cov gcov'"
 
     - os: linux
       addons:
@@ -41,6 +42,11 @@ matrix:
             - cmake
             - libgtest-dev
       env: MATRIX_EVAL="CC=gcc-7 && CXX=g++-7 && CXXSTD=-std=c++17 && CXXSTDLIB= && COV=gcov-7"
+
+
+env:
+  global:
+    - CPLUS_INCLUDE_PREFIX=/usr/include/c++
 
 before_install:
   # Compiler Env
