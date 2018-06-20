@@ -16,7 +16,7 @@ matrix:
             - clang-6.0
             - cmake
             - libgtest-dev
-      env: >
+      env: 
         MATRIX_EVAL="
           CC=clang-6.0 && 
           CXX=clang++-6.0 && 
@@ -33,7 +33,7 @@ matrix:
             - g++-7
             - cmake
             - libgtest-dev
-      env: >
+      env:
         MATRIX_EVAL="
           CC=gcc-7 && 
           CXX=g++-7 && 
@@ -53,7 +53,7 @@ matrix:
             - clang-6.0
             - cmake
             - libgtest-dev
-      env: >
+      env: 
         MATRIX_EVAL="
           CC=clang-6.0 && 
           CXX=clang++-6.0 && 
