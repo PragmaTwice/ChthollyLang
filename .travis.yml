@@ -30,7 +30,7 @@ matrix:
             - clang-6.0
             - cmake
             - libgtest-dev
-      env: MATRIX_EVAL="CC=clang-6.0 && CXX=clang++-6.0 && CXXSTD=-std=c++17 && CXXSTDLIB='-stdlib=libc++ -lc++abi -I$CPLUS_INCLUDE_PREFIX/v1' && COV='llvm-cov gcov'"
+      env: MATRIX_EVAL="CC=clang-6.0 && CXX=clang++-6.0 && CXXSTD=-std=c++17 && CXXSTDLIB='-stdlib=libc++ -lc++abi -lc++experimental' && COV='llvm-cov gcov'"
 
     - os: linux
       addons:
@@ -44,32 +44,32 @@ matrix:
       env: MATRIX_EVAL="CC=gcc-7 && CXX=g++-7 && CXXSTD=-std=c++17 && CXXSTDLIB= && COV=gcov-7"
 
 
-env:
-  global:
-    - CPLUS_INCLUDE_PREFIX=/usr/include/c++
-
 before_install:
   # Compiler Env
-  - echo $MATRIX_EVAL
-  - eval $MATRIX_EVAL
-  - $CC --version
-  - $CXX --version
+  - |
+    echo $MATRIX_EVAL
+    eval $MATRIX_EVAL
+  - |
+    $CC --version
+    $CXX --version
   # Codecov
   - sudo pip install codecov
   # Google Test
-  - cd /usr/src/gtest
-  - sudo cmake -E make_directory build
-  - sudo cmake -E chdir build cmake .. >> /dev/null
-  - sudo cmake --build build >> /dev/null
-  - sudo cp build/libgtest* /usr/local/lib/
-  - sudo rm -rf build
-  # Return
-  - cd "${TRAVIS_BUILD_DIR}"
+  - |
+    cd /usr/src/gtest
+    sudo cmake -E make_directory build
+    sudo cmake -E chdir build cmake .. >> /dev/null
+    sudo cmake --build build >> /dev/null
+    sudo cp build/libgtest* /usr/local/lib/
+    sudo rm -rf build
+    # Return
+    cd "${TRAVIS_BUILD_DIR}"
 
 script:
   # Compile Test
-  - cd test
-  - $CXX $CXXSTD $CXXSTDLIB -pthread -fprofile-arcs -ftest-coverage  -I ../src/ -lgtest_main -lgtest parser-test.cpp -o parser-test
+  - |
+    cd test
+    $CXX $CXXSTD $CXXSTDLIB -pthread -fprofile-arcs -ftest-coverage  -I ../src/ -lgtest_main -lgtest parser-test.cpp -o parser-test
   # Run Test
   - ./parser-test
 
