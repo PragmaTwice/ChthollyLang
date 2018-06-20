@@ -16,7 +16,30 @@ matrix:
             - clang-6.0
             - cmake
             - libgtest-dev
-      env: MATRIX_EVAL="CC=clang-6.0 && CXX=clang++-6.0 && CXXSTD=-std=c++17 && CXXSTDLIB=-stdlib=libstdc++ && COV='llvm-cov gcov'"
+      env: >
+        MATRIX_EVAL="
+          CC=clang-6.0 && 
+          CXX=clang++-6.0 && 
+          CXXSTD=-std=c++17 && 
+          CXXSTDLIB=-stdlib=libstdc++ && 
+          COV='llvm-cov gcov'"
+
+    - os: linux
+      addons:
+        apt:
+          sources:
+            - ubuntu-toolchain-r-test
+          packages:
+            - g++-7
+            - cmake
+            - libgtest-dev
+      env: >
+        MATRIX_EVAL="
+          CC=gcc-7 && 
+          CXX=g++-7 && 
+          CXXSTD=-std=c++17 && 
+          CXXSTDLIB= && 
+          COV=gcov-7"
 
     - os: linux
       addons:
@@ -30,18 +53,14 @@ matrix:
             - clang-6.0
             - cmake
             - libgtest-dev
-      env: MATRIX_EVAL="CC=clang-6.0 && CXX=clang++-6.0 && CXXSTD=-std=c++17 && CXXSTDLIB='-stdlib=libc++ -lc++abi -lc++experimental -I/usr/include/c++/v1/experimental' && COV='llvm-cov gcov'"
-
-    - os: linux
-      addons:
-        apt:
-          sources:
-            - ubuntu-toolchain-r-test
-          packages:
-            - g++-7
-            - cmake
-            - libgtest-dev
-      env: MATRIX_EVAL="CC=gcc-7 && CXX=g++-7 && CXXSTD=-std=c++17 && CXXSTDLIB= && COV=gcov-7"
+      env: >
+        MATRIX_EVAL="
+          CC=clang-6.0 && 
+          CXX=clang++-6.0 && 
+          CXXSTD=-std=c++17 && 
+          CXXSTDLIB=-stdlib=libc++ && 
+          COV='llvm-cov gcov' &&
+          LIBCXX_BUILD=1"
 
 
 before_install:
@@ -52,6 +71,26 @@ before_install:
   - |
     $CC --version
     $CXX --version
+  # Lib Env
+  - |
+    if [ -n "${LIBCXX_BUILD}" ]; then
+      # Checkout LLVM sources
+      git clone --depth=1 https://github.com/llvm-mirror/llvm.git llvm-source
+      git clone --depth=1 https://github.com/llvm-mirror/libcxx.git llvm-source/projects/libcxx
+      git clone --depth=1 https://github.com/llvm-mirror/libcxxabi.git llvm-source/projects/libcxxabi
+
+      # Build and install libc++ (Use unstable ABI for better sanitizer coverage)
+      mkdir llvm-build && cd llvm-build
+      cmake -DCMAKE_C_COMPILER=$CC -DCMAKE_CXX_COMPILER=$CXX \
+            -DCMAKE_BUILD_TYPE=RelWithDebInfo -DCMAKE_INSTALL_PREFIX=/usr \
+            -DLIBCXX_ABI_UNSTABLE=ON \
+            -DLLVM_USE_SANITIZER=${LIBCXX_SANITIZER} \
+            -DLLVM_BUILD_32_BITS=OFF \
+            ../llvm-source
+      make cxx -j2
+      sudo make install-cxxabi install-cxx
+      cd ../
+    fi
   # Codecov
   - sudo pip install codecov
   # Google Test
