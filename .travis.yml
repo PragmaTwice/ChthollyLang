@@ -78,4 +78,4 @@ after_success:
   # Run Codecov
   - $COV -n -o . parser-test.cpp > /dev/null
   # Send report
-  - bash <(curl -s https://codecov.io/bash) -t a2cd89ab-e481-43e8-b24d-df2f437569a4 -x $COV
+  - bash <(curl -s https://codecov.io/bash) -x $COV
