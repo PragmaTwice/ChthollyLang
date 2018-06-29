@@ -58,8 +58,8 @@ before_install:
     cd /usr/src/gtest
     # Build
     sudo cmake -E make_directory build
-    sudo cmake -E chdir build cmake .. >> /dev/null
-    sudo cmake --build build >> /dev/null
+    sudo cmake -E chdir build cmake ..
+    sudo cmake --build build
     # Copy libs
     sudo cp build/libgtest* /usr/local/lib/
     sudo rm -rf build
@@ -76,6 +76,6 @@ script:
 
 after_success: 
   # Run Codecov
-  - $COV -n -o . parser-test.cpp > /dev/null
+  - $COV -n -o . parser-test.cpp
   # Send report
   - bash <(curl -s https://codecov.io/bash) -x $COV
