@@ -55,3 +55,6 @@
 
 # temporary test file
 /test/temp/*
+
+# VS Code Config Files
+/.vscode/
