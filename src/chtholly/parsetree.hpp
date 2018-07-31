@@ -158,7 +158,8 @@ namespace Chtholly
 
 			Observer() {}
 			Observer(const Observer& src) : nodeIter(src.nodeIter) {}
-			explicit Observer(const Visitor& src) : nodeIter(src.nodeIter) {}
+			
+			Observer(const Visitor& src) : nodeIter(src.nodeIter) {}
 
 
 			Observer& operator=(const Observer& src)
