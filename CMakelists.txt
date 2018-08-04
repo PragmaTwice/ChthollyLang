@@ -30,10 +30,18 @@ add_subdirectory(${CMAKE_BINARY_DIR}/googletest-src
 # Include CMake/GoogleTest module for `gtest_discover_tests`
 include(GoogleTest)
 
-
 # For project ChthollyLang
 project(ChthollyLang)
 
+# For gcc/clang, enable CodeCoverage if needed
+list(APPEND CMAKE_MODULE_PATH CMakeModules)
+
+if(ENABLE_CODECOV AND CMAKE_CXX_COMPILER_ID MATCHES "clang|gcc")
+  include(CodeCoverage)
+  setup_target_for_coverage(${PROJECT_NAME}_coverage tests coverage)
+endif()
+
+# Set include path
 include_directories(
     src
     ${gtest_SOURCE_DIR}/include
