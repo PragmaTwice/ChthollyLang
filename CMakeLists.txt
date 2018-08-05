@@ -59,11 +59,11 @@ add_test(NAME parser-test COMMAND parser-test)
 # For gcc/clang, enable CodeCoverage if needed
 list(APPEND CMAKE_MODULE_PATH CMakeModules)
 
-message(STATUS "check CodeCoverage option (${ENABLE_CODECOV},${CMAKE_CXX_COMPILER_ID})")
+message(STATUS "Check CodeCoverage option (${ENABLE_CODECOV},${CMAKE_CXX_COMPILER_ID})")
 if(ENABLE_CODECOV AND CMAKE_CXX_COMPILER_ID MATCHES "Clang|GNU")
   message(STATUS "CodeCoverage is enabled")
 
   include(CodeCoverage)
   setup_target_for_coverage(${PROJECT_NAME}_coverage parser-test coverage)
-
+  
 endif()

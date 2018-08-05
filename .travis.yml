@@ -15,6 +15,7 @@ matrix:
             - libstdc++-8-dev
             - clang-6.0
             - libgtest-dev
+            - lcov
       env: 
         MATRIX_EVAL="
           CC=clang-6.0 && 
@@ -31,6 +32,7 @@ matrix:
           packages:
             - g++-7
             - libgtest-dev
+            - lcov
       env:
         MATRIX_EVAL="
           CC=gcc-7 && 
