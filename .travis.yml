@@ -14,7 +14,6 @@ matrix:
           packages:
             - libstdc++-8-dev
             - clang-6.0
-            - cmake
             - libgtest-dev
       env: 
         MATRIX_EVAL="
@@ -31,7 +30,6 @@ matrix:
             - ubuntu-toolchain-r-test
           packages:
             - g++-7
-            - cmake
             - libgtest-dev
       env:
         MATRIX_EVAL="
@@ -52,17 +50,27 @@ before_install:
     $CXX --version
   # Codecov
   - sudo pip install codecov
+  # CMake
+  - |
+    if [[ ${TRAVIS_OS_NAME} == "linux" ]]; then
+      DEPS_DIR=${TRAVIS_BUILD_DIR}/deps
+      CMAKE_URL="https://cmake.org/files/v3.12/cmake-3.12.0-Linux-x86_64.tar.gz"
+      mkdir -p ${DEPS_DIR}/cmake
+      travis_retry wget --no-check-certificate --quiet -O - ${CMAKE_URL} | tar --strip-components=1 -xz -C ${DEPS_DIR}/cmake
+      export PATH=${DEPS_DIR}/cmake/bin:${PATH}
+    fi
+
 
 script:
   - |
     mkdir build/cmake
     cd build/cmake
-    # Generate makefile
-    cmake -D ENABLE_CODECOV=1 ../..
-    # Build
-    make
-    # Test
-    make test
+  # Generate makefile
+  - cmake -D ENABLE_CODECOV=1 ../..
+  # Build
+  - make
+  # Test
+  - make test
 
 after_success: 
   # Send report
