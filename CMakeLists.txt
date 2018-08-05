@@ -65,5 +65,8 @@ if(ENABLE_CODECOV AND CMAKE_CXX_COMPILER_ID MATCHES "Clang|GNU")
 
   include(CodeCoverage)
   setup_target_for_coverage(${PROJECT_NAME}_coverage parser-test coverage)
-  
+
+  set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} ${CMAKE_CXX_FLAGS_COVERAGE}")
+  message(STATUS "CMAKE_CXX_FLAGS = ${CMAKE_CXX_FLAGS}")
+
 endif()
