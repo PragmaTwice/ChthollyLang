@@ -66,7 +66,7 @@ script:
     mkdir build/cmake
     cd build/cmake
   # Generate makefile
-  - cmake -D ENABLE_CODECOV=ON -D ENABLE_TESTING=ON ../..
+  - cmake -D ENABLE_CODECOV=ON ../..
   # Build
   - make
   # Test

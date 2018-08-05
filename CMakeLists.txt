@@ -30,6 +30,9 @@ add_subdirectory(${CMAKE_BINARY_DIR}/googletest-src
 # Include CMake/GoogleTest module for `gtest_discover_tests`
 include(GoogleTest)
 
+# Enable testing
+enable_testing()
+
 # For project ChthollyLang
 project(ChthollyLang)
 
