@@ -36,14 +36,6 @@ enable_testing()
 # For project ChthollyLang
 project(ChthollyLang)
 
-# For gcc/clang, enable CodeCoverage if needed
-list(APPEND CMAKE_MODULE_PATH CMakeModules)
-
-if(ENABLE_CODECOV AND CMAKE_CXX_COMPILER_ID MATCHES "clang|gcc")
-  include(CodeCoverage)
-  setup_target_for_coverage(${PROJECT_NAME}_coverage tests coverage)
-endif()
-
 # Set include path
 include_directories(
     src
@@ -63,3 +55,14 @@ target_link_libraries(parser-test gtest_main)
 
 gtest_discover_tests(parser-test)
 add_test(NAME parser-test COMMAND parser-test)
+
+# For gcc/clang, enable CodeCoverage if needed
+list(APPEND CMAKE_MODULE_PATH CMakeModules)
+
+if(ENABLE_CODECOV AND CMAKE_CXX_COMPILER_ID MATCHES "clang|gcc")
+  message(STATUS "CodeCoverage is enabled")
+
+  include(CodeCoverage)
+  setup_target_for_coverage(${PROJECT_NAME}_coverage parser-test coverage)
+
+endif()
