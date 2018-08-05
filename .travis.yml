@@ -64,8 +64,11 @@ before_install:
 
 
 script:
+  - |
+    mkdir build/cmake
+    cd build/cmake
   # Generate makefile
-  - cmake -D ENABLE_CODECOV=ON .
+  - cmake -D ENABLE_CODECOV=ON ../..
   # Build
   - make
   # Test
@@ -73,4 +76,6 @@ script:
 
 after_success: 
   # Send report
-  - bash <(curl -s https://codecov.io/bash) -x $COV
+  - |
+    cd build/cmake
+    bash <(curl -s https://codecov.io/bash) -x $COV
