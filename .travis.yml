@@ -62,11 +62,8 @@ before_install:
 
 
 script:
-  - |
-    mkdir build/cmake
-    cd build/cmake
   # Generate makefile
-  - cmake -D ENABLE_CODECOV=ON ../..
+  - cmake -D ENABLE_CODECOV=ON .
   # Build
   - make
   # Test
