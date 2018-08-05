@@ -59,7 +59,7 @@ add_test(NAME parser-test COMMAND parser-test)
 # For gcc/clang, enable CodeCoverage if needed
 list(APPEND CMAKE_MODULE_PATH CMakeModules)
 
-message(STATUS "check CodeCoverage")
+message(STATUS "check CodeCoverage option (${ENABLE_CODECOV},${CMAKE_CXX_COMPILER_ID})")
 if(ENABLE_CODECOV AND CMAKE_CXX_COMPILER_ID MATCHES "clang|gcc")
   message(STATUS "CodeCoverage is enabled")
 
