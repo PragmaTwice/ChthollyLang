@@ -70,7 +70,7 @@ script:
   # Build
   - make
   # Test
-  - ctest
+  - make test
 
 after_success: 
   # Send report

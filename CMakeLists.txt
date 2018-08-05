@@ -59,3 +59,4 @@ add_executable(parser-test test/parser-test.cpp)
 target_link_libraries(parser-test gtest_main)
 
 gtest_discover_tests(parser-test)
+add_test(NAME parser-test COMMAND parser-test)
