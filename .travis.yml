@@ -14,8 +14,8 @@ matrix:
           packages:
             - libstdc++-8-dev
             - clang-6.0
-            - cmake
             - libgtest-dev
+            - lcov
       env: 
         MATRIX_EVAL="
           CC=clang-6.0 && 
@@ -31,8 +31,8 @@ matrix:
             - ubuntu-toolchain-r-test
           packages:
             - g++-7
-            - cmake
             - libgtest-dev
+            - lcov
       env:
         MATRIX_EVAL="
           CC=gcc-7 && 
@@ -52,30 +52,30 @@ before_install:
     $CXX --version
   # Codecov
   - sudo pip install codecov
-  # Google Test
+  # CMake
   - |
-    # Enter dir
-    cd /usr/src/gtest
-    # Build
-    sudo cmake -E make_directory build
-    sudo cmake -E chdir build cmake ..
-    sudo cmake --build build
-    # Copy libs
-    sudo cp build/libgtest* /usr/local/lib/
-    sudo rm -rf build
-    # Return
-    cd "${TRAVIS_BUILD_DIR}"
+    if [[ ${TRAVIS_OS_NAME} == "linux" ]]; then
+      DEPS_DIR=${TRAVIS_BUILD_DIR}/deps
+      CMAKE_URL="https://cmake.org/files/v3.12/cmake-3.12.0-Linux-x86_64.tar.gz"
+      mkdir -p ${DEPS_DIR}/cmake
+      travis_retry wget --no-check-certificate --quiet -O - ${CMAKE_URL} | tar --strip-components=1 -xz -C ${DEPS_DIR}/cmake
+      export PATH=${DEPS_DIR}/cmake/bin:${PATH}
+    fi
+
 
 script:
-  # Compile Test
   - |
-    cd test
-    $CXX $CXXSTD $CXXSTDLIB -pthread -fprofile-arcs -ftest-coverage  -I ../src/ -lgtest_main -lgtest parser-test.cpp -o parser-test
-  # Run Test
-  - ./parser-test
+    mkdir build/cmake
+    cd build/cmake
+  # Generate makefile
+  - cmake -D ENABLE_CODECOV=ON ../..
+  # Build
+  - make
+  # Test
+  - make test
 
 after_success: 
-  # Run Codecov
-  - $COV -n -o . parser-test.cpp
   # Send report
-  - bash <(curl -s https://codecov.io/bash) -x $COV
+  - |
+    cd build/cmake
+    bash <(curl -s https://codecov.io/bash) -x $COV
