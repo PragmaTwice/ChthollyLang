@@ -13,7 +13,7 @@
 * [Google Test](https://github.com/google/googletest) *(if you want to run [unit testings](https://github.com/PragmaTwice/ChthollyLang/tree/master/test))*
 
 Successfully compiled and passed all tests in:
-* LLVM/clang-cl 6 with MSVC 15.7/stdlib in Windows
+* LLVM/clang-cl 7 with MSVC 15.8/stdlib in Windows
 * LLVM/clang++ 6 with libstdc++ in Linux
 * GNU/g++ 7 in Linux
 
