@@ -21,6 +21,7 @@
   <ItemGroup>
     <ClInclude Include="..\..\..\src\chtholly.hpp" />
     <ClInclude Include="..\..\..\src\chtholly\chartype.hpp" />
+    <ClInclude Include="..\..\..\src\chtholly\irgenerator.hpp" />
     <ClInclude Include="..\..\..\src\chtholly\parser.hpp" />
     <ClInclude Include="..\..\..\src\chtholly\parserc.hpp" />
     <ClInclude Include="..\..\..\src\chtholly\parsetree.hpp" />

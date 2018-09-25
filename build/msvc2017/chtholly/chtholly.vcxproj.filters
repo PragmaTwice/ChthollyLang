@@ -25,5 +25,8 @@
     <ClInclude Include="..\..\..\src\chtholly.hpp">
       <Filter>ALL</Filter>
     </ClInclude>
+    <ClInclude Include="..\..\..\src\chtholly\irgenerator.hpp">
+      <Filter>SRC</Filter>
+    </ClInclude>
   </ItemGroup>
 </Project>
