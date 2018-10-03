@@ -16,6 +16,7 @@ namespace Chtholly
 		enum class Block : unsigned
 		{
 			Begin = 0x10,
+			NamedBegin,				// 1
 			Drop,
 			End
 		};
@@ -37,7 +38,12 @@ namespace Chtholly
 		};
 		enum class Object : unsigned
 		{
-			Var = 0x50,				// 1
+			Begin = 0x50,
+			End,
+			EndWithInit,
+			AttachTo,				// 1
+			StartPattern,
+			Var,					// 1
 			VarWithConstraint,		// 1
 			VarPack,				// 1
 			VarPackWithConstraint,	// 1
@@ -46,12 +52,6 @@ namespace Chtholly
 			ConstPack,				// 1
 			ConstPackWithConstraint,// 1
 			Use,					// 1
-			Init
-		};
-		enum class Pattern : unsigned
-		{
-			Begin = 0x60,
-			End
 		};
 		enum class Literal : unsigned
 		{
@@ -71,7 +71,6 @@ namespace Chtholly
 		Opcode(List inValue) : value(static_cast<unsigned>(inValue)) {}
 		Opcode(Control inValue) : value(static_cast<unsigned>(inValue)) {}
 		Opcode(Object inValue) : value(static_cast<unsigned>(inValue)) {}
-		Opcode(Pattern inValue) : value(static_cast<unsigned>(inValue)) {}
 		Opcode(Literal inValue) : value(static_cast<unsigned>(inValue)) {}
 
 		Opcode(const Opcode& opcode) = default;
