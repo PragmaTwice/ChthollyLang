@@ -29,18 +29,20 @@ namespace Chtholly
 	{
 		CharType() = delete;
 
-		inline static auto isAlphaOrNum		= std::isalnum;
-		inline static auto isAlpha			= std::isalpha;
-		inline static auto isLowercaseAlpha	= std::islower;
-		inline static auto isUppercaseAlpha	= std::isupper;
-		inline static auto isDigit			= std::isdigit;
-		inline static auto isHexDigit		= std::isxdigit;
-		inline static auto isControl		= std::iscntrl;
-		inline static auto isGraphic		= std::isgraph;
-		inline static auto isSpace			= std::isspace;
-		inline static auto isBlank			= std::isblank;
-		inline static auto isPrintable		= std::isprint;
-		inline static auto isPunctuation	= std::ispunct;
+		using Type = int(*)(int);
+
+		inline static auto isAlphaOrNum		= static_cast<Type>(std::isalnum);
+		inline static auto isAlpha			= static_cast<Type>(std::isalpha);
+		inline static auto isLowercaseAlpha	= static_cast<Type>(std::islower);
+		inline static auto isUppercaseAlpha	= static_cast<Type>(std::isupper);
+		inline static auto isDigit			= static_cast<Type>(std::isdigit);
+		inline static auto isHexDigit		= static_cast<Type>(std::isxdigit);
+		inline static auto isControl		= static_cast<Type>(std::iscntrl);
+		inline static auto isGraphic		= static_cast<Type>(std::isgraph);
+		inline static auto isSpace			= static_cast<Type>(std::isspace);
+		inline static auto isBlank			= static_cast<Type>(std::isblank);
+		inline static auto isPrintable		= static_cast<Type>(std::isprint);
+		inline static auto isPunctuation	= static_cast<Type>(std::ispunct);
 	};
 
 	template <>
@@ -48,17 +50,19 @@ namespace Chtholly
 	{
 		CharType() = delete;
 
-		inline static auto isAlphaOrNum		= std::iswalnum;
-		inline static auto isAlpha			= std::iswalpha;
-		inline static auto isLowercaseAlpha = std::iswlower;
-		inline static auto isUppercaseAlpha = std::iswupper;
-		inline static auto isDigit			= std::iswdigit;
-		inline static auto isHexDigit		= std::iswxdigit;
-		inline static auto isControl		= std::iswcntrl;
-		inline static auto isGraphic		= std::iswgraph;
-		inline static auto isSpace			= std::iswspace;
-		inline static auto isBlank			= std::iswblank;
-		inline static auto isPrintable		= std::iswprint;
-		inline static auto isPunctuation	= std::iswpunct;
+		using Type = int(*)(std::wint_t);
+
+		inline static auto isAlphaOrNum		= static_cast<Type>(std::iswalnum);
+		inline static auto isAlpha			= static_cast<Type>(std::iswalpha);
+		inline static auto isLowercaseAlpha = static_cast<Type>(std::iswlower);
+		inline static auto isUppercaseAlpha = static_cast<Type>(std::iswupper);
+		inline static auto isDigit			= static_cast<Type>(std::iswdigit);
+		inline static auto isHexDigit		= static_cast<Type>(std::iswxdigit);
+		inline static auto isControl		= static_cast<Type>(std::iswcntrl);
+		inline static auto isGraphic		= static_cast<Type>(std::iswgraph);
+		inline static auto isSpace			= static_cast<Type>(std::iswspace);
+		inline static auto isBlank			= static_cast<Type>(std::iswblank);
+		inline static auto isPrintable		= static_cast<Type>(std::iswprint);
+		inline static auto isPunctuation	= static_cast<Type>(std::iswpunct);
 	};
 }
