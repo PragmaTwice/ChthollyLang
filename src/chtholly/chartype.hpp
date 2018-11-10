@@ -29,20 +29,18 @@ namespace Chtholly
 	{
 		CharType() = delete;
 
-		using Type = int(*)(int);
-
-		inline static Type isAlphaOrNum		= std::isalnum;
-		inline static Type isAlpha			= std::isalpha;
-		inline static Type isLowercaseAlpha	= std::islower;
-		inline static Type isUppercaseAlpha	= std::isupper;
-		inline static Type isDigit			= std::isdigit;
-		inline static Type isHexDigit		= std::isxdigit;
-		inline static Type isControl		= std::iscntrl;
-		inline static Type isGraphic		= std::isgraph;
-		inline static Type isSpace			= std::isspace;
-		inline static Type isBlank			= std::isblank;
-		inline static Type isPrintable		= std::isprint;
-		inline static Type isPunctuation	= std::ispunct;
+		inline static auto isAlphaOrNum		= std::isalnum;
+		inline static auto isAlpha			= std::isalpha;
+		inline static auto isLowercaseAlpha	= std::islower;
+		inline static auto isUppercaseAlpha	= std::isupper;
+		inline static auto isDigit			= std::isdigit;
+		inline static auto isHexDigit		= std::isxdigit;
+		inline static auto isControl		= std::iscntrl;
+		inline static auto isGraphic		= std::isgraph;
+		inline static auto isSpace			= std::isspace;
+		inline static auto isBlank			= std::isblank;
+		inline static auto isPrintable		= std::isprint;
+		inline static auto isPunctuation	= std::ispunct;
 	};
 
 	template <>
@@ -50,19 +48,17 @@ namespace Chtholly
 	{
 		CharType() = delete;
 
-		using Type = int(*)(std::wint_t);
-
-		inline static Type isAlphaOrNum		= std::iswalnum;
-		inline static Type isAlpha			= std::iswalpha;
-		inline static Type isLowercaseAlpha = std::iswlower;
-		inline static Type isUppercaseAlpha = std::iswupper;
-		inline static Type isDigit			= std::iswdigit;
-		inline static Type isHexDigit		= std::iswxdigit;
-		inline static Type isControl		= std::iswcntrl;
-		inline static Type isGraphic		= std::iswgraph;
-		inline static Type isSpace			= std::iswspace;
-		inline static Type isBlank			= std::iswblank;
-		inline static Type isPrintable		= std::iswprint;
-		inline static Type isPunctuation	= std::iswpunct;
+		inline static auto isAlphaOrNum		= std::iswalnum;
+		inline static auto isAlpha			= std::iswalpha;
+		inline static auto isLowercaseAlpha = std::iswlower;
+		inline static auto isUppercaseAlpha = std::iswupper;
+		inline static auto isDigit			= std::iswdigit;
+		inline static auto isHexDigit		= std::iswxdigit;
+		inline static auto isControl		= std::iswcntrl;
+		inline static auto isGraphic		= std::iswgraph;
+		inline static auto isSpace			= std::iswspace;
+		inline static auto isBlank			= std::iswblank;
+		inline static auto isPrintable		= std::iswprint;
+		inline static auto isPunctuation	= std::iswpunct;
 	};
 }
