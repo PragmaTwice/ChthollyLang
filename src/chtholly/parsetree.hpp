@@ -61,15 +61,15 @@ namespace Chtholly
 
 			template <typename ...T, std::enable_if_t<std::is_constructible_v<ValueType, T&&...>, int> = 0>
 			Node(Iterator in_parent, T&& ...args)
-				: value(std::forward<T>(args)...), parent(in_parent) {}
+				: value(std::forward<T>(args)...), parent(std::move(in_parent)) {}
 
 			template <typename ...T, std::enable_if_t<std::is_constructible_v<ValueType, T&&...>, int> = 0>
-			Node(const Container& in_children, T&& ...args) 
-				: value(std::forward<T>(args)...), children(in_children) {}
+			Node(Container in_children, T&& ...args) 
+				: value(std::forward<T>(args)...), children(std::move(in_children)) {}
 
 			template <typename ...T, std::enable_if_t<std::is_constructible_v<ValueType, T&&...>, int> = 0>
-			Node(Iterator in_parent, const Container& in_children, T&& ...args)
-				: value(std::forward<T>(args)...), parent(in_parent), children(in_children) {}
+			Node(Iterator in_parent, Container in_children, T&& ...args)
+				: value(std::forward<T>(args)...), parent(std::move(in_parent)), children(std::move(in_children)) {}
 
 			Node(const Node& src)
 				: value(src.value), parent(src.parent), children(src.children) {}
@@ -139,7 +139,7 @@ namespace Chtholly
 
 			Iterator nodeIter;
 
-			explicit Observer(const Iterator& src) : nodeIter(src) {}
+			explicit Observer(Iterator src) : nodeIter(std::move(src)) {}
 
 			Observer& operator=(const Iterator& src)
 			{
@@ -249,7 +249,7 @@ namespace Chtholly
 				return nodeIter->children.back().value;
 			}
 
-			~Observer() {}
+			~Observer() = default;
 		};
 
 		class Visitor
@@ -260,7 +260,7 @@ namespace Chtholly
 
 			Iterator nodeIter;
 
-			explicit Visitor(const Iterator& src) : nodeIter(src) {}
+			explicit Visitor(Iterator src) : nodeIter(std::move(src)) {}
 
 			Visitor& operator=(const Iterator& src)
 			{
@@ -378,7 +378,7 @@ namespace Chtholly
 				return nodeIter->children.back().value;
 			}
 
-			~Visitor() {}
+			~Visitor() = default;
 		};
 
 		class Modifier : public Visitor
@@ -595,7 +595,7 @@ namespace Chtholly
 				return newModi;
 			}
 
-			~Modifier() {}
+			~Modifier() = default;
 		};
 
 		template <typename ...T, std::enable_if_t<std::is_constructible_v<Node, T&&...>, int> = 0>
@@ -678,7 +678,7 @@ namespace Chtholly
 			FixParent(modifier());
 		}
 
-		~BasicTree() {}
+		~BasicTree() = default;
 	};
 
 	template <typename inStringView>
@@ -700,7 +700,7 @@ namespace Chtholly
 		StringView value;
 
 		template <typename ...T, std::enable_if_t<std::is_constructible_v<StringView, T&&...>, int> = 0>
-		BasicParseUnit(Type inType, const String& inName, T&& ... inValue) : type(inType), name(inName), value(inValue...) {}
+		BasicParseUnit(Type inType, String inName, T&& ... inValue) : type(inType), name(std::move(inName)), value(inValue...) {}
 
 		BasicParseUnit(const BasicParseUnit& src) : type(src.type), name(src.name), value(src.value) {}
 
@@ -722,7 +722,7 @@ namespace Chtholly
 			return !(*this == other);
 		}
 
-		~BasicParseUnit() {}
+		~BasicParseUnit() = default;
 	};
 
 	template<typename ValueType>
