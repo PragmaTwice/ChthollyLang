@@ -97,14 +97,14 @@ TEST(Expression, DefineExpression)
 {
 	EXPECT_EQ(parseString("var x"), ParseTree(
 		Term("VarDefineExpression", 
-			Term("ConstraintExperssion",
+			Term("ConstraintExpression",
 				Token("Identifier", "x")
 			)
 		)
 	));
 	EXPECT_EQ(parseString("const hello(0)"), ParseTree(
 		Term("ConstDefineExpression", 
-			Term("ConstraintExperssion",
+			Term("ConstraintExpression",
 				Token("Identifier", "hello")
 			),
 			Token("IntLiteral", "0")
@@ -112,7 +112,7 @@ TEST(Expression, DefineExpression)
 	));
 	EXPECT_EQ(parseString("var y: int"), ParseTree(
 		Term("VarDefineExpression", 
-			Term("ConstraintExperssion",
+			Term("ConstraintExpression",
 				Token("Identifier", "y"), 
 				Token("Identifier", "int")
 			)
@@ -120,12 +120,12 @@ TEST(Expression, DefineExpression)
 	));
 	EXPECT_EQ(parseString("var (x...,y:int,z):numbers(1.0;2.0;3;4;5.0)"), ParseTree(
 		Term("VarDefineExpression",
-			Term("PatternExperssion",
-				Term("ConstraintExperssionAtPatternExperssion",Token("Identifier","x"), Token("Separator", "...")),
+			Term("PatternExpression",
+				Term("ConstraintExpressionAtPatternExpression",Token("Identifier","x"), Token("Separator", "...")),
 				Token("Separator", ","),
-				Term("ConstraintExperssionAtPatternExperssion", Token("Identifier", "y"), Token("Identifier", "int")),
+				Term("ConstraintExpressionAtPatternExpression", Token("Identifier", "y"), Token("Identifier", "int")),
 				Token("Separator", ","),
-				Term("ConstraintExperssionAtPatternExperssion", Token("Identifier", "z")),
+				Term("ConstraintExpressionAtPatternExpression", Token("Identifier", "z")),
 				Token("Identifier", "numbers")
 			),
 			Term("Expression",
@@ -147,8 +147,8 @@ TEST(Expression, LambdaExpression)
 {
 	EXPECT_EQ(parseString("fn(x) x"), ParseTree(
 		Term("LambdaExpression",
-			Term("PatternExperssion",
-				Term("ConstraintExperssionAtPatternExperssion", Token("Identifier", "x"))
+			Term("PatternExpression",
+				Term("ConstraintExpressionAtPatternExpression", Token("Identifier", "x"))
 			),
 			Token("Identifier", "x")
 		)
@@ -156,10 +156,10 @@ TEST(Expression, LambdaExpression)
 
 	EXPECT_EQ(parseString("fn(x,y) if(x>y) x else y"), ParseTree(
 		Term("LambdaExpression",
-			Term("PatternExperssion",
-				Term("ConstraintExperssionAtPatternExperssion", Token("Identifier", "x")),
+			Term("PatternExpression",
+				Term("ConstraintExpressionAtPatternExpression", Token("Identifier", "x")),
 				Token("Separator", ","),
-				Term("ConstraintExperssionAtPatternExperssion", Token("Identifier", "y"))
+				Term("ConstraintExpressionAtPatternExpression", Token("Identifier", "y"))
 			),
 			Term("ConditionExpression",
 				Term("RelationalExpression",
@@ -175,12 +175,12 @@ TEST(Expression, LambdaExpression)
 
 	EXPECT_EQ(parseString("fn(x,y,z):number x*x+y*y+z*z"), ParseTree(
 		Term("LambdaExpression",
-			Term("PatternExperssion",
-				Term("ConstraintExperssionAtPatternExperssion", Token("Identifier", "x")),
+			Term("PatternExpression",
+				Term("ConstraintExpressionAtPatternExpression", Token("Identifier", "x")),
 				Token("Separator", ","),
-				Term("ConstraintExperssionAtPatternExperssion", Token("Identifier", "y")),
+				Term("ConstraintExpressionAtPatternExpression", Token("Identifier", "y")),
 				Token("Separator", ","),
-				Term("ConstraintExperssionAtPatternExperssion", Token("Identifier", "z")),
+				Term("ConstraintExpressionAtPatternExpression", Token("Identifier", "z")),
 				Token("Identifier", "number")
 			),
 			Term("AdditiveExpression",
@@ -207,15 +207,15 @@ TEST(Expression, LambdaExpression)
 
 	EXPECT_EQ(parseString("fn(x,y) (var temp=x, x=y; y=temp)"), ParseTree(
 		Term("LambdaExpression",
-			Term("PatternExperssion",
-				Term("ConstraintExperssionAtPatternExperssion", Token("Identifier", "x")),
+			Term("PatternExpression",
+				Term("ConstraintExpressionAtPatternExpression", Token("Identifier", "x")),
 				Token("Separator", ","),
-				Term("ConstraintExperssionAtPatternExperssion", Token("Identifier", "y"))
+				Term("ConstraintExpressionAtPatternExpression", Token("Identifier", "y"))
 			),
 			Term("Expression",
 				Term("AssignmentExpression",
 					Term("VarDefineExpression",
-						Term("ConstraintExperssion",
+						Term("ConstraintExpression",
 							Token("Identifier", "temp")
 						)
 					),
@@ -356,7 +356,7 @@ TEST(Expression, WhileLoopExpression)
 	EXPECT_EQ(parseString("var i(0),var sum(0) += while(i<10) i+=1"), ParseTree(
 		Term("Expression",
 			Term("VarDefineExpression",
-				Term("ConstraintExperssion",
+				Term("ConstraintExpression",
 					Token("Identifier", "i")
 				),
 				Token("IntLiteral", "0")
@@ -364,7 +364,7 @@ TEST(Expression, WhileLoopExpression)
 			Token("Separator", ","),
 			Term("AssignmentExpression",
 				Term("VarDefineExpression",
-					Term("ConstraintExperssion",
+					Term("ConstraintExpression",
 						Token("Identifier", "sum")
 					),
 					Token("IntLiteral", "0")
@@ -389,7 +389,7 @@ TEST(Expression, WhileLoopExpression)
 	EXPECT_EQ(parseString("var i(0),while(len(array) > i and array->i <> 233) (i+=1,) else i"), ParseTree(
 		Term("Expression",
 			Term("VarDefineExpression",
-				Term("ConstraintExperssion",
+				Term("ConstraintExpression",
 					Token("Identifier", "i")
 				),
 				Token("IntLiteral", "0")
@@ -496,10 +496,10 @@ TEST(Expression, FunctionExpression)
 		Term("FunctionExpression",
 			Token("Identifier", "sort"),
 			Term("LambdaExpression",
-				Term("PatternExperssion",
-					Term("ConstraintExperssionAtPatternExperssion", Token("Identifier", "x")),
+				Term("PatternExpression",
+					Term("ConstraintExpressionAtPatternExpression", Token("Identifier", "x")),
 					Token("Separator", ","),
-					Term("ConstraintExperssionAtPatternExperssion", Token("Identifier", "y"))
+					Term("ConstraintExpressionAtPatternExpression", Token("Identifier", "y"))
 				),
 				Term("RelationalExpression",
 					Token("Identifier", "x"),
@@ -577,14 +577,14 @@ TEST(Expression, PointExpression)
 TEST(Expression, FoldExpression)
 {
 	EXPECT_EQ(parseString("args..."), ParseTree(
-		Term("FoldExperssion",
+		Term("FoldExpression",
 			Token("Identifier", "args"),
 			Token("Separator","...")
 		)
 	));
 
 	EXPECT_EQ(parseString("(args + 1)..."), ParseTree(
-		Term("FoldExperssion",
+		Term("FoldExpression",
 			Term("AdditiveExpression",
 				Token("Identifier", "args"),
 				Token("BinaryOperator", "+"),
@@ -596,14 +596,14 @@ TEST(Expression, FoldExpression)
 
 	EXPECT_EQ(parseString("fn(f,x...) f(x...)"), ParseTree(
 		Term("LambdaExpression",
-			Term("PatternExperssion",
-				Term("ConstraintExperssionAtPatternExperssion", Token("Identifier", "f")),
+			Term("PatternExpression",
+				Term("ConstraintExpressionAtPatternExpression", Token("Identifier", "f")),
 				Token("Separator", ","),
-				Term("ConstraintExperssionAtPatternExperssion", Token("Identifier", "x"), Token("Separator", "..."))
+				Term("ConstraintExpressionAtPatternExpression", Token("Identifier", "x"), Token("Separator", "..."))
 			),
 			Term("FunctionExpression",
 				Token("Identifier", "f"),
-				Term("FoldExperssion",
+				Term("FoldExpression",
 					Token("Identifier", "x"),
 					Token("Separator", "...")
 				)
@@ -1071,7 +1071,7 @@ TEST(Expression, ExpressionList)
 			Token("Separator", ","),
 			Term("AssignmentExpression",
 				Term("VarDefineExpression",
-					Term("ConstraintExperssion",
+					Term("ConstraintExpression",
 						Token("Identifier", "c")
 					)
 				),
@@ -1124,7 +1124,7 @@ TEST(Expression, ArrayList)
 				Term("RelationalExpression",
 					Term("AssignmentExpression",
 						Term("VarDefineExpression",
-							Term("ConstraintExperssion",
+							Term("ConstraintExpression",
 								Token("Identifier", "i")
 							),
 							Token("IntLiteral", "0")
@@ -1169,7 +1169,7 @@ TEST(Expression, DictList)
 				Term("RelationalExpression",
 					Term("AssignmentExpression",
 						Term("VarDefineExpression",
-							Term("ConstraintExperssion",
+							Term("ConstraintExpression",
 								Token("Identifier", "i")
 							),
 							Token("IntLiteral", "0")
