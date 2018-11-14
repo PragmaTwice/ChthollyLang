@@ -21,10 +21,12 @@
   <ItemGroup>
     <ClInclude Include="..\..\..\src\chtholly.hpp" />
     <ClInclude Include="..\..\..\src\chtholly\chartype.hpp" />
+    <ClInclude Include="..\..\..\src\chtholly\instruction.hpp" />
     <ClInclude Include="..\..\..\src\chtholly\irgenerator.hpp" />
     <ClInclude Include="..\..\..\src\chtholly\parser.hpp" />
     <ClInclude Include="..\..\..\src\chtholly\parserc.hpp" />
     <ClInclude Include="..\..\..\src\chtholly\parsetree.hpp" />
+    <ClInclude Include="..\..\..\src\chtholly\stringconv.hpp" />
   </ItemGroup>
   <PropertyGroup Label="Globals">
     <VCProjectVersion>15.0</VCProjectVersion>
