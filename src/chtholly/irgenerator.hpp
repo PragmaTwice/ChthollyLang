@@ -1,101 +1,254 @@
 #pragma once
 
-#include <vector>
+#include <utility>
 #include <variant>
+#include <vector>
+#include <string>
+#include <cstdint>
+#include <cmath>
+#include <map>
+#include <functional>
 
 #include "parsetree.hpp"
 
 namespace Chtholly
 {
-	struct Opcode
+	template <auto V>
+	struct LiteralValueIdentity
 	{
-		enum : unsigned
-		{
-			None = 0
-		};
-		enum class Block : unsigned
-		{
-			Begin = 0x10,
-			NamedBegin,				// 1
-			Drop,
-			End
-		};
-		enum class Function : unsigned
-		{
-			Start = 0x20,
-			Call
-		};
-		enum class List : unsigned
-		{
-			Push = 0x30,
-			Pop
-		};
-		enum class Control : unsigned
-		{
-			Jump = 0x40,			// 1
-			JumpIf,					// 2
-			Mark					// 1
-		};
-		enum class Object : unsigned
-		{
-			Begin = 0x50,
-			End,
-			EndWithInit,
-			AttachTo,				// 1
-			StartPattern,
-			Var,					// 1
-			VarWithConstraint,		// 1
-			VarPack,				// 1
-			VarPackWithConstraint,	// 1
-			Const,					// 1
-			ConstWithConstraint,	// 1
-			ConstPack,				// 1
-			ConstPackWithConstraint,// 1
-			Use,					// 1
-		};
-		enum class Literal : unsigned
-		{
-			Int = 0x70,				// 1
-			Float,					// 1
-			String,					// 1
-			Null,
-			Undef,
-			True,
-			False
-		};
+		constexpr static auto value = V;
+	};
 
-		Opcode() : value(None) {}
+	struct IRValueDef
+	{
+		struct Undef {};
+		struct Null {};
 
-		Opcode(Block inValue) : value(static_cast<unsigned>(inValue)) {}
-		Opcode(Function inValue) : value(static_cast<unsigned>(inValue)) {}
-		Opcode(List inValue) : value(static_cast<unsigned>(inValue)) {}
-		Opcode(Control inValue) : value(static_cast<unsigned>(inValue)) {}
-		Opcode(Object inValue) : value(static_cast<unsigned>(inValue)) {}
-		Opcode(Literal inValue) : value(static_cast<unsigned>(inValue)) {}
+		using Bool = bool;
+		using Int = std::int64_t;
+		using Float = std::double_t;
+		using String = std::string;
+	};
 
-		Opcode(const Opcode& opcode) = default;
+	template <
+		typename String = IRValueDef::String,
+		typename Float = IRValueDef::Float,
+		typename Int = IRValueDef::Int,
+		typename Bool = IRValueDef::Bool,
+		typename Null = IRValueDef::Null,
+		typename Undef = IRValueDef::Undef
+	>
+	struct BasicIRValue : std::variant<Undef, Null, Bool, Int, Float, String>
+	{
+		using std::variant<Undef, Null, Bool, Int, Float, String>::variant;
 
-		Opcode& operator= (const Opcode& opcode) = default;
+		using Undef = Undef;
+		using Null = Null;
+		using Bool = Bool;
+		using Int = Int;
+		using Float = Float;
+		using String = String;
+	};
+	
+	using IRValue = BasicIRValue<>;
 
-		bool operator== (const Opcode& opcode) const
+	template <auto Generator
+		, std::enable_if_t<
+		std::is_function_v<std::remove_pointer_t<decltype(Generator)>>
+		, int> = 0
+	>
+		static constexpr std::size_t Opcode()
+	{
+		return typeid(LiteralValueIdentity<Generator>).hash_code();
+	}
+
+	template<typename Value>
+	struct BasicInstruction
+	{
+	private:
+
+		std::size_t _opcode;
+		std::vector<Value> _oprands;
+
+		BasicInstruction(std::size_t hash)
+			: _opcode(hash)
+		{}
+
+		BasicInstruction(std::size_t hash, std::vector<Value> value)
+			: _opcode(hash), _oprands(std::move(value))
+		{}
+
+	public:
+
+		BasicInstruction() = delete;
+
+		~BasicInstruction() = default;
+
+		BasicInstruction(const BasicInstruction&) = default;
+
+		BasicInstruction& operator=(const BasicInstruction&) = default;
+
+		std::size_t opcode() const
 		{
-			return unsigned{ *this } == unsigned{ opcode };
+			return _opcode;
 		}
 
-		bool operator!= (const Opcode& opcode) const
+		const std::vector<IRValue>& oprands() const
 		{
-			return !(*this == opcode);
+			return _oprands;
+		}
+
+		static BasicInstruction None() { return { Opcode<None>() }; }
+
+		struct Block
+		{
+			static BasicInstruction Begin() { return { Opcode<Begin>() }; }
+			static BasicInstruction NamedBegin(typename Value::String blockName)
+			{
+				return { Opcode<NamedBegin>(), { std::move(blockName) } };
+			}
+
+			static BasicInstruction Drop() { return { Opcode<Drop>() }; }
+			static BasicInstruction End() { return { Opcode<End>() }; }
+		};
+
+		struct Function
+		{
+			static BasicInstruction Start() { return { Opcode<Start>() }; }
+			static BasicInstruction Call() { return { Opcode<Call>() }; }
+		};
+
+		struct List
+		{
+			static BasicInstruction Push() { return { Opcode<Push>() }; }
+			static BasicInstruction Pop() { return { Opcode<Pop>() }; }
+		};
+
+		struct Control
+		{
+			static BasicInstruction Jump(typename Value::String tag)
+			{
+				return { Opcode<Jump>(), { tag } };
+			}
+			static BasicInstruction JumpIf(typename Value::String tag)
+			{
+				return { Opcode<JumpIf>(), { tag } };
+			}
+			static BasicInstruction JumpIfElse(typename Value::String tagIf, typename Value::String tagElse)
+			{
+				return { Opcode<JumpIfElse>(), { tagIf, tagElse } };
+			}
+			static BasicInstruction Mark(typename Value::String tag)
+			{
+				return { Opcode<Mark>(), { tag } };
+			}
+		};
+
+		struct Object
+		{
+			static BasicInstruction Begin() { return { Opcode<Begin>() }; }
+			static BasicInstruction End() { return { Opcode<End>() }; }
+			static BasicInstruction EndWithInit() { return { Opcode<EndWithInit>() }; }
+			static BasicInstruction AttachTo(typename Value::String blockName)
+			{
+				return { Opcode<AttachTo>(), { blockName } };
+			}
+			// StartPattern (temporarily ignore)
+			static BasicInstruction Var(typename Value::String varName)
+			{
+				return { Opcode<Var>(), { varName } };
+			}
+			static BasicInstruction VarWithConstraint(typename Value::String varName)
+			{
+				return { Opcode<VarWithConstraint>(), { varName } };
+			}
+			static BasicInstruction VarPack(typename Value::String varName)
+			{
+				return { Opcode<VarPack>(), { varName } };
+			}
+			static BasicInstruction VarPackWithConstraint(typename Value::String varName)
+			{
+				return { Opcode<VarPackWithConstraint>(), { varName } };
+			}
+			static BasicInstruction Const(typename Value::String varName)
+			{
+				return { Opcode<Const>(), { varName } };
+			}
+			static BasicInstruction ConstWithConstraint(typename Value::String varName)
+			{
+				return { Opcode<ConstWithConstraint>(), { varName } };
+			}
+			static BasicInstruction ConstPack(typename Value::String varName)
+			{
+				return { Opcode<ConstPack>(), { varName } };
+			}
+			static BasicInstruction ConstPackWithConstraint(typename Value::String varName)
+			{
+				return { Opcode<ConstPackWithConstraint>(), { varName } };
+			}
+			static BasicInstruction Use(typename Value::String varName)
+			{
+				return { Opcode<Use>(), { varName } };
+			}
+		};
+		struct Literal
+		{
+			static BasicInstruction Int(typename Value::Int value)
+			{
+				return { Opcode<Int>(), { value } };
+			}
+			static BasicInstruction Float(typename Value::Float value)
+			{
+				return { Opcode<Float>(), { value } };
+			}
+			static BasicInstruction String(typename Value::String value)
+			{
+				return { Opcode<String>(), { value } };
+			}
+			static BasicInstruction Bool(typename Value::Bool value)
+			{
+				return { Opcode<Bool>(), { value } };
+			}
+			static BasicInstruction Null() { return { Opcode<Null>() }; }
+			static BasicInstruction Undef() { return { Opcode<Undef>() }; }
+
+		};
+	};
+
+	using Instruction = BasicInstruction<IRValue>;
+
+	template <typename StringView>
+	struct BasicIRGenerator
+	{
+		using Sequence = std::vector<Instruction>;
+
+		using SequenceRef = Sequence&;
+
+		using Tree = BasicParseTree<StringView>;
+
+		using Name = typename Tree::Unit::String;
+
+		using Iter = typename Tree::Observer;
+		
+		using Func = std::function<void (Iter, SequenceRef)>;
+
+		using Map = std::map<Name, Func>;
+
+		static void Goto(Iter iter, SequenceRef seq)
+		{
+			return map.at(iter.value().name)(iter, seq);
 		}
 		
-		explicit operator unsigned() const
-		{
-			return value;
-		}
-
-		~Opcode() = default;
-
-	private:
-		unsigned value;
+		inline static const Map map = {
+			{"IntLiteral", [](Iter iter, SequenceRef seq) {
+				seq.push_back(Instruction::Literal::Int(123));
+			}},
+			{"Expression", [](Iter iter, SequenceRef seq) {
+				Goto(iter, seq);
+			}}
+		};
 	};
+
+	using IRGenerator = BasicIRGenerator<std::string_view>;
 
 }
