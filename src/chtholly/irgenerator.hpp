@@ -47,6 +47,47 @@ namespace Chtholly
 					Conv<Quoted<StringView>>::To<Instruction::Value::String>(iter.value().value)
 				));
 			}},
+			{"NullLiteral", [](Iter iter, SequenceRef seq) {
+				seq.push_back(Instruction::Literal::Null());
+			}},
+			{"UndefinedLiteral", [](Iter iter, SequenceRef seq) {
+				seq.push_back(Instruction::Literal::Undef());
+			}},
+			{"TrueLiteral", [](Iter iter, SequenceRef seq) {
+				seq.push_back(Instruction::Literal::Bool(true));
+			}},
+			{"FalseLiteral", [](Iter iter, SequenceRef seq) {
+				seq.push_back(Instruction::Literal::Bool(false));
+			}},
+			{"Identifier", [](Iter iter, SequenceRef seq) {
+				seq.push_back(Instruction::Object::Use(Instruction::Value::String{ iter.value().value }));
+			}},
+			{"Expression", [](Iter iter, SequenceRef seq) {
+				seq.push_back(Instruction::Block::Begin());
+				for(auto i = iter.childrenBegin(); i != iter.childrenEnd(); ++i)
+				{
+					if (i.value().name == "Separator")
+					{
+						if(i.value().value == ";")
+						{
+							seq.push_back(Instruction::Block::End());
+						}
+						else if(i.value().value == ",")
+						{
+							seq.push_back(Instruction::Block::Drop());
+						}
+						seq.push_back(Instruction::Block::Begin());
+					}
+					else
+					{
+						Walk(i, seq);
+					}
+				}
+				if((--iter.childrenEnd()).value().name != "Separator")
+				{
+					seq.push_back(Instruction::Block::End());
+				}
+			}},
 		};
 
 		static Sequence Generate(const Tree& tree)
