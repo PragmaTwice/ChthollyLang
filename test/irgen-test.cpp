@@ -8,32 +8,57 @@ using namespace Chtholly;
 
 using namespace std::string_literals;
 
+template<class... Ts> struct overloaded : Ts... { using Ts::operator()...; };
+template<class... Ts> overloaded(Ts...)->overloaded<Ts...>;
+
+std::string OpcodeToString(std::size_t code)
+{
+#define OpcodeStrPair(func) { Opcode<&Instruction::func>(), #func }
+	return std::map<std::size_t, std::string> {
+		OpcodeStrPair(None), 
+		OpcodeStrPair(Block::Begin), OpcodeStrPair(Block::NamedBegin),
+		OpcodeStrPair(Block::Drop), OpcodeStrPair(Block::End),
+		OpcodeStrPair(Function::Start), OpcodeStrPair(Function::Call),
+		OpcodeStrPair(List::Push), OpcodeStrPair(List::Pop),
+		OpcodeStrPair(Control::Jump), OpcodeStrPair(Control::JumpIf),
+		OpcodeStrPair(Control::JumpIfElse), OpcodeStrPair(Control::Mark),
+		OpcodeStrPair(Object::Begin), OpcodeStrPair(Object::End), 
+		OpcodeStrPair(Object::EndWithInit), OpcodeStrPair(Object::AttachTo),
+		OpcodeStrPair(Object::Var), OpcodeStrPair(Object::VarWithConstraint),
+		OpcodeStrPair(Object::VarPack), OpcodeStrPair(Object::VarPackWithConstraint),
+		OpcodeStrPair(Object::Const), OpcodeStrPair(Object::ConstWithConstraint),
+		OpcodeStrPair(Object::ConstPack), OpcodeStrPair(Object::ConstPackWithConstraint),
+		OpcodeStrPair(Object::Use),
+		OpcodeStrPair(Literal::Int), OpcodeStrPair(Literal::Float),
+		OpcodeStrPair(Literal::String), OpcodeStrPair(Literal::Bool),
+		OpcodeStrPair(Literal::Null), OpcodeStrPair(Literal::Undef),
+	}.at(code);
+#undef OpcodeStrPair
+}
+
 std::string ToString(const Instruction& i)
 {
 	std::string out;
-	out += std::to_string(i.opcode()) + "(";
-	bool first = true;
-	for(const auto& v : i.oprands())
+	out += OpcodeToString(i.opcode());
+	if (i.oprands().size() != 0)
 	{
-		if(!first) out += ",";
-		else first = false;
-		out += std::visit([](auto&& arg) {
-			using T = std::decay_t<decltype(arg)>;
-			if constexpr (std::is_same_v<T, IRValue::Undef>)
-				return "undef"s;
-			else if constexpr (std::is_same_v<T, IRValue::Null>)
-				return "null"s;
-			else if constexpr (std::is_same_v<T, IRValue::Bool>)
-				return arg ? "true"s : "false"s;
-			else if constexpr (std::is_same_v<T, IRValue::Int>)
-				return std::to_string(arg);
-			else if constexpr (std::is_same_v<T, IRValueDef::Float>)
-				return std::to_string(arg);
-			else if constexpr (std::is_same_v<T, IRValueDef::String>)
-				return Conv<Unquoted<std::string>>::To<std::string>(arg);
-		}, static_cast<IRValue::Base>(v));
+		out += "(";
+		bool first = true;
+		for (const auto& v : i.oprands())
+		{
+			if (!first) out += ",";
+			else first = false;
+			out += std::visit(overloaded{
+				[](IRValue::Undef arg) { return "undef"s; },
+				[](IRValue::Null arg) { return "null"s; },
+				[](IRValue::Bool arg) { return arg ? "true"s : "false"s; },
+				[](IRValue::Int arg) { return std::to_string(arg); },
+				[](IRValue::Float arg) { return std::to_string(arg); },
+				[](IRValue::String arg) { return Conv<Unquoted<IRValue::String>>::To<std::string>(arg); },
+				}, static_cast<IRValue::Base>(v));
+		}
+		out += ")";
 	}
-	out += ")";
 
 	return out;
 }
@@ -84,4 +109,53 @@ TEST(Token, StringLiteral)
 	EXPECT_EQ(IRGenerator::Generate(ParseTree(Token("StringLiteral", R"("\thello\n\"")"))), IRGenerator::Sequence{
 		Instruction::Literal::String("\thello\n\"")
 	});
+}
+
+TEST(Token, IdentifierLiteral)
+{
+	EXPECT_EQ(IRGenerator::Generate(ParseTree(Token("NullLiteral", "null"))), IRGenerator::Sequence{
+		Instruction::Literal::Null()
+	});
+	EXPECT_EQ(IRGenerator::Generate(ParseTree(Token("UndefinedLiteral", "undef"))), IRGenerator::Sequence{
+		Instruction::Literal::Undef()
+	});
+	EXPECT_EQ(IRGenerator::Generate(ParseTree(Token("TrueLiteral", "true"))), IRGenerator::Sequence{
+		Instruction::Literal::Bool(true)
+	});
+	EXPECT_EQ(IRGenerator::Generate(ParseTree(Token("FalseLiteral", "false"))), IRGenerator::Sequence{
+		Instruction::Literal::Bool(false)
+	});
+}
+
+TEST(Expression, _1)
+{
+	const auto& seq = IRGenerator::Sequence{
+		Instruction::Block::Begin(),
+		Instruction::Literal::Float(1.0),
+		Instruction::Block::End(),
+		Instruction::Block::Begin(),
+		Instruction::Literal::Float(2.0),
+		Instruction::Block::Drop(),
+		Instruction::Block::Begin(),
+		Instruction::Literal::Int(3),
+		Instruction::Block::End(),
+		Instruction::Block::Begin(),
+		Instruction::Literal::Int(4),
+		Instruction::Block::Drop(),
+		Instruction::Block::Begin(),
+		Instruction::Literal::Float(5.0),
+		Instruction::Block::End()
+	};
+
+	EXPECT_EQ(IRGenerator::Generate(ParseTree(Term("Expression",
+		Token("FloatLiteral", "1.0"),
+		Token("Separator", ";"),
+		Token("FloatLiteral", "2.0"),
+		Token("Separator", ","),
+		Token("IntLiteral", "3"),
+		Token("Separator", ";"),
+		Token("IntLiteral", "4"),
+		Token("Separator", ","),
+		Token("FloatLiteral", "5.0")
+	))), seq);
 }
