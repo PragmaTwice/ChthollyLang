@@ -23,21 +23,12 @@ Successfully compiled and passed all tests in:
 ## Language Feature
 * No statement but all expression
 * Simple but complete grammar
+* Multi-valued expression
 
 ## Implmentation Feature
 * Functional usage of C++ (with little consideration of runtime performance)
 * Parser Combinator for LL Parser Generation
+* Modern C++ with lots of C++11/14/17 features
 
-## Notebook
-
-### 2017/12/2
-Just nearly finish parser
-
-### 2017/12/10
-Fuck you, MSVC ICE
-
-### 2018/2/26
-Finish parser development
-
-### 2018/6/18
-Replace MSVC/CL by LLVM/Clang
+## Development Notebook
+[here](https://github.com/PragmaTwice/ChthollyLang/blob/master/NOTEBOOK.md)
