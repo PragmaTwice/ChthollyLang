@@ -34,17 +34,17 @@ namespace Chtholly
 		inline static const Map map = {
 			{"IntLiteral", [](Iter iter, SequenceRef seq) {
 				seq.push_back(Instruction::Literal::Int(
-					Conv<StringView>::To<Instruction::Value::Int>(iter.value().value)
+					Conv<StringView>::template To<Instruction::Value::Int>(iter.value().value)
 				));
 			}},
 			{"FloatLiteral", [](Iter iter, SequenceRef seq) {
 				seq.push_back(Instruction::Literal::Float(
-					Conv<StringView>::To<Instruction::Value::Float>(iter.value().value)
+					Conv<StringView>::template To<Instruction::Value::Float>(iter.value().value)
 				));
 			}},
 			{"StringLiteral", [](Iter iter, SequenceRef seq) {
 				seq.push_back(Instruction::Literal::String(
-					Conv<Quoted<StringView>>::To<Instruction::Value::String>(iter.value().value)
+					Conv<Quoted<StringView>>::template To<Instruction::Value::String>(iter.value().value)
 				));
 			}},
 			{"NullLiteral", [](Iter iter, SequenceRef seq) {

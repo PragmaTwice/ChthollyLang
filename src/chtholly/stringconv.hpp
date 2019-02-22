@@ -42,7 +42,7 @@ namespace Chtholly
 		template <typename T>
 		static T To(const String& v)
 		{
-			return Conv<std::basic_string_view<typename String::value_type>>::To<T>(v);
+			return Conv<std::basic_string_view<typename String::value_type>>::template To<T>(v);
 		}
 	};
 
