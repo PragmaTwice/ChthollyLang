@@ -4,7 +4,7 @@
 #include <variant>
 #include <vector>
 #include <string>
-
+#include <cmath>
 
 namespace Chtholly
 {
@@ -26,7 +26,7 @@ namespace Chtholly
 	struct IRValueDef
 	{
 		struct Undef : AlwaysEq<Undef> {};
-		using Null = nullptr_t;
+		using Null = std::nullptr_t;
 		using Bool = bool;
 		using Int = std::int64_t;
 		using Float = std::double_t;
