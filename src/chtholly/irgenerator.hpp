@@ -1,101 +1,106 @@
 #pragma once
 
-#include <vector>
-#include <variant>
+#include <map>
+#include <functional>
 
 #include "parsetree.hpp"
+#include "instruction.hpp"
+#include "stringconv.hpp"
 
 namespace Chtholly
 {
-	struct Opcode
+	template <typename StringView>
+	struct BasicIRGenerator
 	{
-		enum : unsigned
-		{
-			None = 0
-		};
-		enum class Block : unsigned
-		{
-			Begin = 0x10,
-			NamedBegin,				// 1
-			Drop,
-			End
-		};
-		enum class Function : unsigned
-		{
-			Start = 0x20,
-			Call
-		};
-		enum class List : unsigned
-		{
-			Push = 0x30,
-			Pop
-		};
-		enum class Control : unsigned
-		{
-			Jump = 0x40,			// 1
-			JumpIf,					// 2
-			Mark					// 1
-		};
-		enum class Object : unsigned
-		{
-			Begin = 0x50,
-			End,
-			EndWithInit,
-			AttachTo,				// 1
-			StartPattern,
-			Var,					// 1
-			VarWithConstraint,		// 1
-			VarPack,				// 1
-			VarPackWithConstraint,	// 1
-			Const,					// 1
-			ConstWithConstraint,	// 1
-			ConstPack,				// 1
-			ConstPackWithConstraint,// 1
-			Use,					// 1
-		};
-		enum class Literal : unsigned
-		{
-			Int = 0x70,				// 1
-			Float,					// 1
-			String,					// 1
-			Null,
-			Undef,
-			True,
-			False
-		};
+		using Sequence = std::vector<Instruction>;
 
-		Opcode() : value(None) {}
+		using SequenceRef = Sequence&;
 
-		Opcode(Block inValue) : value(static_cast<unsigned>(inValue)) {}
-		Opcode(Function inValue) : value(static_cast<unsigned>(inValue)) {}
-		Opcode(List inValue) : value(static_cast<unsigned>(inValue)) {}
-		Opcode(Control inValue) : value(static_cast<unsigned>(inValue)) {}
-		Opcode(Object inValue) : value(static_cast<unsigned>(inValue)) {}
-		Opcode(Literal inValue) : value(static_cast<unsigned>(inValue)) {}
+		using Tree = BasicParseTree<StringView>;
 
-		Opcode(const Opcode& opcode) = default;
+		using UnitName = typename Tree::Unit::String;
 
-		Opcode& operator= (const Opcode& opcode) = default;
+		using Iter = typename Tree::Observer;
+		
+		using GenerateFunc = std::function<void (Iter, SequenceRef)>;
 
-		bool operator== (const Opcode& opcode) const
+		using Map = std::map<UnitName, GenerateFunc>;
+
+		static void Walk(Iter iter, SequenceRef seq)
 		{
-			return unsigned{ *this } == unsigned{ opcode };
-		}
-
-		bool operator!= (const Opcode& opcode) const
-		{
-			return !(*this == opcode);
+			return map.at(iter.value().name)(iter, seq);
 		}
 		
-		explicit operator unsigned() const
+		inline static const Map map = {
+			{"IntLiteral", [](Iter iter, SequenceRef seq) {
+				seq.push_back(Instruction::Literal::Int(
+					Conv<StringView>::To<Instruction::Value::Int>(iter.value().value)
+				));
+			}},
+			{"FloatLiteral", [](Iter iter, SequenceRef seq) {
+				seq.push_back(Instruction::Literal::Float(
+					Conv<StringView>::To<Instruction::Value::Float>(iter.value().value)
+				));
+			}},
+			{"StringLiteral", [](Iter iter, SequenceRef seq) {
+				seq.push_back(Instruction::Literal::String(
+					Conv<Quoted<StringView>>::To<Instruction::Value::String>(iter.value().value)
+				));
+			}},
+			{"NullLiteral", [](Iter iter, SequenceRef seq) {
+				seq.push_back(Instruction::Literal::Null());
+			}},
+			{"UndefinedLiteral", [](Iter iter, SequenceRef seq) {
+				seq.push_back(Instruction::Literal::Undef());
+			}},
+			{"TrueLiteral", [](Iter iter, SequenceRef seq) {
+				seq.push_back(Instruction::Literal::Bool(true));
+			}},
+			{"FalseLiteral", [](Iter iter, SequenceRef seq) {
+				seq.push_back(Instruction::Literal::Bool(false));
+			}},
+			{"Identifier", [](Iter iter, SequenceRef seq) {
+				seq.push_back(Instruction::Object::Use(Instruction::Value::String{ iter.value().value }));
+			}},
+			{"Expression", [](Iter iter, SequenceRef seq) {
+				seq.push_back(Instruction::Block::Begin());
+				for(auto i = iter.childrenBegin(); i != iter.childrenEnd(); ++i)
+				{
+					if (i.value().name == "Separator")
+					{
+						if(i.value().value == ";")
+						{
+							seq.push_back(Instruction::Block::End());
+						}
+						else if(i.value().value == ",")
+						{
+							seq.push_back(Instruction::Block::Drop());
+						}
+						if (i != --iter.childrenEnd())
+						{
+							seq.push_back(Instruction::Block::Begin());
+						}
+					}
+					else
+					{
+						Walk(i, seq);
+					}
+				}
+				if((--iter.childrenEnd()).value().name != "Separator")
+				{
+					seq.push_back(Instruction::Block::End());
+				}
+			}},
+		};
+
+		static Sequence Generate(const Tree& tree)
 		{
-			return value;
+			Sequence seq;
+			Walk(tree.observer().childrenBegin(), seq);
+			return seq;
 		}
-
-		~Opcode() = default;
-
-	private:
-		unsigned value;
 	};
+
+	using IRGenerator = BasicIRGenerator<std::string_view>;
 
 }
