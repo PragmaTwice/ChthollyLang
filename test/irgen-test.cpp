@@ -127,7 +127,7 @@ TEST(Token, IdentifierLiteral)
 	});
 }
 
-TEST(Expression, _1)
+TEST(Expression, ExpressionOfLiteral)
 {
 	const auto& seq = IRGenerator::Sequence{
 		Instruction::Block::Begin(),
@@ -137,7 +137,7 @@ TEST(Expression, _1)
 		Instruction::Literal::Float(2.0),
 		Instruction::Block::Drop(),
 		Instruction::Block::Begin(),
-		Instruction::Literal::Int(3),
+		Instruction::Literal::Null(),
 		Instruction::Block::End(),
 		Instruction::Block::Begin(),
 		Instruction::Literal::Int(4),
@@ -152,10 +152,50 @@ TEST(Expression, _1)
 		Token("Separator", ";"),
 		Token("FloatLiteral", "2.0"),
 		Token("Separator", ","),
-		Token("IntLiteral", "3"),
+		Token("NullLiteral", "null"),
 		Token("Separator", ";"),
 		Token("IntLiteral", "4"),
 		Token("Separator", ","),
 		Token("FloatLiteral", "5.0")
 	))), seq);
+
+	const auto& seq_2 = IRGenerator::Sequence{
+		Instruction::Block::Begin(),
+		Instruction::Literal::Float(1.0),
+		Instruction::Block::End(),
+		Instruction::Block::Begin(),
+		Instruction::Literal::Float(2.0),
+		Instruction::Block::Drop(),
+		Instruction::Block::Begin(),
+		Instruction::Literal::Null(),
+		Instruction::Block::End(),
+		Instruction::Block::Begin(),
+		Instruction::Block::Begin(),
+		Instruction::Literal::Bool(false),
+		Instruction::Block::End(),
+		Instruction::Block::Begin(),
+		Instruction::Literal::Int(666),
+		Instruction::Block::End(),
+		Instruction::Block::Drop(),
+		Instruction::Block::Begin(),
+		Instruction::Literal::Float(5.0),
+		Instruction::Block::End()
+	};
+	
+	EXPECT_EQ(IRGenerator::Generate(ParseTree(Term("Expression",
+		Token("FloatLiteral", "1.0"),
+		Token("Separator", ";"),
+		Token("FloatLiteral", "2.0"),
+		Token("Separator", ","),
+		Token("NullLiteral", "null"),
+		Token("Separator", ";"),
+		Term("Expression",
+			Token("FalseLiteral", "false"),
+			Token("Separator", ";"),
+			Token("IntLiteral", "666"),
+			Token("Separator", ";")
+		),
+		Token("Separator", ","),
+		Token("FloatLiteral", "5.0")
+	))), seq_2);
 }
