@@ -76,7 +76,10 @@ namespace Chtholly
 						{
 							seq.push_back(Instruction::Block::Drop());
 						}
-						seq.push_back(Instruction::Block::Begin());
+						if (i != --iter.childrenEnd())
+						{
+							seq.push_back(Instruction::Block::Begin());
+						}
 					}
 					else
 					{
