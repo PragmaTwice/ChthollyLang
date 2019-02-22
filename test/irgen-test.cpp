@@ -40,7 +40,7 @@ std::string ToString(const Instruction& i)
 {
 	std::string out;
 	out += OpcodeToString(i.opcode());
-	if (i.oprands().size() != 0)
+	if (!i.oprands().empty())
 	{
 		out += "(";
 		bool first = true;
