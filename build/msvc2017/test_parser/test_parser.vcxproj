@@ -53,11 +53,6 @@
     <LibraryPath>..\..\..\build\msvc2017\chtholly\packages\Microsoft.googletest.v140.windesktop.msvcstl.static.rt-dyn.1.8.0\lib\native\v140\windesktop\msvcstl\static\rt-dyn\$(PlatformTarget)\$(Configuration)\;$(LibraryPath)</LibraryPath>
   </PropertyGroup>
   <ItemGroup>
-    <ProjectReference Include="..\chtholly\chtholly.vcxproj">
-      <Project>{6a097b15-2bd2-47a5-a0a7-7ac5bb71c8d1}</Project>
-    </ProjectReference>
-  </ItemGroup>
-  <ItemGroup>
     <None Include="packages.config" />
   </ItemGroup>
   <ItemGroup>
