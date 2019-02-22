@@ -1,0 +1,13 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project ToolsVersion="4.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <ItemGroup>
+    <Filter Include="TEST">
+      <UniqueIdentifier>{6d8c2526-d6bb-4d3a-939c-c221785b3c8b}</UniqueIdentifier>
+    </Filter>
+  </ItemGroup>
+  <ItemGroup>
+    <ClCompile Include="..\..\..\test\irgen-test.cpp">
+      <Filter>TEST</Filter>
+    </ClCompile>
+  </ItemGroup>
+</Project>
