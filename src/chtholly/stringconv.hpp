@@ -25,13 +25,13 @@ namespace Chtholly
 		template <>
 		static std::int64_t To(StringView v)
 		{
-			return std::stoll(std::basic_string<StringView::value_type>{ v });
+			return std::stoll(std::basic_string<typename StringView::value_type>{ v });
 		}
 
 		template <>
 		static std::double_t To(StringView v)
 		{
-			return std::stold(std::basic_string<StringView::value_type>{ v });
+			return std::stold(std::basic_string<typename StringView::value_type>{ v });
 		}
 
 	};
@@ -42,7 +42,7 @@ namespace Chtholly
 		template <typename T>
 		static T To(const String& v)
 		{
-			return Conv<std::basic_string_view<String::value_type>>::To<T>(v);
+			return Conv<std::basic_string_view<typename String::value_type>>::To<T>(v);
 		}
 	};
 
@@ -94,9 +94,9 @@ namespace Chtholly
 		static T To(const String&);
 
 		template <>
-		static std::basic_string<String::value_type> To(const String& in)
+		static std::basic_string<typename String::value_type> To(const String& in)
 		{
-			std::basic_string<String::value_type> out;
+			std::basic_string<typename String::value_type> out;
 			enum { start, escaped, normal, end } status = start;
 			for(auto c : in)
 			{
@@ -146,9 +146,9 @@ namespace Chtholly
 		static T To(const String&);
 
 		template <>
-		static std::basic_string<String::value_type> To(const String& in)
+		static std::basic_string<typename String::value_type> To(const String& in)
 		{
-			std::basic_string<String::value_type> out;
+			std::basic_string<typename String::value_type> out;
 			out += '"';
 			for (auto c : in) {
 				switch (c) {
