@@ -4,6 +4,7 @@
 [![codecov](https://codecov.io/gh/PragmaTwice/ChthollyLang/branch/master/graph/badge.svg)](https://codecov.io/gh/PragmaTwice/ChthollyLang)
 [![Codacy Badge](https://api.codacy.com/project/badge/Grade/b63e484d99d24bb0965494587910ec4e)](https://www.codacy.com/app/PragmaTwice/ChthollyLang?utm_source=github.com&amp;utm_medium=referral&amp;utm_content=PragmaTwice/ChthollyLang&amp;utm_campaign=Badge_Grade)
 [![Join the chat at https://gitter.im/ChthollyLang/Lobby](https://badges.gitter.im/ChthollyLang/Lobby.svg)](https://gitter.im/ChthollyLang/Lobby?utm_source=badge&utm_medium=badge&utm_campaign=pr-badge&utm_content=badge)
+[![Project Status: WIP – Initial development is in progress, but there has not yet been a stable, usable release suitable for the public.](https://www.repostatus.org/badges/latest/wip.svg)](https://www.repostatus.org/#wip)
 
 
 *A **simple implmentation** of Yet another script language Chtholly*
