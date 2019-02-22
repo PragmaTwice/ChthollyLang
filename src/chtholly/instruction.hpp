@@ -34,24 +34,24 @@ namespace Chtholly
 	};
 
 	template <
-		typename String = IRValueDef::String,
-		typename Float = IRValueDef::Float,
-		typename Int = IRValueDef::Int,
-		typename Bool = IRValueDef::Bool,
-		typename Null = IRValueDef::Null,
-		typename Undef = IRValueDef::Undef
+		typename String_ = IRValueDef::String,
+		typename Float_ = IRValueDef::Float,
+		typename Int_ = IRValueDef::Int,
+		typename Bool_ = IRValueDef::Bool,
+		typename Null_ = IRValueDef::Null,
+		typename Undef_ = IRValueDef::Undef
 	>
-		struct BasicIRValue : std::variant<Undef, Null, Bool, Int, Float, String>
+		struct BasicIRValue : std::variant<Undef_, Null_, Bool_, Int_, Float_, String_>
 	{
-		using Base = std::variant<Undef, Null, Bool, Int, Float, String>;
-		using std::variant<Undef, Null, Bool, Int, Float, String>::variant;
+		using Base = std::variant<Undef_, Null_, Bool_, Int_, Float_, String_>;
+		using std::variant<Undef_, Null_, Bool_, Int_, Float_, String_>::variant;
 
-		using Undef = Undef;
-		using Null = Null;
-		using Bool = Bool;
-		using Int = Int;
-		using Float = Float;
-		using String = String;
+		using Undef = Undef_;
+		using Null = Null_;
+		using Bool = Bool_;
+		using Int = Int_;
+		using Float = Float_;
+		using String = String_;
 	};
 
 	using IRValue = BasicIRValue<>;
