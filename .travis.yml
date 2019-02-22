@@ -10,10 +10,10 @@ matrix:
         apt:
           sources:
             - ubuntu-toolchain-r-test
-            - llvm-toolchain-trusty-6.0
+            - llvm-toolchain-trusty-7
           packages:
             - libstdc++-8-dev
-            - clang-6.0
+            - clang-7.0
             - libgtest-dev
             - lcov
       env: 
