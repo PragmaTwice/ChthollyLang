@@ -397,8 +397,8 @@ namespace Chtholly
 				)(info);
 		});
 
-		// ConstraintPartAtConstraintExperssion = ':' PrimaryExpression
-		inline static const Process ConstraintPartAtConstraintExperssion = Process([](Info info) {
+		// ConstraintPartAtConstraintExpression = ':' PrimaryExpression
+		inline static const Process ConstraintPartAtConstraintExpression = Process([](Info info) {
 			return
 				(
 					Term(Match(':')),
@@ -406,8 +406,8 @@ namespace Chtholly
 				)(info);
 		});
 
-		// ConstraintPartAtConstraintExperssionAtPatternExperssion = ':' SingleExpression
-		inline static const Process ConstraintPartAtConstraintExperssionAtPatternExperssion = Process([](Info info) {
+		// ConstraintPartAtConstraintExpressionAtPatternExpression = ':' SingleExpression
+		inline static const Process ConstraintPartAtConstraintExpressionAtPatternExpression = Process([](Info info) {
 			return
 				(
 					Term(Match(':')),
@@ -415,69 +415,69 @@ namespace Chtholly
 				)(info);
 		});
 
-		// ConstraintExperssion = Identifier ConstraintPartAtConstraintExperssion?
-		inline static const Process ConstraintExperssion = Process([](Info info) {
+		// ConstraintExpression = Identifier ConstraintPartAtConstraintExpression?
+		inline static const Process ConstraintExpression = Process([](Info info) {
 			return
 				(
-					ChangeIn("ConstraintExperssion"),
+					ChangeIn("ConstraintExpression"),
 					Term(Identifier),
-					~ConstraintPartAtConstraintExperssion,
+					~ConstraintPartAtConstraintExpression,
 					ChangeOut()
 				)(info);
 		});
 
-		// ConstraintExperssionAtPatternExperssion = Identifier "..."? ConstraintPartAtConstraintExperssionAtPatternExperssion?
-		inline static const Process ConstraintExperssionAtPatternExperssion = Process([](Info info) {
+		// ConstraintExpressionAtPatternExpression = Identifier "..."? ConstraintPartAtConstraintExpressionAtPatternExpression?
+		inline static const Process ConstraintExpressionAtPatternExpression = Process([](Info info) {
 			return
 				(
-					ChangeIn("ConstraintExperssionAtPatternExperssion"),
+					ChangeIn("ConstraintExpressionAtPatternExpression"),
 					(
 						Term(Identifier),
 						~Term(Catch(Match(GL("...")), "Separator"))
 						),
-					~ConstraintPartAtConstraintExperssionAtPatternExperssion,
+					~ConstraintPartAtConstraintExpressionAtPatternExpression,
 					ChangeOut()
 				)(info);
 		});
 
 
-		// PatternExperssion = '(' ( ConstraintExperssionAtPatternExperssion ((','|';') ConstraintExperssionAtPatternExperssion)* (','|';')? | Atom ) ')' ConstraintPartAtConstraintExperssion?
-		inline static const Process PatternExperssion = Process([](Info info) {
+		// PatternExpression = '(' ( ConstraintExpressionAtPatternExpression ((','|';') ConstraintExpressionAtPatternExpression)* (','|';')? | Atom ) ')' ConstraintPartAtConstraintExpression?
+		inline static const Process PatternExpression = Process([](Info info) {
 			return
 				(
 					Term(Match('(')),
-					ChangeIn("PatternExperssion"),
+					ChangeIn("PatternExpression"),
 					(
 						Term(Match(')')) |
 						(
-							MultiExpressionPackage(ConstraintExperssionAtPatternExperssion),
+							MultiExpressionPackage(ConstraintExpressionAtPatternExpression),
 							Term(Match(')')),
-							~ConstraintPartAtConstraintExperssion
+							~ConstraintPartAtConstraintExpression
 							)
 						),
 					ChangeOut()
 				)(info);
 		});
 
-		// VarDefineExpression = "var" (ConstraintExperssion | PatternExperssion) ~List
+		// VarDefineExpression = "var" (ConstraintExpression | PatternExpression) ~List
 		inline static const Process VarDefineExpression = Process([](Info info) {
 			return
 				(
 					Term(MatchKey(GL("var"))),
 					ChangeIn("VarDefineExpression"),
-					PatternExperssion | ConstraintExperssion,
+					PatternExpression | ConstraintExpression,
 					~List,
 					ChangeOut()
 				)(info);
 		});
 		
-		// ConstDefineExpression = "const" (ConstraintExperssion | PatternExperssion) ~List
+		// ConstDefineExpression = "const" (ConstraintExpression | PatternExpression) ~List
 		inline static const Process ConstDefineExpression = Process([](Info info) {
 			return
 				(
 					Term(MatchKey(GL( "const"))),
 					ChangeIn("ConstDefineExpression"),
-					PatternExperssion | ConstraintExperssion,
+					PatternExpression | ConstraintExpression,
 					~List,
 					ChangeOut()
 				)(info);
@@ -493,14 +493,14 @@ namespace Chtholly
 				)(info);
 		});
 
-		// LambdaExperssion = DefineExpression | "fn" PatternExperssion SingleExpression
-		inline static const Process LambdaExperssion = Process([](Info info) {
+		// LambdaExpression = DefineExpression | "fn" PatternExpression SingleExpression
+		inline static const Process LambdaExpression = Process([](Info info) {
 			return
 				(
 					(
 						Term(MatchKey(GL("fn"))),
 						ChangeIn("LambdaExpression"),
-						PatternExperssion,
+						PatternExpression,
 						SingleExpression,
 						ChangeOut()
 					) |
@@ -508,7 +508,7 @@ namespace Chtholly
 				)(info);
 		});
 
-		// ConditionExpression = LambdaExperssion | "if" '(' Expression ')' SingleExpression ("else" SingleExpression)?
+		// ConditionExpression = LambdaExpression | "if" '(' Expression ')' SingleExpression ("else" SingleExpression)?
 		inline static const Process ConditionExpression = Process([](Info info) {
 			return
 				(
@@ -523,7 +523,7 @@ namespace Chtholly
 						),
 						ChangeOut()
 					) |
-					LambdaExperssion
+					LambdaExpression
 				)(info);
 		});
 
@@ -636,18 +636,18 @@ namespace Chtholly
 				)(info);
 		});
 
-		// FoldExperssion = PointExpression "..."*
+		// FoldExpression = PointExpression "..."*
 		inline static const Process FoldExpression = Process([](Info info) {
 			return
 				(
-					ChangeIn("FoldExperssion"),
+					ChangeIn("FoldExpression"),
 					PointExpression,
 					~Term(Catch(Match(GL("...")),"Separator")),
 					ChangeOut(true)
 				)(info);
 		});
 
-		// UnaryExpression = FoldExperssion | (('+' | '-') | "not") UnaryExpression
+		// UnaryExpression = FoldExpression | (('+' | '-') | "not") UnaryExpression
 		inline static const Process UnaryExpression = Process([](Info info) {
 			return
 				(
@@ -737,7 +737,7 @@ namespace Chtholly
 				)(info);
 		});
 
-		// PairExperssion = AssignmentExpression | PairExperssion ':' SingleExpression
+		// PairExpression = AssignmentExpression | PairExpression ':' SingleExpression
 		inline static const Process PairExpression = Process([](Info info) {
 			return
 				(

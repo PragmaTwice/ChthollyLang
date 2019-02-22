@@ -58,6 +58,3 @@
 
 # VS Code Config Files
 /.vscode/
-
-# Build Directory
-/build/
