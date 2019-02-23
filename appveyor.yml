@@ -5,5 +5,5 @@ install:
   - nuget restore
 
 test_script:
-  - ./Debug/test_parser.exe
-  - ./Debug/test_irgen.exe
+  - Debug/test_parser.exe
+  - Debug/test_irgen.exe
