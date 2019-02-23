@@ -16,7 +16,7 @@
 ## Build Status
 | Platform | Compiler        | Standard Lib |Build System | Status
 |----------|-----------------|--------------|---------------|--------
-| Windows  | LLVM/clang-cl 7 | MSVC stdlib  |MSVS15/MSBuild |[![Build status](https://ci.appveyor.com/api/projects/status/yeohy6uh8xh6f7dv?svg=true)](https://ci.appveyor.com/project/PragmaTwice/chthollylang)
+| Windows  | LLVM/clang-cl 7 | MSVC stdlib  |MSVS15/MSBuild |[![Build status](https://ci.appveyor.com/api/projects/status/yeohy6uh8xh6f7dv/branch/master?svg=true)](https://ci.appveyor.com/project/PragmaTwice/chthollylang/branch/master)
 | Linux    | LLVM/clang++ 7  | libstdc++    |CMake 3.12     |[![Build Status](https://www.travis-ci.org/PragmaTwice/ChthollyLang.svg?branch=master)](https://www.travis-ci.org/PragmaTwice/ChthollyLang)
 | Linux    | GNU/g++ 7       | libstdc++    |CMake 3.12     |[![Build Status](https://www.travis-ci.org/PragmaTwice/ChthollyLang.svg?branch=master)](https://www.travis-ci.org/PragmaTwice/ChthollyLang)
 
