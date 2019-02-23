@@ -20,8 +20,6 @@ matrix:
         MATRIX_EVAL="
           CC=clang-7 && 
           CXX=clang++-7 && 
-          CXXSTD=-std=c++17 && 
-          CXXSTDLIB=-stdlib=libstdc++ && 
           COV='llvm-cov gcov'"
 
     - os: linux
@@ -37,8 +35,6 @@ matrix:
         MATRIX_EVAL="
           CC=gcc-7 && 
           CXX=g++-7 && 
-          CXXSTD=-std=c++17 && 
-          CXXSTDLIB= && 
           COV=gcov-7"
 
 
