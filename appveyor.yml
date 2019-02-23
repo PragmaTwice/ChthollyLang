@@ -5,6 +5,6 @@ install:
   - nuget restore
 
 test_script:
-  - cd build/msvc2017/chtholly
-  - Debug/test_parser.exe
-  - Debug/test_irgen.exe
+  - echo %cd%
+  - Debug/test_parser
+  - Debug/test_irgen
