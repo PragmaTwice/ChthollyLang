@@ -1,6 +1,7 @@
 #pragma once
 
 #include <string>
+#include <type_traits>
 
 namespace Chtholly
 {
@@ -20,18 +21,17 @@ namespace Chtholly
 	struct Conv <StringView, std::enable_if_t<is_instance_of_v<StringView, std::basic_string_view>>>
 	{
 		template <typename T>
-		static T To(StringView);
-
-		template <>
-		static std::int64_t To(StringView v)
+		static T To(StringView v)
 		{
-			return std::stoll(std::basic_string<StringView::value_type>{ v });
-		}
-
-		template <>
-		static std::double_t To(StringView v)
-		{
-			return std::stold(std::basic_string<StringView::value_type>{ v });
+			if constexpr (std::is_same_v<T, std::int64_t>)
+			{
+				return std::stoll(std::basic_string<typename StringView::value_type>{ v });
+			}
+			else if constexpr (std::is_same_v<T, std::double_t>)
+			{
+				return std::stold(std::basic_string<typename StringView::value_type>{ v });
+			}
+			else static_assert("Conv::To invalid type");
 		}
 
 	};
@@ -42,7 +42,7 @@ namespace Chtholly
 		template <typename T>
 		static T To(const String& v)
 		{
-			return Conv<std::basic_string_view<String::value_type>>::To<T>(v);
+			return Conv<std::basic_string_view<typename String::value_type>>::template To<T>(v);
 		}
 	};
 
@@ -50,18 +50,17 @@ namespace Chtholly
 	struct Conv<std::int64_t>
 	{
 		template <typename T>
-		static T To(std::int64_t v);
-
-		template <>
-		static std::string To(std::int64_t v)
+		static T To(std::int64_t v)
 		{
-			return std::to_string(v);
-		}
-
-		template <>
-		static std::wstring To(std::int64_t v)
-		{
-			return std::to_wstring(v);
+			if constexpr (std::is_same_v<T, std::string>)
+			{
+				return std::to_string(v);
+			}
+			else if constexpr (std::is_same_v<T, std::wstring>)
+			{
+				return std::to_wstring(v);
+			}
+			else static_assert("Conv::To invalid type");
 		}
 	};
 
@@ -69,18 +68,17 @@ namespace Chtholly
 	struct Conv<std::double_t>
 	{
 		template <typename T>
-		static T To(std::double_t v);
-
-		template <>
-		static std::string To(std::double_t v)
+		static T To(std::double_t v)
 		{
-			return std::to_string(v);
-		}
-
-		template <>
-		static std::wstring To(std::double_t v)
-		{
-			return std::to_wstring(v);
+			if constexpr (std::is_same_v<T, std::string>)
+			{
+				return std::to_string(v);
+			}
+			else if constexpr (std::is_same_v<T, std::wstring>)
+			{
+				return std::to_wstring(v);
+			}
+			else static_assert("Conv::To invalid type");
 		}
 	};
 
@@ -91,48 +89,49 @@ namespace Chtholly
 	struct Conv <Quoted<String>>
 	{
 		template <typename T>
-		static T To(const String&);
-
-		template <>
-		static std::basic_string<String::value_type> To(const String& in)
+		static T To(const String& in)
 		{
-			std::basic_string<String::value_type> out;
-			enum { start, escaped, normal, end } status = start;
-			for(auto c : in)
+			if constexpr (std::is_same_v<T, std::basic_string<typename String::value_type>>)
 			{
-				switch (status)
+				std::basic_string<typename String::value_type> out;
+				enum { start, escaped, normal, end } status = start;
+				for (auto c : in)
 				{
-				case start:
-					if (c != '"') status = end;
-					else status = normal;
-					break;
-				case escaped:
-					switch (c)
+					switch (status)
 					{
-					case '"':  out += '"';  break;
-					case '\\': out += '\\'; break;
-					case 'b':  out += '\b'; break;
-					case 'f':  out += '\f'; break;
-					case 'n':  out += '\n'; break;
-					case 'r':  out += '\r'; break;
-					case 't':  out += '\t'; break;
-					case 'v':  out += '\v'; break;
-					default:;
+					case start:
+						if (c != '"') status = end;
+						else status = normal;
+						break;
+					case escaped:
+						switch (c)
+						{
+						case '"':  out += '"';  break;
+						case '\\': out += '\\'; break;
+						case 'b':  out += '\b'; break;
+						case 'f':  out += '\f'; break;
+						case 'n':  out += '\n'; break;
+						case 'r':  out += '\r'; break;
+						case 't':  out += '\t'; break;
+						case 'v':  out += '\v'; break;
+						default:;
+						}
+						status = normal;
+						break;
+					case normal:
+						if (c == '\\') status = escaped;
+						else if (c == '"') status = end;
+						else out += c;
+						break;
+					default:
+						;
 					}
-					status = normal;
-					break;
-				case normal:
-					if (c == '\\') status = escaped;
-					else if (c == '"') status = end;
-					else out += c;
-					break;
-				default:
-					;
+					if (status == end) break;
 				}
-				if (status == end) break;
-			}
 
-			return out;
+				return out;
+			}
+			else static_assert("Conv::To invalid type");
 		}
 	};
 
@@ -143,28 +142,29 @@ namespace Chtholly
 	struct Conv <Unquoted<String>>
 	{
 		template <typename T>
-		static T To(const String&);
-
-		template <>
-		static std::basic_string<String::value_type> To(const String& in)
+		static T To(const String& in)
 		{
-			std::basic_string<String::value_type> out;
-			out += '"';
-			for (auto c : in) {
-				switch (c) {
-				case '"':  out += "\\\"";    break;
-				case '\\': out += "\\\\";    break;
-				case '\b': out += "\\b";     break;
-				case '\f': out += "\\f";     break;
-				case '\n': out += "\\n";     break;
-				case '\r': out += "\\r";     break;
-				case '\t': out += "\\t";     break;
-				case '\v': out += "\\v";     break;
-				default:   out += c;
+			if constexpr (std::is_same_v<T, std::basic_string<typename String::value_type>>)
+			{
+				std::basic_string<typename String::value_type> out;
+				out += '"';
+				for (auto c : in) {
+					switch (c) {
+					case '"':  out += "\\\"";    break;
+					case '\\': out += "\\\\";    break;
+					case '\b': out += "\\b";     break;
+					case '\f': out += "\\f";     break;
+					case '\n': out += "\\n";     break;
+					case '\r': out += "\\r";     break;
+					case '\t': out += "\\t";     break;
+					case '\v': out += "\\v";     break;
+					default:   out += c;
+					}
 				}
+				out += '"';
+				return out;
 			}
-			out += '"';
-			return out;
+			else static_assert("Conv::To invalid type");
 		}
 	};
 

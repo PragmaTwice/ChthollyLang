@@ -45,16 +45,23 @@ include_directories(
 # Force compiler to enable -std=c++17
 set(CMAKE_CXX_STANDARD 17)
 
-# Demo exec
+# compile Demo
 add_executable(parser-demo demo/parser-demo.cpp)
 add_executable(wparser-demo demo/wparser-demo.cpp)
 
-# Testing exec
+# compile Testing
 add_executable(parser-test test/parser-test.cpp)
 target_link_libraries(parser-test gtest_main)
 
+add_executable(irgen-test test/irgen-test.cpp)
+target_link_libraries(irgen-test gtest_main)
+
+# exec Testing
 gtest_discover_tests(parser-test)
 add_test(NAME parser-test COMMAND parser-test)
+
+gtest_discover_tests(irgen-test)
+add_test(NAME irgen-test COMMAND irgen-test)
 
 # For gcc/clang, enable CodeCoverage if needed
 list(APPEND CMAKE_MODULE_PATH ${CMAKE_SOURCE_DIR}/CMakeModules)
