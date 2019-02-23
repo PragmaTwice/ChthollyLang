@@ -15,7 +15,7 @@
 
 Successfully compiled and passed all tests in:
 * LLVM/clang-cl 7 with MSVC 15.8/stdlib in Windows
-* LLVM/clang++ 6 with libstdc++ in Linux
+* LLVM/clang++ 7 with libstdc++ in Linux
 * GNU/g++ 7 in Linux
 
 *Maybe other environment, but you should test and verify by yourself.*
