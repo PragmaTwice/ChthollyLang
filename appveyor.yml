@@ -13,5 +13,6 @@ install:
   - nuget restore
 
 test_script:
-  - Debug\test_parser
-  - Debug\test_irgen
+  - dir
+  - "%configuration%\\test_parser"
+  - "%configuration%\\test_irgen"
