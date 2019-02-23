@@ -5,6 +5,5 @@ install:
   - nuget restore
 
 test_script:
-  - echo %cd%
-  - Debug/test_parser
-  - Debug/test_irgen
+  - Debug\test_parser
+  - Debug\test_irgen
