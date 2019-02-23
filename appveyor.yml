@@ -1,4 +1,4 @@
 image: Visual Studio 2017
 
 install:
-  - ps: Install-Package Microsoft.googletest.v140.windesktop.msvcstl.static.rt-dyn
+  - nuget restore
