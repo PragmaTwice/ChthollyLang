@@ -30,38 +30,44 @@ namespace Chtholly
 		{
 			return map.at(iter.value().name)(iter, seq);
 		}
+
+		static auto PushInstruction(const std::function<Instruction(StringView)>& toInstruction) {
+			return [=](Iter iter, SequenceRef seq) {
+				seq.push_back(toInstruction(iter.value().value));
+			};
+		}
 		
 		inline static const Map map = {
-			{"IntLiteral", [](Iter iter, SequenceRef seq) {
-				seq.push_back(Instruction::Literal::Int(
-					Conv<StringView>::template To<Instruction::Value::Int>(iter.value().value)
-				));
-			}},
-			{"FloatLiteral", [](Iter iter, SequenceRef seq) {
-				seq.push_back(Instruction::Literal::Float(
-					Conv<StringView>::template To<Instruction::Value::Float>(iter.value().value)
-				));
-			}},
-			{"StringLiteral", [](Iter iter, SequenceRef seq) {
-				seq.push_back(Instruction::Literal::String(
-					Conv<Quoted<StringView>>::template To<Instruction::Value::String>(iter.value().value)
-				));
-			}},
-			{"NullLiteral", [](Iter iter, SequenceRef seq) {
-				seq.push_back(Instruction::Literal::Null());
-			}},
-			{"UndefinedLiteral", [](Iter iter, SequenceRef seq) {
-				seq.push_back(Instruction::Literal::Undef());
-			}},
-			{"TrueLiteral", [](Iter iter, SequenceRef seq) {
-				seq.push_back(Instruction::Literal::Bool(true));
-			}},
-			{"FalseLiteral", [](Iter iter, SequenceRef seq) {
-				seq.push_back(Instruction::Literal::Bool(false));
-			}},
-			{"Identifier", [](Iter iter, SequenceRef seq) {
-				seq.push_back(Instruction::Object::Use(Instruction::Value::String{ iter.value().value }));
-			}},
+			{"IntLiteral", PushInstruction([](StringView v){
+				return Instruction::Literal::Int(
+					Conv<StringView>::template To<Instruction::Value::Int>(v)
+				);
+			})},
+			{"FloatLiteral", PushInstruction([](StringView v) {
+				return Instruction::Literal::Float(
+					Conv<StringView>::template To<Instruction::Value::Float>(v)
+				);
+			})},
+			{"StringLiteral", PushInstruction([](StringView v) {
+				return Instruction::Literal::String(
+					Conv<Quoted<StringView>>::template To<Instruction::Value::String>(v)
+				);
+			})},
+			{"NullLiteral", PushInstruction([](StringView) {
+				return Instruction::Literal::Null();
+			})},
+			{"UndefinedLiteral", PushInstruction([](StringView) {
+				return Instruction::Literal::Undef();
+			})},
+			{"TrueLiteral", PushInstruction([](StringView) {
+				return Instruction::Literal::Bool(true);
+			})},
+			{"FalseLiteral", PushInstruction([](StringView) {
+				return Instruction::Literal::Bool(false);
+			})},
+			{"Identifier", PushInstruction([](StringView v) {
+				return Instruction::Object::Use(Instruction::Value::String{ v });
+			})},
 			{"Expression", [](Iter iter, SequenceRef seq) {
 				seq.push_back(Instruction::Block::Begin());
 				for(auto i = iter.childrenBegin(); i != iter.childrenEnd(); ++i)
