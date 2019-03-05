@@ -6,6 +6,7 @@
 #include "parsetree.hpp"
 #include "instruction.hpp"
 #include "stringconv.hpp"
+#include "automata.hpp"
 
 namespace Chtholly
 {
@@ -31,7 +32,8 @@ namespace Chtholly
 			return map.at(iter.value().name)(iter, seq);
 		}
 
-		static auto PushInstruction(const std::function<Instruction(StringView)>& toInstruction) {
+		static auto PushInstruction(const std::function<Instruction(StringView)>& toInstruction) 
+		{
 			return [=](Iter iter, SequenceRef seq) {
 				seq.push_back(toInstruction(iter.value().value));
 			};
@@ -69,29 +71,29 @@ namespace Chtholly
 				return Instruction::Object::Use(Instruction::Value::String{ v });
 			})},
 			{"Expression", [](Iter iter, SequenceRef seq) {
-				seq.push_back(Instruction::Block::Begin());
-				for(auto i = iter.childrenBegin(); i != iter.childrenEnd(); ++i)
-				{
-					if (i.value().name == "Separator")
-					{
-						if(i.value().value == ";")
+				FiniteAutomaton<std::string, Iter>{"value", "error", {
+					{"value", [&](Iter it) {
+						seq.push_back(Instruction::Block::Begin());
+						Walk(it, seq);
+						return "sep";
+					}},
+					{"sep", [&](Iter it) {
+						if (it.value().name == "Separator")
 						{
-							seq.push_back(Instruction::Block::End());
+							if (it.value().value == ";")
+							{
+								seq.push_back(Instruction::Block::End());
+							}
+							else if(it.value().value == ",")
+							{
+								seq.push_back(Instruction::Block::Drop());
+							}
+
+							return "value";
 						}
-						else if(i.value().value == ",")
-						{
-							seq.push_back(Instruction::Block::Drop());
-						}
-						if (i != --iter.childrenEnd())
-						{
-							seq.push_back(Instruction::Block::Begin());
-						}
-					}
-					else
-					{
-						Walk(i, seq);
-					}
-				}
+						return "error";
+					}}
+				}}(iter.childrenBegin(), iter.childrenEnd());
 				if((--iter.childrenEnd()).value().name != "Separator")
 				{
 					seq.push_back(Instruction::Block::End());

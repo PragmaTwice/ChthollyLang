@@ -20,6 +20,7 @@
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="..\..\..\src\chtholly.hpp" />
+    <ClInclude Include="..\..\..\src\chtholly\automata.hpp" />
     <ClInclude Include="..\..\..\src\chtholly\chartype.hpp" />
     <ClInclude Include="..\..\..\src\chtholly\instruction.hpp" />
     <ClInclude Include="..\..\..\src\chtholly\irgenerator.hpp" />

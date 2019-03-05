@@ -34,5 +34,8 @@
     <ClInclude Include="..\..\..\src\chtholly\stringconv.hpp">
       <Filter>SRC</Filter>
     </ClInclude>
+    <ClInclude Include="..\..\..\src\chtholly\automata.hpp">
+      <Filter>SRC</Filter>
+    </ClInclude>
   </ItemGroup>
 </Project>
