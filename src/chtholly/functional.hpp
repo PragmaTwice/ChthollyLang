@@ -57,7 +57,7 @@ namespace Chtholly
 	}
 
 	template <typename T, typename ...U>
-	constexpr auto compose(T&& f1, U&& ...fn) noexcept
+	constexpr auto compose(T&& f1, U&& ...fn)
 	{
 		if constexpr (sizeof...(U) > 0)
 		{
@@ -69,7 +69,7 @@ namespace Chtholly
 	}
 
 	template <typename T, typename ...U>
-	constexpr auto pipe(T&& f1, U&& ...fn) noexcept
+	constexpr auto pipe(T&& f1, U&& ...fn)
 	{
 		if constexpr (sizeof...(U) > 0)
 		{
