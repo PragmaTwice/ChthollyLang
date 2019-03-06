@@ -7,6 +7,7 @@
 #include "instruction.hpp"
 #include "stringconv.hpp"
 #include "automata.hpp"
+#include "functional.hpp"
 
 namespace Chtholly
 {
@@ -38,39 +39,42 @@ namespace Chtholly
 				seq.push_back(toInstruction(iter.value().value));
 			};
 		}
+
+		static auto IterateChildren(const std::function<void(Iter, Iter, SequenceRef)>& iterateFunc)
+		{
+			return [=](Iter iter, SequenceRef seq) {
+				iterateFunc(iter.childrenBegin(), iter.childrenEnd(), seq);
+			};
+		}
 		
 		inline static const Map map = {
-			{"IntLiteral", PushInstruction([](StringView v){
-				return Instruction::Literal::Int(
-					Conv<StringView>::template To<Instruction::Value::Int>(v)
-				);
-			})},
-			{"FloatLiteral", PushInstruction([](StringView v) {
-				return Instruction::Literal::Float(
-					Conv<StringView>::template To<Instruction::Value::Float>(v)
-				);
-			})},
-			{"StringLiteral", PushInstruction([](StringView v) {
-				return Instruction::Literal::String(
-					Conv<Quoted<StringView>>::template To<Instruction::Value::String>(v)
-				);
-			})},
-			{"NullLiteral", PushInstruction([](StringView) {
-				return Instruction::Literal::Null();
-			})},
-			{"UndefinedLiteral", PushInstruction([](StringView) {
-				return Instruction::Literal::Undef();
-			})},
-			{"TrueLiteral", PushInstruction([](StringView) {
-				return Instruction::Literal::Bool(true);
-			})},
-			{"FalseLiteral", PushInstruction([](StringView) {
-				return Instruction::Literal::Bool(false);
-			})},
-			{"Identifier", PushInstruction([](StringView v) {
-				return Instruction::Object::Use(Instruction::Value::String{ v });
-			})},
-			{"Expression", [](Iter iter, SequenceRef seq) {
+			{"IntLiteral", PushInstruction(compose(
+				Instruction::Literal::Int, Conv<StringView>::template To<Instruction::Value::Int>
+			))},
+			{"FloatLiteral", PushInstruction(compose(
+				Instruction::Literal::Float,
+				Conv<StringView>::template To<Instruction::Value::Float>
+			))},
+			{"StringLiteral", PushInstruction(compose(
+				Instruction::Literal::String,
+				Conv<Quoted<StringView>>::template To<Instruction::Value::String>
+			))},
+			{"NullLiteral", PushInstruction(constant(
+				Instruction::Literal::Null()
+			))},
+			{"UndefinedLiteral", PushInstruction(constant(
+				Instruction::Literal::Undef()
+			))},
+			{"TrueLiteral", PushInstruction(constant(
+				Instruction::Literal::Bool(true)
+			))},
+			{"FalseLiteral", PushInstruction(constant(
+				Instruction::Literal::Bool(false)
+			))},
+			{"Identifier", PushInstruction(compose(
+				Instruction::Object::Use, constructor<Instruction::Value::String>
+			))},
+			{"Expression", sequence(IterateChildren([](Iter begin, Iter end, SequenceRef seq) {
 				FiniteAutomaton<std::string, Iter>{"value", "error", {
 					{"value", [&](Iter it) {
 						seq.push_back(Instruction::Block::Begin());
@@ -84,7 +88,7 @@ namespace Chtholly
 							{
 								seq.push_back(Instruction::Block::End());
 							}
-							else if(it.value().value == ",")
+							else if (it.value().value == ",")
 							{
 								seq.push_back(Instruction::Block::Drop());
 							}
@@ -93,12 +97,13 @@ namespace Chtholly
 						}
 						return "error";
 					}}
-				}}(iter.childrenBegin(), iter.childrenEnd());
-				if((--iter.childrenEnd()).value().name != "Separator")
-				{
-					seq.push_back(Instruction::Block::End());
+				}}(begin, end); }),[](Iter iter, SequenceRef seq) {
+					if ((--iter.childrenEnd()).value().name != "Separator")
+					{
+						seq.push_back(Instruction::Block::End());
+					}
 				}
-			}},
+			)},
 		};
 
 		static Sequence Generate(const Tree& tree)
