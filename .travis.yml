@@ -28,14 +28,14 @@ matrix:
           sources:
             - ubuntu-toolchain-r-test
           packages:
-            - g++-7
+            - g++-8
             - libgtest-dev
             - lcov
       env:
         MATRIX_EVAL="
-          CC=gcc-7 && 
-          CXX=g++-7 && 
-          COV=gcov-7"
+          CC=gcc-8 && 
+          CXX=g++-8 && 
+          COV=gcov-8"
 
 
 before_install:
