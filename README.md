@@ -17,8 +17,8 @@
 | Platform | Compiler        | Standard Lib |Build System | Status
 |----------|-----------------|--------------|---------------|--------
 | Windows  | LLVM/clang-cl 7 | MSVC stdlib  |MSVS15/MSBuild |[![Build status](https://ci.appveyor.com/api/projects/status/yeohy6uh8xh6f7dv/branch/master?svg=true)](https://ci.appveyor.com/project/PragmaTwice/chthollylang/branch/master)
-| Linux    | LLVM/clang++ 7  | libstdc++    |CMake 3.12     |[![Build Status](https://www.travis-ci.org/PragmaTwice/ChthollyLang.svg?branch=master)](https://www.travis-ci.org/PragmaTwice/ChthollyLang)
-| Linux    | GNU/g++ 7       | libstdc++    |CMake 3.12     |[![Build Status](https://www.travis-ci.org/PragmaTwice/ChthollyLang.svg?branch=master)](https://www.travis-ci.org/PragmaTwice/ChthollyLang)
+| Linux    | LLVM/clang++ 7  | libstdc++    |CMake 3.12     |[![Build Status](https://travis-matrix-badges.herokuapp.com/repos/PragmaTwice/ChthollyLang/branches/master/1)](https://www.travis-ci.org/PragmaTwice/ChthollyLang)
+| Linux    | GNU/g++ 7       | libstdc++    |CMake 3.12     |[![Build Status](https://travis-matrix-badges.herokuapp.com/repos/PragmaTwice/ChthollyLang/branches/master/2)](https://www.travis-ci.org/PragmaTwice/ChthollyLang)
 
 
 *Maybe other environment, but you should test and verify by yourself.*
