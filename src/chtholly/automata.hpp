@@ -3,50 +3,55 @@
 #include <map>
 #include <functional>
 
-template <typename State, typename Iterator>
-struct FiniteAutomaton
+namespace Chtholly 
 {
-	using StateRef = const State&;
 
-	using TransitionFunctionPerState = std::function<State(Iterator)>;
-
-	using TransitionMap = std::map<State, TransitionFunctionPerState>;
-
-	using EndPredicate = std::function<bool(StateRef)>;
-
-	State state;
-	EndPredicate endPredicate;
-	TransitionMap map;
-
-	FiniteAutomaton(StateRef beginState, const EndPredicate& inEndPredicate, const TransitionMap& inMap)
-		: state(beginState), endPredicate(inEndPredicate), map(inMap)
+	template <typename State, typename Iterator>
+	struct FiniteAutomaton
 	{
-	}
+		using StateRef = const State&;
 
-	FiniteAutomaton(StateRef beginState, StateRef endState, const TransitionMap& inMap)
-		: state(beginState), endPredicate([=](StateRef s) { return s == endState; }), map(inMap)
-	{
-	}
+		using TransitionFunctionPerState = std::function<State(Iterator)>;
 
-	FiniteAutomaton(StateRef beginState, const TransitionMap& inMap)
-		: state(beginState), endPredicate([](StateRef) { return false; }), map(inMap)
-	{
-	}
+		using TransitionMap = std::map<State, TransitionFunctionPerState>;
 
-	FiniteAutomaton(const FiniteAutomaton&) = default;
+		using EndPredicate = std::function<bool(StateRef)>;
 
-	FiniteAutomaton& operator=(const FiniteAutomaton&) = default;
+		State state;
+		EndPredicate endPredicate;
+		TransitionMap map;
 
-	State operator()(Iterator begin, Iterator end)
-	{
-		Iterator iterator = begin;
-		for (; !endPredicate(state) && iterator != end; ++iterator)
+		FiniteAutomaton(StateRef beginState, const EndPredicate& inEndPredicate, const TransitionMap& inMap)
+			: state(beginState), endPredicate(inEndPredicate), map(inMap)
 		{
-			state = map.at(state)(iterator);
 		}
 
-		return state;
-	}
+		FiniteAutomaton(StateRef beginState, StateRef endState, const TransitionMap& inMap)
+			: state(beginState), endPredicate([=](StateRef s) { return s == endState; }), map(inMap)
+		{
+		}
 
-	~FiniteAutomaton() = default;
-};
+		FiniteAutomaton(StateRef beginState, const TransitionMap& inMap)
+			: state(beginState), endPredicate([](StateRef) { return false; }), map(inMap)
+		{
+		}
+
+		FiniteAutomaton(const FiniteAutomaton&) = default;
+
+		FiniteAutomaton& operator=(const FiniteAutomaton&) = default;
+
+		State operator()(Iterator begin, Iterator end)
+		{
+			Iterator iterator = begin;
+			for (; !endPredicate(state) && iterator != end; ++iterator)
+			{
+				state = map.at(state)(iterator);
+			}
+
+			return state;
+		}
+
+		~FiniteAutomaton() = default;
+	};
+
+}
