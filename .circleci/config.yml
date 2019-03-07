@@ -23,7 +23,7 @@ commands:
       - run: cd build/cmake && make test
   codecov-report:
     steps:
-      - run: cd build/cmake && bash <(curl -s https://codecov.io/bash) -x $COV
+      - run: bash <(curl -s https://codecov.io/bash) -x $COV
 
 jobs:
   build-with-clang:
