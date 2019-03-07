@@ -3,18 +3,21 @@ version: 2.1
 executors:
   clang:
     docker:
-      - image: teeks99/clang-ubuntu:8
+      - image: buildpack-deps:disco-scm
+        command:
+          - apt-get update -yqq && apt-get install -yqq clang-8
     environment:
       C:    clang-8
       CXX:  clang++-8
       COV:  'llvm-cov gcov'
   gcc:
     docker:
-      - image: buildpack-deps:bionic-scm
-      - image: gcc:8
+      - image: buildpack-deps:disco-scm
+        command:
+          - apt-get update -yqq && apt-get install -yqq g++-9
     environment:
-      C:    gcc-8
-      CXX:  g++-8
+      C:    gcc-9
+      CXX:  g++-9
       COV:  gcov
 
 commands:
