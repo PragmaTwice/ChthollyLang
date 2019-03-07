@@ -3,7 +3,7 @@ version: 2.1
 commands:
   install-deps:
     steps:
-      - run: apt-get update -yqq && apt-get install -yqq cmake lcov libgtest
+      - run: apt-get update -yqq && apt-get install -yqq cmake lcov libgtest-dev
   install-clang:
     steps:
       - run: apt-get update -yqq && apt-get install -yqq clang-8
