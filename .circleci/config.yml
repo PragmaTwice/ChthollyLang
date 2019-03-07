@@ -1,0 +1,53 @@
+version: 2
+
+executors:
+  clang:
+    docker:
+      - image: teeks99/clang-ubuntu:8
+    environment:
+      C:    clang-8
+      CXX:  clang++-8
+      COV:  'llvm-cov gcov'
+  gcc:
+    docker:
+      - image: gcc:8
+    environment:
+      C:    gcc-8
+      CXX:  g++-8
+      COV:  gcov
+
+commands:
+  install-cmake:
+    steps:
+      run: |
+        DEPS_DIR=~/project/deps
+        CMAKE_URL="https://cmake.org/files/v3.12/cmake-3.12.0-Linux-x86_64.tar.gz"
+        mkdir -p ${DEPS_DIR}/cmake
+        travis_retry wget --no-check-certificate --quiet -O - ${CMAKE_URL} | tar --strip-components=1 -xz -C ${DEPS_DIR}/cmake
+        export PATH=${DEPS_DIR}/cmake/bin:${PATH}
+  build-and-test:
+    steps:
+      - run: |
+        mkdir build/cmake
+        cd build/cmake
+      # Generate makefile
+      - run: cmake -D ENABLE_CODECOV=ON ../..
+      # Build
+      - run: make
+      # Test
+      - run: make test
+
+
+jobs:
+  build-with-clang:
+    executor: clang
+    steps:
+      - checkout
+      - install-cmake
+      - build-and-test
+  build-with-gcc:
+    executor: gcc
+    steps:
+      - checkout
+      - install-cmake
+      - build-and-test
