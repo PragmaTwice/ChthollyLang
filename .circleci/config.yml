@@ -21,6 +21,9 @@ commands:
       - run: cd build/cmake && make
       # Test
       - run: cd build/cmake && make test
+  codecov-report:
+    steps:
+      - run: cd build/cmake && bash <(curl -s https://codecov.io/bash) -x $COV
 
 jobs:
   build-with-clang:
@@ -31,6 +34,7 @@ jobs:
       - install-clang
       - install-deps
       - build-and-test
+      - codecov-report
   build-with-gcc:
     docker: 
       - image: buildpack-deps:disco-scm
@@ -39,6 +43,7 @@ jobs:
       - install-gcc
       - install-deps
       - build-and-test
+      - codecov-report
 
 workflows:
   version: 2
