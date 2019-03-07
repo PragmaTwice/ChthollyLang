@@ -23,16 +23,13 @@ commands:
       - run: apt-get update -yqq && apt-get install -yqq cmake
   build-and-test:
     steps:
-      - run: |
-          mkdir build/cmake
-          cd build/cmake
+      - run: mkdir build/cmake
       # Generate makefile
-      - run: cmake -D ENABLE_CODECOV=ON ../..
+      - run: cd build/cmake && cmake -D ENABLE_CODECOV=ON ../..
       # Build
-      - run: make
+      - run: cd build/cmake && make
       # Test
-      - run: make test
-
+      - run: cd build/cmake && make test
 
 jobs:
   build-with-clang:
