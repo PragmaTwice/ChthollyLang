@@ -11,7 +11,7 @@ commands:
   install-gcc:
     steps:
       - run: apt-get update -yqq && apt-get install -yqq g++-9
-      - run: echo 'export C=gcc-9 CXX=g++-9 COV=gcov' >> $BASH_ENV
+      - run: echo 'export C=gcc-9 CXX=g++-9 COV=gcov-9' >> $BASH_ENV
   build-and-test:
     steps:
       - run: mkdir build/cmake
