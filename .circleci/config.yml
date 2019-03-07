@@ -5,9 +5,11 @@ commands:
     steps:
       - run: apt-get update -yqq && apt-get install -yqq cmake lcov libgtest
   install-clang:
+    steps:
       - run: apt-get update -yqq && apt-get install -yqq clang-8
       - run: C=clang-8 && CXX=clang++-8 && COV='llvm-cov gcov'
   install-gcc:
+    steps:
       - run: apt-get update -yqq && apt-get install -yqq g++-9
       - run: C=gcc-9 && CXX=g++-9 && COV=gcov
   build-and-test:
