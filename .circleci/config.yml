@@ -1,29 +1,15 @@
 version: 2.1
 
-executors:
-  clang:
-    docker:
-      - image: buildpack-deps:disco-scm
-        command:
-          - apt-get update -yqq && apt-get install -yqq clang-8
-    environment:
-      C:    clang-8
-      CXX:  clang++-8
-      COV:  'llvm-cov gcov'
-  gcc:
-    docker:
-      - image: buildpack-deps:disco-scm
-        command:
-          - apt-get update -yqq && apt-get install -yqq g++-9
-    environment:
-      C:    gcc-9
-      CXX:  g++-9
-      COV:  gcov
-
 commands:
-  install-cmake:
+  install-deps:
     steps:
-      - run: apt-get update -yqq && apt-get install -yqq cmake
+      - run: apt-get update -yqq && apt-get install -yqq cmake lcov libgtest
+  install-clang:
+      - run: apt-get update -yqq && apt-get install -yqq clang-8
+      - run: C=clang-8 && CXX=clang++-8 && COV='llvm-cov gcov'
+  install-gcc:
+      - run: apt-get update -yqq && apt-get install -yqq g++-9
+      - run: C=gcc-9 && CXX=g++-9 && COV=gcov
   build-and-test:
     steps:
       - run: mkdir build/cmake
@@ -36,16 +22,20 @@ commands:
 
 jobs:
   build-with-clang:
-    executor: clang
+    docker: 
+      - image: buildpack-deps:disco-scm
     steps:
       - checkout
-      - install-cmake
+      - install-clang
+      - install-deps
       - build-and-test
   build-with-gcc:
-    executor: gcc
+    docker: 
+      - image: buildpack-deps:disco-scm
     steps:
       - checkout
-      - install-cmake
+      - install-gcc
+      - install-deps
       - build-and-test
 
 workflows:
