@@ -17,8 +17,8 @@
 | Platform | Compiler        | Standard Lib |Build System | Status
 |----------|-----------------|--------------|---------------|--------
 | Windows  | LLVM/clang-cl 7 | MSVC stdlib  |MSVS15/MSBuild |[![Build status](https://ci.appveyor.com/api/projects/status/yeohy6uh8xh6f7dv/branch/master?svg=true)](https://ci.appveyor.com/project/PragmaTwice/chthollylang/branch/master)
-| Linux    | LLVM/clang++ 8  | libstdc++-8  |CMake 3.12     |[![CircleCI](https://circleci.com/gh/PragmaTwice/ChthollyLang/tree/master.svg?style=shield)](https://circleci.com/gh/PragmaTwice/ChthollyLang/tree/master)
-| Linux    | GNU/g++ 9       | libstdc++-9  |CMake 3.12     |[![CircleCI](https://circleci.com/gh/PragmaTwice/ChthollyLang/tree/master.svg?style=shield)](https://circleci.com/gh/PragmaTwice/ChthollyLang/tree/master)
+| Linux    | LLVM/clang++ 8  | libstdc++ 8  |CMake 3.12     |[![CircleCI](https://circleci.com/gh/PragmaTwice/ChthollyLang/tree/master.svg?style=shield)](https://circleci.com/gh/PragmaTwice/ChthollyLang/tree/master)
+| Linux    | GNU/g++ 9       | libstdc++ 9  |CMake 3.12     |[![CircleCI](https://circleci.com/gh/PragmaTwice/ChthollyLang/tree/master.svg?style=shield)](https://circleci.com/gh/PragmaTwice/ChthollyLang/tree/master)
 
 
 *Maybe other environment, but you should test and verify by yourself.*
