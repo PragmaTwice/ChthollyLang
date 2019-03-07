@@ -28,8 +28,8 @@ commands:
   build-and-test:
     steps:
       - run: |
-        mkdir build/cmake
-        cd build/cmake
+          mkdir build/cmake
+          cd build/cmake
       # Generate makefile
       - run: cmake -D ENABLE_CODECOV=ON ../..
       # Build
