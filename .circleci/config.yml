@@ -20,7 +20,7 @@ executors:
 commands:
   install-cmake:
     steps:
-      - run: sudo apt-get update && sudo apt-get install -y cmake
+      - run: apt-get install -y cmake
   build-and-test:
     steps:
       - run: |
