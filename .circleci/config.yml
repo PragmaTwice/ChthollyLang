@@ -7,11 +7,11 @@ commands:
   install-clang:
     steps:
       - run: apt-get update -yqq && apt-get install -yqq clang-8
-      - run: C=clang-8 && CXX=clang++-8 && COV='llvm-cov gcov'
+      - run: echo "export C=clang-8 CXX=clang++-8 COV='llvm-cov gcov'" >> $BASH_ENV
   install-gcc:
     steps:
       - run: apt-get update -yqq && apt-get install -yqq g++-9
-      - run: C=gcc-9 && CXX=g++-9 && COV=gcov
+      - run: echo 'export C=gcc-9 CXX=g++-9 COV=gcov' >> $BASH_ENV
   build-and-test:
     steps:
       - run: mkdir build/cmake
