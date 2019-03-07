@@ -10,7 +10,7 @@ executors:
       COV:  'llvm-cov gcov'
   gcc:
     docker:
-      - image: ubuntu:disco
+      - image: buildpack-deps:bionic-scm
       - image: gcc:8
     environment:
       C:    gcc-8
