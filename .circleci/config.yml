@@ -19,12 +19,12 @@ executors:
 commands:
   install-cmake:
     steps:
-      run: |
-        DEPS_DIR=~/project/deps
-        CMAKE_URL="https://cmake.org/files/v3.12/cmake-3.12.0-Linux-x86_64.tar.gz"
-        mkdir -p ${DEPS_DIR}/cmake
-        travis_retry wget --no-check-certificate --quiet -O - ${CMAKE_URL} | tar --strip-components=1 -xz -C ${DEPS_DIR}/cmake
-        export PATH=${DEPS_DIR}/cmake/bin:${PATH}
+      - run: |
+          DEPS_DIR=~/project/deps
+          CMAKE_URL="https://cmake.org/files/v3.12/cmake-3.12.0-Linux-x86_64.tar.gz"
+          mkdir -p ${DEPS_DIR}/cmake
+          travis_retry wget --no-check-certificate --quiet -O - ${CMAKE_URL} | tar --strip-components=1 -xz -C ${DEPS_DIR}/cmake
+          export PATH=${DEPS_DIR}/cmake/bin:${PATH}
   build-and-test:
     steps:
       - run: |
