@@ -204,7 +204,7 @@ TEST(Expression, ArrayListOfLiteral)
 {
 	const auto& seq = IRGenerator::Sequence{
 		Instruction::Block::Begin(),
-		Instruction::Object::Use("array.construct"),
+		Instruction::Object::Use("array.literal"),
 		Instruction::Literal::Float(1.0),
 		Instruction::Literal::Float(2.0),
 		Instruction::Literal::Null(),
@@ -220,4 +220,33 @@ TEST(Expression, ArrayListOfLiteral)
 		Token("IntLiteral", "4"),
 		Token("FloatLiteral", "5.0")
 	))), seq);
+
+	const auto& seq_2 = IRGenerator::Sequence{
+	Instruction::Block::Begin(),
+	Instruction::Object::Use("array.literal"),
+	Instruction::Literal::Float(1.0),
+	Instruction::Literal::Float(2.0),
+	Instruction::Literal::Null(),
+	Instruction::Block::Begin(),
+	Instruction::Literal::Float(1.0),
+	Instruction::Block::End(),
+	Instruction::Block::Begin(),
+	Instruction::Literal::Float(2.0),
+	Instruction::Block::Drop(),
+	Instruction::Literal::Float(5.0),
+	Instruction::Function::Call()
+	};
+
+	EXPECT_EQ(IRGenerator::Generate(ParseTree(Term("ArrayList",
+		Token("FloatLiteral", "1.0"),
+		Token("FloatLiteral", "2.0"),
+		Token("NullLiteral", "null"),
+		Term("Expression",
+			Token("FloatLiteral", "1.0"),
+			Token("Separator", ";"),
+			Token("FloatLiteral", "2.0"),
+			Token("Separator", ",")
+		),
+		Token("FloatLiteral", "5.0")
+	))), seq_2);
 }

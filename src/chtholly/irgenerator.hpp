@@ -136,10 +136,19 @@ namespace Chtholly
 			)},
 			{"ArrayList", sequence(
 				PushInstruction(constant(Instruction::Block::Begin())),
-				PushInstruction(constant(Instruction::Object::Use("array.construct"))),
+				PushInstruction(constant(Instruction::Object::Use("array.literal"))),
 				IterateChildrenForAll(Walk),
 				PushInstruction(constant(Instruction::Function::Call()))
-			)}
+			)},
+			{"DictList", sequence(
+				PushInstruction(constant(Instruction::Block::Begin())),
+				PushInstruction(constant(Instruction::Object::Use("dict.literal"))),
+				IterateChildrenForAll(Walk),
+				PushInstruction(constant(Instruction::Function::Call()))
+			)},
+			{"UndefExpression", PushInstruction(constant(
+				Instruction::Literal::Undef()
+			))}
 		};
 
 		static Sequence Generate(const Tree& tree)
