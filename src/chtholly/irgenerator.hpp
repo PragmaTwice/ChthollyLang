@@ -39,12 +39,41 @@ namespace Chtholly
 				seq.push_back(toInstruction(iter.value().value));
 			};
 		}
+		
+		static auto PushInstructionIf(const std::function<Instruction(StringView)>& toInstruction, const std::function<bool(Iter)>& predicate)
+		{
+			return [=](Iter iter, SequenceRef seq) {
+				if (predicate(iter))
+				{
+					seq.push_back(toInstruction(iter.value().value));
+				}
+			};
+		}
 
 		static auto IterateChildren(const std::function<void(Iter, Iter, SequenceRef)>& iterateFunc)
 		{
 			return [=](Iter iter, SequenceRef seq) {
 				iterateFunc(iter.childrenBegin(), iter.childrenEnd(), seq);
 			};
+		}
+
+		static auto IterateChildrenForAll(const std::function<void(Iter, SequenceRef)>& iterateFunc)
+		{
+			return IterateChildren([=](Iter begin, Iter end, SequenceRef seq) {
+				for(Iter i = begin; i != end; ++i)
+				{
+					iterateFunc(i, seq);
+				}
+			});
+		}
+
+		template <typename F>
+		static auto IterateChildrenInAutomaton(F&& iterateFunc, 
+			std::enable_if_t<is_instance_of_v<std::invoke_result_t<decltype(iterateFunc), SequenceRef>, FiniteAutomaton>, int> = 0)
+		{
+			return IterateChildren([=](Iter begin, Iter end, SequenceRef seq) {
+				iterateFunc(seq)(begin, end);
+			});
 		}
 		
 		inline static const Map map = {
@@ -74,36 +103,43 @@ namespace Chtholly
 			{"Identifier", PushInstruction(compose(
 				Instruction::Object::Use, constructor<Instruction::Value::String>
 			))},
-			{"Expression", sequence(IterateChildren([](Iter begin, Iter end, SequenceRef seq) {
-				FiniteAutomaton<std::string, Iter>{"value", "error", {
-					{"value", [&](Iter it) {
-						seq.push_back(Instruction::Block::Begin());
-						Walk(it, seq);
-						return "sep";
-					}},
-					{"sep", [&](Iter it) {
-						if (it.value().name == "Separator")
-						{
-							if (it.value().value == ";")
+			{"Expression", sequence(IterateChildrenInAutomaton([](SequenceRef seq) {
+					return FiniteAutomaton<std::string, Iter> {"value", "error", {
+						{"value", [&](Iter it) {
+							seq.push_back(Instruction::Block::Begin());
+							Walk(it, seq);
+							return "sep";
+						}},
+						{"sep", [&](Iter it) {
+							if (it.value().name == "Separator")
 							{
-								seq.push_back(Instruction::Block::End());
-							}
-							else if (it.value().value == ",")
-							{
-								seq.push_back(Instruction::Block::Drop());
-							}
+								if (it.value().value == ";")
+								{
+									seq.push_back(Instruction::Block::End());
+								}
+								else if (it.value().value == ",")
+								{
+									seq.push_back(Instruction::Block::Drop());
+								}
 
-							return "value";
-						}
-						return "error";
-					}}
-				}}(begin, end); }),[](Iter iter, SequenceRef seq) {
-					if ((--iter.childrenEnd()).value().name != "Separator")
-					{
-						seq.push_back(Instruction::Block::End());
+								return "value";
+							}
+							return "error";
+						}}
+					}}; 
+			}), PushInstructionIf(
+					constant(Instruction::Block::End()), 
+					[](Iter iter) {
+						return (--iter.childrenEnd()).value().name != "Separator";
 					}
-				}
+				)
 			)},
+			{"ArrayList", sequence(
+				PushInstruction(constant(Instruction::Block::Begin())),
+				PushInstruction(constant(Instruction::Object::Use("array.construct"))),
+				IterateChildrenForAll(Walk),
+				PushInstruction(constant(Instruction::Function::Call()))
+			)}
 		};
 
 		static Sequence Generate(const Tree& tree)

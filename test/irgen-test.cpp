@@ -199,3 +199,25 @@ TEST(Expression, ExpressionOfLiteral)
 		Token("FloatLiteral", "5.0")
 	))), seq_2);
 }
+
+TEST(Expression, ArrayListOfLiteral)
+{
+	const auto& seq = IRGenerator::Sequence{
+		Instruction::Block::Begin(),
+		Instruction::Object::Use("array.construct"),
+		Instruction::Literal::Float(1.0),
+		Instruction::Literal::Float(2.0),
+		Instruction::Literal::Null(),
+		Instruction::Literal::Int(4),
+		Instruction::Literal::Float(5.0),
+		Instruction::Function::Call()
+	};
+
+	EXPECT_EQ(IRGenerator::Generate(ParseTree(Term("ArrayList",
+		Token("FloatLiteral", "1.0"),
+		Token("FloatLiteral", "2.0"),
+		Token("NullLiteral", "null"),
+		Token("IntLiteral", "4"),
+		Token("FloatLiteral", "5.0")
+	))), seq);
+}
