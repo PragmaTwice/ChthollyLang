@@ -75,6 +75,39 @@ namespace Chtholly
 				iterateFunc(seq)(begin, end);
 			});
 		}
+
+		static auto MultiExpressionPackage(const std::function<void(Iter, SequenceRef)>& iterateFunc)
+		{
+			return sequence(IterateChildrenInAutomaton([=](SequenceRef seq) {
+				return FiniteAutomaton<std::string, Iter> {"value", "error", {
+					{"value", [&](Iter it) {
+						seq.push_back(Instruction::Block::Begin());
+						iterateFunc(it, seq);
+						return "sep";
+					}},
+					{"sep", [&](Iter it) {
+						if (it.value().name == "Separator")
+						{
+							if (it.value().value == ";")
+							{
+								seq.push_back(Instruction::Block::End());
+							}
+							else if (it.value().value == ",")
+							{
+								seq.push_back(Instruction::Block::Drop());
+							}
+
+							return "value";
+						}
+						return "error";
+					}}
+				}};
+			}), PushInstructionIf(
+				constant(Instruction::Block::End()),
+				[](Iter iter) {
+				return (--iter.childrenEnd()).value().name != "Separator";
+			}));
+		}
 		
 		inline static const Map map = {
 			{"IntLiteral", PushInstruction(compose(
@@ -103,37 +136,8 @@ namespace Chtholly
 			{"Identifier", PushInstruction(compose(
 				Instruction::Object::Use, constructor<Instruction::Value::String>
 			))},
-			{"Expression", sequence(IterateChildrenInAutomaton([](SequenceRef seq) {
-					return FiniteAutomaton<std::string, Iter> {"value", "error", {
-						{"value", [&](Iter it) {
-							seq.push_back(Instruction::Block::Begin());
-							Walk(it, seq);
-							return "sep";
-						}},
-						{"sep", [&](Iter it) {
-							if (it.value().name == "Separator")
-							{
-								if (it.value().value == ";")
-								{
-									seq.push_back(Instruction::Block::End());
-								}
-								else if (it.value().value == ",")
-								{
-									seq.push_back(Instruction::Block::Drop());
-								}
-
-								return "value";
-							}
-							return "error";
-						}}
-					}}; 
-			}), PushInstructionIf(
-					constant(Instruction::Block::End()), 
-					[](Iter iter) {
-						return (--iter.childrenEnd()).value().name != "Separator";
-					}
-				)
-			)},
+			{"Expression", MultiExpressionPackage(Walk)
+			},
 			{"ArrayList", sequence(
 				PushInstruction(constant(Instruction::Block::Begin())),
 				PushInstruction(constant(Instruction::Object::Use("array.literal"))),
@@ -150,7 +154,7 @@ namespace Chtholly
 				Instruction::Literal::Undef()
 			))}
 		};
-
+		
 		static Sequence Generate(const Tree& tree)
 		{
 			Sequence seq;
