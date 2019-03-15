@@ -250,3 +250,10 @@ TEST(Expression, ArrayListOfLiteral)
 		Token("FloatLiteral", "5.0")
 	))), seq_2);
 }
+
+TEST(Expression, UndefExpression)
+{
+	EXPECT_EQ(IRGenerator::Generate(ParseTree(Term("UndefExpression"))), IRGenerator::Sequence{
+		Instruction::Literal::Undef() 
+	});
+}
