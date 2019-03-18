@@ -337,4 +337,38 @@ TEST(Expression, DefineExpression)
 			)
 		))), seq_3
 	);
+
+	const auto& seq_4 = IRGenerator::Sequence{
+			Instruction::Object::Begin(),
+			Instruction::Block::Begin(),
+			Instruction::Object::Const("a"),
+			Instruction::Block::Drop(),
+			Instruction::Block::Begin(),
+			Instruction::Object::Use("float"),
+			Instruction::Object::ConstWithConstraint("b"),
+			Instruction::Block::Drop(),
+			Instruction::Block::Begin(),
+			Instruction::Object::ConstPack("c"),
+			Instruction::Block::End(),
+			Instruction::Object::End()
+	};
+	EXPECT_EQ(IRGenerator::Generate(ParseTree(
+		Term("ConstDefineExpression",
+			Term("PatternExpression",
+				Term("ConstraintExpressionAtPatternExpression",
+					Token("Identifier", "a")
+				),
+				Token("Separator", ","),
+				Term("ConstraintExpressionAtPatternExpression",
+					Token("Identifier", "b"),
+					Token("Identifier", "float")
+				),
+				Token("Separator", ","),
+				Term("ConstraintExpressionAtPatternExpression",
+					Token("Identifier", "c"),
+					Token("Separator", "...")
+				)
+			)
+		))), seq_4
+	);
 }
