@@ -127,6 +127,22 @@ TEST(Token, IdentifierLiteral)
 	});
 }
 
+TEST(Token, Identifier)
+{
+	EXPECT_EQ(IRGenerator::Generate(ParseTree(Token("Identifier", "a"))), IRGenerator::Sequence{
+		Instruction::Object::Use("a")
+		});
+	EXPECT_EQ(IRGenerator::Generate(ParseTree(Token("Identifier", "integer_container"))), IRGenerator::Sequence{
+		Instruction::Object::Use("integer_container")
+		});
+	EXPECT_EQ(IRGenerator::Generate(ParseTree(Token("Identifier", "_Static_assert"))), IRGenerator::Sequence{
+		Instruction::Object::Use("_Static_assert")
+		});
+	EXPECT_EQ(IRGenerator::Generate(ParseTree(Token("Identifier", "iHave100AppleForYou"))), IRGenerator::Sequence{
+		Instruction::Object::Use("iHave100AppleForYou")
+		});
+}
+
 TEST(Expression, ExpressionOfLiteral)
 {
 	const auto& seq = IRGenerator::Sequence{
@@ -256,4 +272,69 @@ TEST(Expression, UndefExpression)
 	EXPECT_EQ(IRGenerator::Generate(ParseTree(Term("UndefExpression"))), IRGenerator::Sequence{
 		Instruction::Literal::Undef() 
 	});
+}
+
+TEST(Expression, DefineExpression)
+{
+	const auto& seq = IRGenerator::Sequence{
+			Instruction::Object::Begin(),
+			Instruction::Object::Var("a"),
+			Instruction::Object::End()
+	};
+	EXPECT_EQ(IRGenerator::Generate(ParseTree(
+		Term("VarDefineExpression",
+			Term("ConstraintExpression",
+				Token("Identifier", "a")
+			)
+		))), seq
+	);
+
+	const auto& seq_2 = IRGenerator::Sequence{
+			Instruction::Object::Begin(),
+			Instruction::Object::Use("int"),
+			Instruction::Object::VarWithConstraint("number"),
+			Instruction::Object::End()
+	};
+	EXPECT_EQ(IRGenerator::Generate(ParseTree(
+		Term("VarDefineExpression",
+			Term("ConstraintExpression",
+				Token("Identifier", "number"),
+				Token("Identifier", "int")
+			)
+		))), seq_2
+	);
+
+	const auto& seq_3 = IRGenerator::Sequence{
+			Instruction::Object::Begin(),
+			Instruction::Block::Begin(),
+			Instruction::Object::Var("a"),
+			Instruction::Block::Drop(),
+			Instruction::Block::Begin(),
+			Instruction::Object::Use("float"),
+			Instruction::Object::VarWithConstraint("b"),
+			Instruction::Block::Drop(),
+			Instruction::Block::Begin(),
+			Instruction::Object::VarPack("c"),
+			Instruction::Block::End(),
+			Instruction::Object::End()
+	};
+	EXPECT_EQ(IRGenerator::Generate(ParseTree(
+		Term("VarDefineExpression",
+			Term("PatternExpression",
+				Term("ConstraintExpressionAtPatternExpression",
+					Token("Identifier", "a")
+				),
+				Token("Separator", ","),
+				Term("ConstraintExpressionAtPatternExpression",
+					Token("Identifier", "b"),
+					Token("Identifier", "float")
+				),
+				Token("Separator", ","),
+				Term("ConstraintExpressionAtPatternExpression",
+					Token("Identifier", "c"),
+					Token("Separator", "...")
+				)
+			)
+		))), seq_3
+	);
 }
