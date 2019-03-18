@@ -99,6 +99,20 @@ namespace Chtholly
 			};
 		}
 
+		static auto PushInstructionIfElse(const std::function<Instruction(StringView)>& toInstructionT, const std::function<Instruction(StringView)>& toInstructionF, const std::function<bool(Iter)>& predicate)
+		{
+			return [=](Iter iter, SequenceRef seq, StateRef) {
+				if (predicate(iter))
+				{
+					seq.push_back(toInstructionT(iter.value().value));
+				}
+				else
+				{
+					seq.push_back(toInstructionF(iter.value().value));
+				}
+			};
+		}
+
 		static auto IterateChildren(const std::function<void(Iter, Iter, SequenceRef, StateRef)>& iterateFunc)
 		{
 			return [=](Iter iter, SequenceRef seq, StateRef state) {
@@ -230,14 +244,22 @@ namespace Chtholly
 				SetStateProp(&State::objectProp, State::ObjectProp::Var),
 				IterateChildrenForAll(Walk),
 				SetStateProp(&State::objectProp, State::ObjectProp::Invalid),
-				PushInstruction(constant(Instruction::Object::End()))
+				PushInstructionIfElse(
+					constant(Instruction::Object::EndWithInit()),
+					constant(Instruction::Object::End()),
+					[](Iter iter) { return iter.childrenSize() > 1; }
+				)
 			)},
 			{"ConstDefineExpression", sequence(
 				PushInstruction(constant(Instruction::Object::Begin())),
 				SetStateProp(&State::objectProp, State::ObjectProp::Const),
 				IterateChildrenForAll(Walk),
 				SetStateProp(&State::objectProp, State::ObjectProp::Invalid),
-				PushInstruction(constant(Instruction::Object::End()))
+				PushInstructionIfElse(
+					constant(Instruction::Object::EndWithInit()),
+					constant(Instruction::Object::End()),
+					[](Iter iter) { return iter.childrenSize() > 1; }
+				)
 			)},
 			{"PatternExpression", MultiExpressionPackage(Walk)
 			},

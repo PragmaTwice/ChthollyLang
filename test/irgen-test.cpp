@@ -371,4 +371,79 @@ TEST(Expression, DefineExpression)
 			)
 		))), seq_4
 	);
+
+	const auto& seq_5 = IRGenerator::Sequence{
+			Instruction::Object::Begin(),
+			Instruction::Object::Var("a"),
+			Instruction::Literal::Int(1),
+			Instruction::Object::EndWithInit()
+	};
+	EXPECT_EQ(IRGenerator::Generate(ParseTree(
+		Term("VarDefineExpression",
+			Term("ConstraintExpression",
+				Token("Identifier", "a")
+			),
+			Token("IntLiteral", "1")
+		))), seq_5
+	);
+
+	const auto& seq_6 = IRGenerator::Sequence{
+			Instruction::Object::Begin(), 
+			Instruction::Block::Begin(), 
+			Instruction::Object::Var("a"), 
+			Instruction::Block::Drop(),
+			Instruction::Block::Begin(),
+			Instruction::Object::Use("float"), 
+			Instruction::Object::VarWithConstraint("b"), 
+			Instruction::Block::Drop(),
+			Instruction::Block::Begin(),
+			Instruction::Object::VarPack("c"), 
+			Instruction::Block::End(),
+			Instruction::Block::Begin(),
+			Instruction::Literal::Int(1), 
+			Instruction::Block::End(),
+			Instruction::Block::Begin(),
+			Instruction::Literal::Float(2.33), 
+			Instruction::Block::End(),
+			Instruction::Block::Begin(),
+			Instruction::Literal::Float(3.14), 
+			Instruction::Block::End(),
+			Instruction::Block::Begin(),
+			Instruction::Literal::Bool(true), 
+			Instruction::Block::End(),
+			Instruction::Block::Begin(),
+			Instruction::Literal::Null(),
+			Instruction::Block::End(),
+			Instruction::Object::EndWithInit()
+	};
+	EXPECT_EQ(IRGenerator::Generate(ParseTree(
+		Term("VarDefineExpression",
+			Term("PatternExpression",
+				Term("ConstraintExpressionAtPatternExpression",
+					Token("Identifier", "a")
+				),
+				Token("Separator", ","),
+				Term("ConstraintExpressionAtPatternExpression",
+					Token("Identifier", "b"),
+					Token("Identifier", "float")
+				),
+				Token("Separator", ","),
+				Term("ConstraintExpressionAtPatternExpression",
+					Token("Identifier", "c"),
+					Token("Separator", "...")
+				)
+			),
+			Term("Expression",
+				Token("IntLiteral", "1"),
+				Token("Separator", ";"),
+				Token("FloatLiteral", "2.33"),
+				Token("Separator", ";"),
+				Token("FloatLiteral", "3.14"),
+				Token("Separator", ";"),
+				Token("TrueLiteral", "true"),
+				Token("Separator", ";"),
+				Token("NullLiteral", "null")
+			)
+		))), seq_6
+	);
 }
