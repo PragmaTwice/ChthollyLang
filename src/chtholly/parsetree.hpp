@@ -139,7 +139,7 @@ namespace Chtholly
 
 			Iterator nodeIter;
 
-			explicit Observer(Iterator src) : nodeIter(std::move(src)) {}
+			Observer(Iterator src) : nodeIter(std::move(src)) {}
 
 			Observer& operator=(const Iterator& src)
 			{
@@ -260,7 +260,7 @@ namespace Chtholly
 
 			Iterator nodeIter;
 
-			explicit Visitor(Iterator src) : nodeIter(std::move(src)) {}
+			Visitor(Iterator src) : nodeIter(std::move(src)) {}
 
 			Visitor& operator=(const Iterator& src)
 			{
