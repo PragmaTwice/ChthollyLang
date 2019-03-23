@@ -18,7 +18,7 @@ std::string OpcodeToString(std::size_t code)
 		OpcodeStrPair(None), 
 		OpcodeStrPair(Block::Begin), OpcodeStrPair(Block::NamedBegin),
 		OpcodeStrPair(Block::Drop), OpcodeStrPair(Block::End),
-		OpcodeStrPair(Function::Start), OpcodeStrPair(Function::Call),
+		OpcodeStrPair(Function::Begin), OpcodeStrPair(Function::End), OpcodeStrPair(Function::Call),
 		OpcodeStrPair(List::Push), OpcodeStrPair(List::Pop),
 		OpcodeStrPair(Control::Jump), OpcodeStrPair(Control::JumpIf),
 		OpcodeStrPair(Control::JumpIfElse), OpcodeStrPair(Control::Mark),
@@ -446,4 +446,25 @@ TEST(Expression, DefineExpression)
 			)
 		))), seq_6
 	);
+}
+
+TEST(Expression, LambdaExpression)
+{
+	const auto& seq_1 = IRGenerator::Sequence{
+			Instruction::Function::Begin(),
+			Instruction::Block::Begin(),
+			Instruction::Object::Var("x"),
+			Instruction::Block::End(),
+			Instruction::Object::Use("x"),
+			Instruction::Function::End()
+	};
+
+	EXPECT_EQ(IRGenerator::Generate(ParseTree(
+		Term("LambdaExpression",
+			Term("PatternExpression",
+				Term("ConstraintExpressionAtPatternExpression", Token("Identifier", "x"))
+			),
+			Token("Identifier", "x")
+		)
+	)), seq_1);
 }

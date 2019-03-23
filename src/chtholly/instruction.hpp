@@ -142,7 +142,9 @@ namespace Chtholly
 
 		struct Function
 		{
-			static BasicInstruction Start() { return { Opcode<Start>() }; }
+			static BasicInstruction Begin() { return { Opcode<Begin>() }; }
+			static BasicInstruction End() { return { Opcode<End>() }; }
+
 			static BasicInstruction Call() { return { Opcode<Call>() }; }
 		};
 

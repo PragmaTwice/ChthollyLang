@@ -296,7 +296,14 @@ namespace Chtholly
 				seq.push_back(
 					State::ObjectPropMap(state.objectProp, hasConstraint, hasSeparator)(Instruction::Value::String{ identifier.value().value })
 				);
-			}}
+			}},
+			{"LambdaExpression", sequence(
+				PushInstruction(constant(Instruction::Function::Begin())),
+				SetStateProp(&State::objectProp, State::ObjectProp::Var),
+				IterateChildrenForAll(Walk),
+				SetStateProp(&State::objectProp, State::ObjectProp::Invalid),
+				PushInstruction(constant(Instruction::Function::End()))
+			)}
 		};
 		
 		static Sequence Generate(const Tree& tree)
